@@ -7,9 +7,9 @@
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  height: 40px;
+  height: var(--ui-field-h);
   margin: 0;
-  padding: 0 10px 0 14px;
+  padding: 0 10px 0 var(--ui-field-px);
   border: 1px solid transparent;
   border-radius: var(--ui-r-ctl);
   background: var(--ui-card-2);
@@ -27,7 +27,7 @@
     border-color var(--ui-duration) var(--ui-ease),
     box-shadow var(--ui-duration) var(--ui-ease);
 }
-.ui-select-trigger[data-density="sm"] { height: 32px; padding: 0 8px 0 11px; border-radius: var(--ui-r-sm); font-size: 13px; }
+.ui-select-trigger[data-density="sm"] { height: var(--ui-field-h-sm); padding: 0 8px 0 11px; border-radius: var(--ui-r-sm); font-size: 13px; }
 .ui-select-trigger[data-placeholder] { color: var(--ui-fg-3); }
 @media (hover: hover) {
   .ui-select-trigger:hover:not(:disabled, [data-state="open"]) { background: var(--ui-card-hover); }

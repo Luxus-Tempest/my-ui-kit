@@ -26,7 +26,7 @@ visuelle, voir « Qualité »).
 ui-kit/
 ├── packages/ui/                     → la librairie publiée sur npm
 │   ├── src/theme/tokens.css         → jetons du langage Drive × iOS (clair + sombre)
-│   ├── src/theme/ThemeProvider      → mode clair/sombre, sens de lecture, surcharge de jetons
+│   ├── src/theme/ThemeProvider      → mode clair/sombre, sens de lecture, densité, surcharge de jetons
 │   ├── src/hooks/                   → useMediaQuery, useControllableState
 │   ├── src/components/<nom>/        → un dossier par composant : .tsx, .css, .test.tsx
 │   ├── src/index.ts                 → API publique, par famille
@@ -166,6 +166,46 @@ la librairie fonctionne donc telle quelle avec `next-themes`.
 Par défaut, `ThemeProvider` pose aussi le thème sur `<html>` (`scope="global"`) : les menus, infobulles et modales,
 rendus dans un portail hors du provider, suivent ainsi le mode et les surcharges. `scope="local"` le limite au conteneur.
 
+### Densité
+
+Trois densités pour toute l'interface, comme le mode compact d'un ERP ou de Gmail (vitrine : *Fondations › Densité*,
+bascule « Densité » dans la barre d'outils de Storybook) :
+
+```tsx
+<ThemeProvider density="compact">…</ThemeProvider>   // "compact" | "default" | "comfortable"
+```
+
+Seules les hauteurs et les marges internes des contrôles et des lignes changent ; le texte et les icônes gardent leur
+taille. Chaque palier retire ou ajoute 4 px aux contrôles et 8 px aux lignes : un champ reste 4 px plus haut qu'un bouton.
+
+| Jeton | Compacte | Standard | Confortable | Usage |
+|---|---|---|---|---|
+| `--ui-ctl-h-sm` | 28 | 32 | 36 | Bouton `sm`, puce, déclencheur de Menubar |
+| `--ui-ctl-h` | 32 | 36 | 40 | Bouton, Toggle, ToggleGroup, Pagination, onglets, entrée de Sidebar |
+| `--ui-ctl-h-lg` | 40 | 44 | 48 | Bouton `lg`, case d'InputOTP |
+| `--ui-ctl-px` | 12 | 16 | 20 | Marge interne horizontale d'un bouton |
+| `--ui-field-h-sm` | 28 | 32 | 36 | Champ `density="sm"` |
+| `--ui-field-h` | 36 | 40 | 44 | Input, Select, NativeSelect, Combobox, DatePicker, TimePicker, NumberInput, InputGroup, SearchBar |
+| `--ui-field-px` | 12 | 14 | 16 | Marge interne horizontale d'un champ |
+| `--ui-row-h` | 32 | 36 | 40 | Entrée de Menu, ContextMenu, Menubar, Select, Combobox, Command ; ligne de TreeView |
+| `--ui-row-h-list` | 44 | 52 | 60 | Ligne de List (`plain` : 4 px de moins), en-tête d'Accordion |
+| `--ui-row-py` | 6 | 10 | 14 | Marge verticale d'une ligne de liste sur deux lignes de texte |
+| `--ui-row-h-table` | 40 | 48 | 56 | Ligne de Table et de DataTable |
+| `--ui-row-h-table-head` | 40 | 44 | 48 | En-tête de Table |
+| `--ui-cell-px` | 12 | 16 | 16 | Marge interne horizontale d'une cellule |
+
+- `density` pose `data-ui-density` sur le conteneur et, en portée globale, sur `<html>` (restauré au démontage) :
+  menus, listes et modales rendus en portail suivent. Sans `density`, rien n'est posé : la densité est héritée.
+- **Sans `ThemeProvider`** (next-themes, layout serveur) : posez l'attribut vous-même sur `<html>`, `<body>` ou
+  n'importe quel ancêtre, par exemple `<html lang="fr" data-ui-density="compact">`. Une zone peut avoir sa propre
+  densité (un back-office compact dans une page standard). Sans attribut, la densité est la standard.
+- Table et DataTable : une densité `compact` ou `comfortable` posée sur la table (`density`) l'emporte toujours sur
+  celle de l'interface ; `default`, la valeur par défaut de la prop, suit la densité de l'interface.
+- Cibles tactiles : le plus petit contrôle (bouton ou champ `sm` en compacte) mesure 28 px, au-dessus des 24 px de
+  WCAG 2.2. AppBar (sa propre prop `density`), BottomNavigation (tactile) et Switch gardent leurs mesures.
+- Ajuster un palier : une règle dans votre feuille, après celle de la librairie, par exemple
+  `[data-ui-density="compact"] { --ui-row-h-table: 36px; }`. (`overrides` fixerait le jeton pour toutes les densités.)
+
 ## Utilisation dans une application
 
 ```tsx
@@ -239,7 +279,7 @@ Rangez les styles de la librairie dans la couche `components` de Tailwind : ils 
 ```
 
 Avec `next-themes` (`attribute="class"`), le `ThemeProvider` de la librairie est facultatif : les jetons sombres
-suivent la classe `dark` de `<html>`.
+suivent la classe `dark` de `<html>`, et la densité l'attribut `data-ui-density` (voir « Densité »).
 
 ### Poids embarqué
 
@@ -347,7 +387,7 @@ Bascule « Sens » dans la barre d'outils de Storybook.
 | `link` | Navigation dans du texte |
 | `onDark` / `onDarkGhost` | Uniquement sur le bandeau de marque sombre |
 
-- `size` : `sm` (32 px) | `default` (36 px) | `lg` (44 px) | `icon` | `icon-sm` | `icon-lg`. Un bouton icône exige un `aria-label` (avertissement en développement).
+- `size` : `sm` (32 px) | `default` (36 px) | `lg` (44 px) | `icon` | `icon-sm` | `icon-lg` (hauteurs en densité standard). Un bouton icône exige un `aria-label` (avertissement en développement).
 - États pilotés par ARIA, sans prop dédiée : `aria-pressed` (bascule), `aria-expanded` (menu ouvert), `aria-invalid`.
 - `loading` : garde la largeur et le focus, annonce `aria-busy`, ignore les clics.
 - `asChild` : rend l'enfant (un `<a>`, un `<Link>`) avec le style du bouton ; `disabled` y bloque la navigation.

@@ -9,7 +9,7 @@ const meta: Meta = {
     docs: {
       description: {
         component:
-          "Espacement en pas de 4 px : les props `p`, `gap`… de `Box`, `Stack` et `Grid` prennent un nombre de pas (`gap={3}` = 12 px). Hauteurs de contrôle : 32 / 36 / 40 / 44 px, cibles tactiles d'au moins 24 px.",
+          "Espacement en pas de 4 px : les props `p`, `gap`… de `Box`, `Stack` et `Grid` prennent un nombre de pas (`gap={3}` = 12 px). Hauteurs de contrôle : 32 / 36 / 40 / 44 px en densité standard (voir Fondations › Densité), cibles tactiles d'au moins 24 px.",
       },
     },
   },

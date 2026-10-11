@@ -1,12 +1,12 @@
 /*
  * Champ numérique « stepper » : même surface que .ui-input (remplissage tonal,
- * 40 px, rayon --ui-r-ctl ; 32 px en sm), boutons − / + ronds intégrés à droite.
+ * --ui-field-h, rayon --ui-r-ctl ; --ui-field-h-sm en sm), boutons − / + ronds intégrés à droite.
  * Le focus est porté par le conteneur (:focus-within) : filet primaire + halo.
  */
 .ui-number-input {
   box-sizing: border-box;
-  --_h: 40px;
-  --_btn: 30px;
+  --_h: var(--ui-field-h);
+  --_btn: calc(var(--_h) - 10px);
   --_icon: 16px;
   --_font: 14px;
   --_radius: var(--ui-r-ctl);
@@ -28,8 +28,8 @@
     box-shadow var(--ui-duration) var(--ui-ease);
 }
 .ui-number-input[data-density="sm"] {
-  --_h: 32px;
-  --_btn: 24px;
+  --_h: var(--ui-field-h-sm);
+  --_btn: calc(var(--_h) - 8px);
   --_icon: 14px;
   --_font: 13px;
   --_radius: var(--ui-r-sm);
@@ -64,7 +64,7 @@
   min-width: 0;
   height: 100%;
   margin: 0;
-  padding: 0 4px 0 14px;
+  padding: 0 4px 0 var(--ui-field-px);
   border: 0;
   background: transparent;
   color: inherit;

@@ -10,7 +10,7 @@
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  min-height: 40px;
+  min-height: var(--ui-field-h);
   border: 1px solid transparent;
   border-radius: var(--ui-r-ctl);
   background: var(--ui-card-2);
@@ -51,7 +51,7 @@
   box-shadow: none;
   opacity: 1;
 }
-.ui-input-group .ui-input-group__control:not(.ui-textarea) { height: 38px; }
+.ui-input-group .ui-input-group__control:not(.ui-textarea) { height: calc(var(--ui-field-h) - 2px); }
 .ui-input-group .ui-textarea.ui-input-group__control { resize: none; }
 .ui-input-group:has(> [data-align="inline-start"]) > .ui-input-group__control { padding-inline-start: 8px; }
 .ui-input-group:has(> [data-align="inline-end"]) > .ui-input-group__control { padding-inline-end: 8px; }
@@ -68,13 +68,13 @@
   user-select: none;
 }
 .ui-input-group__addon :where(svg) { width: 18px; height: 18px; flex-shrink: 0; }
-.ui-input-group__addon[data-align="inline-start"] { order: -1; padding-inline-start: 14px; }
-.ui-input-group__addon[data-align="inline-end"] { order: 1; padding-inline-end: 14px; }
+.ui-input-group__addon[data-align="inline-start"] { order: -1; padding-inline-start: var(--ui-field-px); }
+.ui-input-group__addon[data-align="inline-end"] { order: 1; padding-inline-end: var(--ui-field-px); }
 /* Un bouton en bord de groupe se cale à 4 px du bord. */
 .ui-input-group__addon[data-align="inline-start"]:has(> .ui-input-group__button:first-child) { padding-inline-start: 3px; }
 .ui-input-group__addon[data-align="inline-end"]:has(> .ui-input-group__button:last-child) { padding-inline-end: 3px; }
-.ui-input-group__addon[data-align="block-start"] { order: -1; padding: 10px 14px 0; }
-.ui-input-group__addon[data-align="block-end"] { order: 1; padding: 0 8px 8px 14px; }
+.ui-input-group__addon[data-align="block-start"] { order: -1; padding: calc((var(--ui-field-h) - 20px) / 2) var(--ui-field-px) 0; }
+.ui-input-group__addon[data-align="block-end"] { order: 1; padding: 0 8px 8px var(--ui-field-px); }
 .ui-input-group__addon[data-align^="block"] { justify-content: flex-start; }
 
 .ui-input-group__text { display: inline-flex; align-items: center; gap: 6px; color: var(--ui-fg-3); font-size: 14px; white-space: nowrap; }

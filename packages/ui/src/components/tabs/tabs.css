@@ -32,9 +32,10 @@
 }
 .ui-tabs__trigger[data-state="active"] { color: var(--ui-fg); }
 
-/* line : onglets de Drive, indicateur de 3 px arrondi sous le libellé, texte primaire. */
+/* line : onglets de Drive, indicateur de 3 px arrondi sous le libellé, texte primaire.
+   Hauteur : celle d'un bouton + 12 px (48 px en densité standard). */
 .ui-tabs__list[data-variant="line"] { gap: 28px; border-bottom: 1px solid var(--ui-line); }
-.ui-tabs__list[data-variant="line"] .ui-tabs__trigger { height: 48px; padding: 0 2px; }
+.ui-tabs__list[data-variant="line"] .ui-tabs__trigger { height: calc(var(--ui-ctl-h) + 12px); padding: 0 2px; }
 .ui-tabs__list[data-variant="line"] .ui-tabs__trigger[data-state="active"] { color: var(--ui-pri); }
 .ui-tabs__list[data-variant="line"] .ui-tabs__trigger::after {
   content: "";
@@ -52,7 +53,8 @@
 .ui-tabs__list[data-variant="line"] .ui-tabs__trigger[data-state="active"]::after { opacity: 1; transform: none; }
 .ui-tabs__list[data-variant="line"] .ui-tabs__trigger:focus-visible { border-radius: var(--ui-r-xs); box-shadow: 0 0 0 3px var(--ui-ring); }
 
-/* segmented : segmented control d'iOS, capsule grise et pastille blanche surélevée. */
+/* segmented : segmented control d'iOS, capsule grise et pastille blanche surélevée.
+   La capsule a la hauteur d'un bouton (--ui-ctl-h) : 3 px de piste autour de la pastille. */
 .ui-tabs__list[data-variant="segmented"] {
   display: inline-flex;
   width: fit-content;
@@ -62,7 +64,7 @@
   background: var(--ui-card-hover);
 }
 .ui-tabs__list[data-variant="segmented"] .ui-tabs__trigger {
-  height: 30px;
+  height: calc(var(--ui-ctl-h) - 6px);
   padding: 0 16px;
   border-radius: var(--ui-r-pill);
   font-size: 13px;
@@ -83,7 +85,7 @@
 .ui-tabs__list[data-orientation="vertical"][data-variant="line"] .ui-tabs__trigger {
   justify-content: flex-start;
   gap: 14px;
-  height: 36px;
+  height: var(--ui-ctl-h);
   padding: 0 16px;
   border-radius: var(--ui-r-pill);
   color: var(--ui-fg);

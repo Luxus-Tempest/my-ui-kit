@@ -34,7 +34,7 @@
   justify-content: center;
   gap: 6px;
   box-sizing: border-box;
-  height: 36px;
+  height: var(--ui-ctl-h);
   margin: 0;
   padding: 0 14px;
   border: 0;

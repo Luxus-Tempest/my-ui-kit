@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  min-height: 40px;
+  min-height: calc(var(--ui-ctl-h-sm) + 8px);
   padding: 4px;
   font-family: var(--ui-font-sans);
 }
@@ -22,7 +22,7 @@
   align-items: center;
   gap: 6px;
   box-sizing: border-box;
-  height: 32px;
+  height: var(--ui-ctl-h-sm);
   margin: 0;
   padding: 0 12px;
   border: 0;
@@ -54,7 +54,7 @@
   pointer-events: none;
   transition: opacity var(--ui-duration) var(--ui-ease);
 }
-/* Cible tactile : 40 px de haut, comme la barre elle-même. */
+/* Cible tactile : la hauteur de la barre elle-même (40 px en densité standard). */
 .ui-menubar__trigger::after {
   content: "";
   position: absolute;

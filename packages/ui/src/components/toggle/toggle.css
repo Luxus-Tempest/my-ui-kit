@@ -18,8 +18,8 @@
  */
 .ui-toggle-group {
   box-sizing: border-box;
-  --_h: 36px;
-  --_px: 16px;
+  --_h: var(--ui-ctl-h);
+  --_px: var(--ui-ctl-px);
   --_font: 14px;
   --_icon: 18px;
   display: inline-flex;
@@ -28,7 +28,7 @@
   font-family: var(--ui-font-sans);
 }
 .ui-toggle-group[data-size="sm"] {
-  --_h: 32px;
+  --_h: var(--ui-ctl-h-sm);
   --_px: 12px;
   --_font: 13px;
   --_icon: 16px;

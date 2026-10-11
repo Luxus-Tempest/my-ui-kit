@@ -4,10 +4,18 @@ import { DirectionProvider, type Direction } from "./DirectionProvider";
 export type ThemeMode = "light" | "dark";
 /** Surcharge de jetons : { pri: "#e11d48" } → --ui-pri */
 export type ThemeOverrides = Partial<Record<string, string>>;
+/**
+ * Densité de l'interface : hauteurs et marges internes des contrôles et des
+ * lignes (jetons `--ui-ctl-h`, `--ui-field-h`, `--ui-row-h`…). Le texte garde
+ * sa taille. `default` est la densité standard.
+ */
+export type ThemeDensity = "compact" | "default" | "comfortable";
 
 interface ThemeContextValue {
   mode: ThemeMode;
   setMode: (mode: ThemeMode) => void;
+  /** Densité posée par ce provider ; `undefined` : héritée d'un ancêtre (standard par défaut). */
+  density?: ThemeDensity;
 }
 
 const ThemeContext = React.createContext<ThemeContextValue | null>(null);
@@ -33,6 +41,14 @@ export interface ThemeProviderProps {
    * navigation au clavier s'inverse.
    */
   dir?: Direction;
+  /**
+   * Densité : `compact` (écrans de gestion denses), `default` (standard) ou
+   * `comfortable` (tactile). Posée en `data-ui-density` sur le conteneur et,
+   * en portée globale, sur `<html>` (restauré au démontage), comme le thème.
+   * Sans valeur, rien n'est posé : la densité est héritée d'un ancêtre qui
+   * porte `data-ui-density`, standard sinon.
+   */
+  density?: ThemeDensity;
 }
 
 export function ThemeProvider({
@@ -43,6 +59,7 @@ export function ThemeProvider({
   overrides,
   scope = "global",
   dir,
+  density,
 }: ThemeProviderProps) {
   const [innerMode, setInnerMode] = React.useState<ThemeMode>(defaultMode);
   const mode = modeProp ?? innerMode;
@@ -81,11 +98,29 @@ export function ThemeProvider({
     };
   }, [scope, mode, vars, dir]);
 
-  const value = React.useMemo(() => ({ mode, setMode }), [mode, setMode]);
+  // Densité sur <html> : les menus, listes et modales rendus en portail la suivent aussi.
+  React.useEffect(() => {
+    if (scope !== "global" || !density || typeof document === "undefined") return;
+    const root = document.documentElement;
+    const previous = root.getAttribute("data-ui-density");
+    root.setAttribute("data-ui-density", density);
+    return () => {
+      if (previous == null) root.removeAttribute("data-ui-density");
+      else root.setAttribute("data-ui-density", previous);
+    };
+  }, [scope, density]);
+
+  const value = React.useMemo(() => ({ mode, setMode, density }), [mode, setMode, density]);
 
   return (
     <ThemeContext.Provider value={value}>
-      <div data-theme={mode} dir={dir} className="ui-root" style={vars as React.CSSProperties}>
+      <div
+        data-theme={mode}
+        data-ui-density={density}
+        dir={dir}
+        className="ui-root"
+        style={vars as React.CSSProperties}
+      >
         {dir ? <DirectionProvider dir={dir}>{children}</DirectionProvider> : children}
       </div>
     </ThemeContext.Provider>
