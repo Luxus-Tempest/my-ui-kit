@@ -91,8 +91,13 @@
   flex-shrink: 0;
   pointer-events: none;
 }
-/* Icône seule : un carré arrondi au lieu d'une pilule étirée. */
-.ui-toggle-group__item:has(> svg:only-child) {
+/*
+ * Icône seule : un carré arrondi au lieu d'une pilule étirée. Le CSS ne voit
+ * pas les nœuds texte : « icône + texte » satisferait aussi `svg:only-child`.
+ * Un élément sans texte doit porter un `aria-label` (accessibilité) : c'est
+ * lui qui le distingue.
+ */
+.ui-toggle-group__item[aria-label]:has(> svg:only-child) {
   width: calc(var(--_h) + 8px);
   padding: 0;
 }

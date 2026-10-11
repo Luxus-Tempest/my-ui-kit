@@ -9,7 +9,8 @@
   width: 100%;
   min-width: 0;
   height: var(--_h);
-  padding: 0 6px 0 var(--ui-field-px);
+  padding-block: 0;
+  padding-inline: var(--ui-field-px) 6px;
   border: 1px solid transparent;
   border-radius: var(--ui-r-pill);
   background: var(--ui-card-hover);
@@ -39,7 +40,8 @@
   min-width: 0;
   height: 100%;
   margin: 0;
-  padding: 0 6px 0 8px;
+  padding-block: 0;
+  padding-inline: 8px 6px;
   border: 0;
   background: transparent;
   color: inherit;

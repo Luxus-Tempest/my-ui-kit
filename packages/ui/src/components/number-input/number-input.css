@@ -64,7 +64,8 @@
   min-width: 0;
   height: 100%;
   margin: 0;
-  padding: 0 4px 0 var(--ui-field-px);
+  padding-block: 0;
+  padding-inline: var(--ui-field-px) 4px;
   border: 0;
   background: transparent;
   color: inherit;
@@ -79,7 +80,8 @@
 
 .ui-number-input__unit {
   flex-shrink: 0;
-  padding: 0 8px 0 2px;
+  padding-block: 0;
+  padding-inline: 2px 8px;
   color: var(--ui-fg-3);
   font-size: calc(var(--_font) - 1px);
   font-weight: 500;

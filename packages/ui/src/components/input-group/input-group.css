@@ -74,7 +74,7 @@
 .ui-input-group__addon[data-align="inline-start"]:has(> .ui-input-group__button:first-child) { padding-inline-start: 3px; }
 .ui-input-group__addon[data-align="inline-end"]:has(> .ui-input-group__button:last-child) { padding-inline-end: 3px; }
 .ui-input-group__addon[data-align="block-start"] { order: -1; padding: calc((var(--ui-field-h) - 20px) / 2) var(--ui-field-px) 0; }
-.ui-input-group__addon[data-align="block-end"] { order: 1; padding: 0 8px 8px var(--ui-field-px); }
+.ui-input-group__addon[data-align="block-end"] { order: 1; padding-block: 0 8px; padding-inline: var(--ui-field-px) 8px; }
 .ui-input-group__addon[data-align^="block"] { justify-content: flex-start; }
 
 .ui-input-group__text { display: inline-flex; align-items: center; gap: 6px; color: var(--ui-fg-3); font-size: 14px; white-space: nowrap; }

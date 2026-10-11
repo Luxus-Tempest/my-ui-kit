@@ -18,7 +18,8 @@
   min-width: 0;
   height: var(--ui-field-h);
   margin: 0;
-  padding: 0 38px 0 var(--ui-field-px);
+  padding-block: 0;
+  padding-inline: var(--ui-field-px) 38px;
   border: 1px solid transparent;
   border-radius: var(--ui-r-ctl);
   background: var(--ui-card-2);
@@ -43,7 +44,8 @@
 }
 .ui-native-select__control[data-density="sm"] {
   height: var(--ui-field-h-sm);
-  padding: 0 32px 0 11px;
+  padding-block: 0;
+  padding-inline: 11px 32px;
   border-radius: var(--ui-r-sm);
   font-size: 13px;
 }
@@ -91,10 +93,6 @@
 .ui-native-select[data-density="sm"] .ui-native-select__icon svg { width: 16px; height: 16px; }
 .ui-native-select__control:focus-visible + .ui-native-select__icon { color: var(--ui-pri); }
 .ui-native-select__control:disabled + .ui-native-select__icon { opacity: 0.5; }
-
-/* Écriture de droite à gauche : le chevron change de côté, le texte aussi. */
-.ui-native-select__control:dir(rtl) { padding: 0 var(--ui-field-px) 0 38px; }
-.ui-native-select__control[data-density="sm"]:dir(rtl) { padding: 0 11px 0 32px; }
 
 @media (forced-colors: active) {
   .ui-native-select__control { border-color: ButtonText; }
