@@ -1,0 +1,305 @@
+/*
+ * NavigationMenu : navigation de site ou de produit. Déclencheurs en pilule
+ * avec couche d'état ; panneaux en matériau translucide (.ui-popup) dans un
+ * viewport commun dont la taille suit le panneau en ressort ; les panneaux
+ * glissent depuis le côté du menu précédent. Lien actif en --ui-sel.
+ */
+.ui-navigation-menu {
+  --_slide: 32px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: max-content;
+  font-family: var(--ui-font-sans);
+}
+.ui-navigation-menu:dir(rtl) { --_slide: -32px; }
+
+.ui-navigation-menu__list {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ui-navigation-menu[data-viewport="false"] .ui-navigation-menu__item { position: relative; }
+
+/* ── Déclencheur et lien simple de la barre ────────────────────────── */
+.ui-navigation-menu__trigger {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: var(--ui-fg-2);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.006em;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--ui-duration) var(--ui-ease),
+    background-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-navigation-menu__trigger::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+.ui-navigation-menu__trigger :where(svg) { width: 18px; height: 18px; flex-shrink: 0; }
+@media (hover: hover) {
+  .ui-navigation-menu__trigger:hover:not([data-disabled]) { color: var(--ui-fg); }
+  .ui-navigation-menu__trigger:hover:not([data-disabled])::before { opacity: var(--ui-state-hover); }
+}
+.ui-navigation-menu__trigger[data-state="open"] { color: var(--ui-fg); }
+.ui-navigation-menu__trigger[data-state="open"]::before { opacity: var(--ui-state-hover); }
+.ui-navigation-menu__trigger:active:not([data-disabled])::before { opacity: var(--ui-state-press); }
+.ui-navigation-menu__trigger:focus-visible { box-shadow: inset 0 0 0 1px var(--ui-pri), 0 0 0 3px var(--ui-ring); }
+/* Lien de la barre marqué page courante : pilule de sélection de Drive. */
+.ui-navigation-menu__trigger[data-active] {
+  background: var(--ui-sel);
+  color: var(--ui-on-pri-container);
+}
+.ui-navigation-menu__trigger[data-disabled] { opacity: 0.45; cursor: not-allowed; }
+
+.ui-navigation-menu__chevron.ui-navigation-menu__chevron {
+  width: 14px;
+  height: 14px;
+  margin-inline-end: -4px;
+  color: var(--ui-fg-3);
+  transition: transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-navigation-menu__trigger[data-state="open"] > .ui-navigation-menu__chevron { transform: rotate(180deg); }
+
+/* ── Indicateur : pastille primaire qui glisse sous le déclencheur ouvert ── */
+.ui-navigation-menu__indicator {
+  top: 100%;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  height: 6px;
+  pointer-events: none;
+  transition:
+    transform var(--ui-duration-slow) var(--ui-ease-spring),
+    width var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-navigation-menu__indicator-mark {
+  width: 20px;
+  height: 3px;
+  margin-top: 3px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-pri);
+}
+.ui-navigation-menu__indicator[data-state="visible"] { animation: ui-navigation-menu-fade-in var(--ui-duration) var(--ui-ease); }
+.ui-navigation-menu__indicator[data-state="hidden"] { animation: ui-navigation-menu-fade-out var(--ui-duration) var(--ui-ease) forwards; }
+
+/* ── Viewport : surface commune, taille animée en ressort ──────────── */
+.ui-navigation-menu__viewport-position {
+  position: absolute;
+  top: 100%;
+  inset-inline-start: 0;
+  z-index: 50;
+  display: flex;
+  padding-top: 8px;
+}
+.ui-popup.ui-navigation-menu__viewport {
+  --_from: 0 -6px;
+  position: relative;
+  overflow: hidden;
+  width: var(--radix-navigation-menu-viewport-width);
+  height: var(--radix-navigation-menu-viewport-height);
+  border-radius: var(--ui-r-lg);
+  transform-origin: top left;
+  transition:
+    width var(--ui-duration-slow) var(--ui-ease-spring),
+    height var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-popup.ui-navigation-menu__viewport:dir(rtl) { transform-origin: top right; }
+
+/* ── Panneau ───────────────────────────────────────────────────────── */
+.ui-navigation-menu__content {
+  box-sizing: border-box;
+  padding: 8px;
+  outline: none;
+}
+/* Dans le viewport : posé en haut à gauche, il donne sa taille au viewport. */
+.ui-navigation-menu__viewport .ui-navigation-menu__content {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+}
+.ui-navigation-menu__viewport .ui-navigation-menu__content[data-motion="from-start"] {
+  animation: ui-navigation-menu-from-start var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-navigation-menu__viewport .ui-navigation-menu__content[data-motion="from-end"] {
+  animation: ui-navigation-menu-from-end var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-navigation-menu__viewport .ui-navigation-menu__content[data-motion="to-start"] {
+  animation: ui-navigation-menu-to-start var(--ui-duration-slow) var(--ui-ease) forwards;
+}
+.ui-navigation-menu__viewport .ui-navigation-menu__content[data-motion="to-end"] {
+  animation: ui-navigation-menu-to-end var(--ui-duration-slow) var(--ui-ease) forwards;
+}
+/* Sans viewport : le panneau est sa propre surface, sous son déclencheur. */
+.ui-popup.ui-navigation-menu__content {
+  --_from: 0 -6px;
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-start: 0;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  border-radius: var(--ui-r-lg);
+  transform-origin: top left;
+}
+.ui-popup.ui-navigation-menu__content:dir(rtl) { transform-origin: top right; }
+
+@keyframes ui-navigation-menu-from-start { from { opacity: 0; transform: translateX(calc(var(--_slide) * -1)); } }
+@keyframes ui-navigation-menu-from-end { from { opacity: 0; transform: translateX(var(--_slide)); } }
+@keyframes ui-navigation-menu-to-start { to { opacity: 0; transform: translateX(calc(var(--_slide) * -1)); } }
+@keyframes ui-navigation-menu-to-end { to { opacity: 0; transform: translateX(var(--_slide)); } }
+@keyframes ui-navigation-menu-fade-in { from { opacity: 0; } }
+@keyframes ui-navigation-menu-fade-out { to { opacity: 0; } }
+
+/* ── Grille de liens ───────────────────────────────────────────────── */
+.ui-navigation-menu__grid {
+  --_cols: 2;
+  display: grid;
+  grid-template-columns: repeat(var(--_cols), minmax(0, 260px));
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ui-navigation-menu__grid[data-columns="1"] { --_cols: 1; }
+.ui-navigation-menu__grid[data-columns="3"] { --_cols: 3; }
+.ui-navigation-menu__grid > li { display: flex; flex-direction: column; min-width: 0; }
+
+/* ── Lien de panneau ───────────────────────────────────────────────────
+   Spécificité nulle (:where) : navigationMenuTriggerStyle() posé sur le
+   même lien l'emporte toujours. */
+:where(.ui-navigation-menu__link) {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: var(--ui-r-md);
+  color: var(--ui-fg);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.006em;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+:where(.ui-navigation-menu__link)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  :where(.ui-navigation-menu__link):hover::before { opacity: var(--ui-state-hover); }
+}
+:where(.ui-navigation-menu__link):active::before { opacity: var(--ui-state-press); }
+:where(.ui-navigation-menu__link):focus-visible { box-shadow: inset 0 0 0 1px var(--ui-pri), 0 0 0 3px var(--ui-ring); }
+:where(.ui-navigation-menu__link)[data-active] {
+  background: var(--ui-sel);
+  color: var(--ui-on-pri-container);
+}
+.ui-navigation-menu__grid :where(.ui-navigation-menu__link) { flex: 1; }
+
+/* Entrée riche : tuile d'icône, titre, description sur deux lignes au plus. */
+:where(.ui-navigation-menu__link[data-rich]) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  row-gap: 3px;
+}
+:where(.ui-navigation-menu__link[data-rich][data-icon]) {
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 12px;
+}
+.ui-navigation-menu__link-icon {
+  display: inline-flex;
+  grid-row: 1 / span 2;
+  grid-column: 1;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--ui-r-sm);
+  background: var(--ui-pri-soft);
+  color: var(--ui-pri);
+}
+.ui-navigation-menu__link-icon :where(svg) { width: 18px; height: 18px; }
+.ui-navigation-menu__link-description {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--ui-fg-3);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+:where(.ui-navigation-menu__link[data-icon]) .ui-navigation-menu__link-description { grid-column: 2; }
+:where(.ui-navigation-menu__link[data-active]) .ui-navigation-menu__link-description {
+  color: color-mix(in srgb, var(--ui-on-pri-container) 72%, transparent);
+}
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ui-navigation-menu__chevron.ui-navigation-menu__chevron,
+  .ui-navigation-menu__indicator,
+  .ui-popup.ui-navigation-menu__viewport { transition: none; }
+  .ui-navigation-menu__viewport .ui-navigation-menu__content[data-motion],
+  .ui-navigation-menu__indicator[data-state] { animation: none; }
+}
+@media (forced-colors: active) {
+  .ui-navigation-menu__trigger::before,
+  :where(.ui-navigation-menu__link)::before { display: none; }
+  .ui-navigation-menu__trigger[data-state="open"] { outline: 1px solid CanvasText; }
+  .ui-navigation-menu__trigger:focus-visible,
+  :where(.ui-navigation-menu__link):focus-visible { outline: 2px solid Highlight; outline-offset: 0; }
+  .ui-navigation-menu__trigger[data-active],
+  :where(.ui-navigation-menu__link)[data-active] { outline: 2px solid Highlight; }
+  .ui-navigation-menu__indicator-mark { background: Highlight; }
+}

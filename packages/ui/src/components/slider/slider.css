@@ -1,0 +1,149 @@
+/*
+ * Curseur aux proportions d'iOS : piste de 4 px en pilule (--ui-line-2),
+ * plage primaire, pastille de 24 px (--ui-thumb, --ui-sh-raised) qui grossit
+ * en ressort quand on la saisit. Focus : filet primaire + halo 3 px.
+ */
+.ui-slider {
+  box-sizing: border-box;
+  --_thumb: 24px;
+  --_track: 4px;
+  --_range: var(--ui-pri);
+  --_ring: var(--ui-ring);
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 120px;
+  height: var(--_thumb);
+  touch-action: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ui-slider[data-marks] { margin-bottom: 22px; }
+.ui-slider[data-invalid] {
+  --_range: var(--ui-err);
+  --_ring: color-mix(in srgb, var(--ui-err) 22%, transparent);
+}
+.ui-slider[data-disabled] { opacity: 0.45; cursor: not-allowed; }
+
+.ui-slider__track {
+  position: relative;
+  flex-grow: 1;
+  height: var(--_track);
+  overflow: hidden;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-line-2);
+  cursor: pointer;
+}
+.ui-slider[data-disabled] .ui-slider__track { cursor: not-allowed; }
+.ui-slider__range {
+  position: absolute;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--_range);
+  transition: background-color var(--ui-duration) var(--ui-ease);
+}
+
+.ui-slider__thumb {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  width: var(--_thumb);
+  height: var(--_thumb);
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-thumb);
+  background-clip: padding-box;
+  box-shadow: var(--ui-sh-raised);
+  cursor: grab;
+  outline: none;
+  transition:
+    transform var(--ui-duration-slow) var(--ui-ease-spring),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+/* Cible tactile élargie autour de la pastille. */
+.ui-slider__thumb::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: inherit;
+}
+.ui-slider__thumb:focus-visible {
+  border-color: var(--ui-pri);
+  box-shadow: var(--ui-sh-raised), 0 0 0 3px var(--_ring);
+}
+.ui-slider[data-invalid] .ui-slider__thumb { border-color: var(--ui-err); }
+.ui-slider[data-invalid] .ui-slider__thumb:focus-visible { box-shadow: var(--ui-sh-raised), 0 0 0 3px var(--_ring); }
+
+/* Saisie : la pastille grossit en ressort, comme sur iPhone. */
+.ui-slider:not([data-disabled]) .ui-slider__thumb:active,
+.ui-slider[data-dragging] .ui-slider__thumb:focus {
+  transform: scale(1.15);
+  cursor: grabbing;
+}
+.ui-slider[data-disabled] .ui-slider__thumb { cursor: not-allowed; box-shadow: var(--ui-sh1); }
+
+/* Graduations : alignées sur le centre de la pastille (Radix la garde dans la piste). */
+.ui-slider__marks {
+  position: absolute;
+  inset: 100% 0 auto;
+  height: 20px;
+  margin-top: 2px;
+  pointer-events: none;
+}
+.ui-slider__mark {
+  position: absolute;
+  top: 0;
+  inset-inline-start: calc(var(--_p) * 1% + var(--_thumb) / 2 - var(--_thumb) * var(--_p) / 100);
+  transform: translateX(-50%);
+  padding-top: 6px;
+  color: var(--ui-fg-3);
+  font-family: var(--ui-font-sans);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+}
+.ui-slider__mark::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 4px;
+  background: var(--ui-line-3);
+}
+
+/* ── Vertical (volume, niveau) : minimum en bas, graduations à droite ── */
+.ui-slider[data-orientation="vertical"] {
+  flex-direction: column;
+  width: var(--_thumb);
+  min-width: 0;
+  height: 100%;
+  min-height: 120px;
+}
+.ui-slider[data-orientation="vertical"][data-marks] { margin: 0 44px 0 0; }
+.ui-slider[data-orientation="vertical"] .ui-slider__track { width: var(--_track); height: auto; }
+.ui-slider[data-orientation="vertical"] .ui-slider__range { width: 100%; height: auto; }
+.ui-slider[data-orientation="vertical"] .ui-slider__marks { inset: 0 auto 0 100%; width: 40px; height: auto; margin: 0 0 0 2px; }
+.ui-slider[data-orientation="vertical"] .ui-slider__mark {
+  top: auto;
+  left: 0;
+  bottom: calc(var(--_p) * 1% + var(--_thumb) / 2 - var(--_thumb) * var(--_p) / 100);
+  padding: 0 0 0 8px;
+  transform: translateY(50%);
+}
+.ui-slider[data-orientation="vertical"] .ui-slider__mark::before { top: 50%; left: 0; width: 4px; height: 1px; }
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ui-slider:not([data-disabled]) .ui-slider__thumb:active,
+  .ui-slider[data-dragging] .ui-slider__thumb:focus { transform: none; }
+}
+@media (forced-colors: active) {
+  .ui-slider__track { background: ButtonText; }
+  .ui-slider__range { background: Highlight; forced-color-adjust: none; }
+  .ui-slider__thumb { border-color: ButtonText; background: ButtonFace; forced-color-adjust: none; }
+  .ui-slider__thumb:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+}

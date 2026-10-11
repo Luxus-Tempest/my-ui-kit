@@ -1,0 +1,27 @@
+/* Infobulle de Drive : surface inversée, compacte, sans filet ni flou. */
+.ui-popup.ui-tooltip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 320px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--ui-r-xs);
+  background: var(--ui-inverse);
+  color: var(--ui-inverse-fg);
+  box-shadow: var(--ui-sh2);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0.005em;
+}
+.ui-tooltip:has(.ui-tooltip__kbd) { padding-inline-end: 6px; }
+.ui-tooltip__kbd.ui-kbd {
+  border-color: transparent;
+  background: color-mix(in srgb, currentColor 16%, transparent);
+  box-shadow: none;
+  color: inherit;
+}
+.ui-tooltip__arrow { fill: var(--ui-inverse); }

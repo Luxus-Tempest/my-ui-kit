@@ -1,0 +1,281 @@
+/*
+ * Bouton : chaque variante ne fait que poser des variables (--_bg, --_fg…).
+ * Les états sont écrits une seule fois et s'appliquent à toutes les variantes.
+ *
+ * Langage Drive × iOS : pilule, aucune ombre au repos, couche d'état
+ * (currentColor à 8 % au survol, 12 % à l'appui) sur un pseudo-élément,
+ * pression « ressort » à 97 %.
+ */
+.ui-button {
+  box-sizing: border-box;
+  --_bg: transparent;
+  --_bg-hover: var(--_bg);
+  --_fg: var(--ui-fg);
+  --_fg-hover: var(--_fg);
+  --_border: transparent;
+  --_border-hover: var(--_border);
+  --_shadow: 0 0 #0000;
+  --_shadow-hover: var(--_shadow);
+  --_ring: var(--ui-ring);
+  --_ring-border: var(--ui-pri);
+  --_h: 36px;
+  --_px: 16px;
+  --_radius: var(--ui-r-pill);
+  --_font: 14px;
+  --_icon: 18px;
+
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: var(--_h);
+  padding: 0 var(--_px);
+  border: 1px solid var(--_border);
+  border-radius: var(--_radius);
+  background: var(--_bg);
+  background-clip: padding-box;
+  color: var(--_fg);
+  box-shadow: var(--_shadow);
+  font-family: var(--ui-font-sans);
+  font-size: var(--_font);
+  font-weight: 500;
+  letter-spacing: -0.006em;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+
+/* Couche d'état : sous le contenu, au-dessus du fond (isolation sur le bouton). */
+.ui-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+
+/* Icônes : 18 px par défaut. :where() = spécificité nulle, une classe sur le <svg> l'emporte. */
+:where(.ui-button svg) {
+  width: var(--_icon);
+  height: var(--_icon);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+/* ── États ─────────────────────────────────────────────────────────── */
+
+/* Survol seulement sur les appareils qui survolent : pas de survol « collé » au doigt. */
+@media (hover: hover) {
+  .ui-button:hover:not(:disabled, [aria-disabled="true"]) {
+    background: var(--_bg-hover);
+    color: var(--_fg-hover);
+    border-color: var(--_border-hover);
+    box-shadow: var(--_shadow-hover);
+  }
+  .ui-button:hover:not(:disabled, [aria-disabled="true"])::before {
+    opacity: var(--ui-state-hover);
+  }
+}
+.ui-button[aria-expanded="true"] {
+  background: var(--_bg-hover);
+  color: var(--_fg-hover);
+}
+.ui-button[aria-expanded="true"]::before {
+  opacity: var(--ui-state-hover);
+}
+.ui-button:active:not(:disabled, [aria-disabled="true"]) {
+  transform: scale(0.97);
+  transition-duration: var(--ui-duration), var(--ui-duration), var(--ui-duration), var(--ui-duration), calc(var(--ui-duration) / 2);
+}
+.ui-button:active:not(:disabled, [aria-disabled="true"])::before {
+  opacity: var(--ui-state-press);
+}
+/* L'anneau s'ajoute à l'élévation au lieu de la remplacer. */
+.ui-button:focus-visible {
+  border-color: var(--_ring-border);
+  box-shadow: var(--_shadow), 0 0 0 3px var(--_ring);
+}
+.ui-button[aria-invalid="true"] {
+  border-color: var(--ui-err);
+  box-shadow: var(--_shadow), 0 0 0 3px var(--ui-err-soft);
+}
+/* Bascule enfoncée : conteneur primaire, comme une puce sélectionnée de Drive. */
+.ui-button[aria-pressed="true"] {
+  --_bg: var(--ui-pri-container);
+  --_bg-hover: var(--ui-pri-container);
+  --_fg: var(--ui-on-pri-container);
+  --_fg-hover: var(--ui-on-pri-container);
+  --_border: transparent;
+  --_border-hover: transparent;
+  --_shadow: 0 0 #0000;
+}
+.ui-button:disabled,
+.ui-button[aria-disabled="true"]:not([data-loading]) {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.ui-button[data-loading] {
+  cursor: progress;
+}
+.ui-button__content {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+  /* Garde la largeur du libellé. `opacity` et non `visibility` : le libellé reste
+     dans l'arbre d'accessibilité, le bouton en chargement garde son nom. */
+  opacity: 0;
+}
+.ui-button__spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: calc(var(--_icon) - 2px);
+  height: calc(var(--_icon) - 2px);
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ui-button-spin 0.7s linear infinite;
+}
+@keyframes ui-button-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Variantes (rôles) ─────────────────────────────────────────────── */
+
+/* Primaire pleine : une seule par vue. */
+.ui-button--default {
+  --_bg: var(--ui-pri);
+  --_fg: var(--ui-pri-fg);
+  --_shadow-hover: var(--ui-sh-pri);
+}
+/* Tonale : conteneur primaire (bouton « tinted » d'iOS, « filled tonal » de Drive). */
+.ui-button--tonal {
+  --_bg: var(--ui-pri-container);
+  --_fg: var(--ui-on-pri-container);
+}
+/* Surélevée : le « + Nouveau » de Drive, posé sur le fond d'application. */
+.ui-button--elevated {
+  --_bg: var(--ui-panel);
+  --_fg: var(--ui-fg);
+  --_shadow: var(--ui-sh2);
+  --_shadow-hover: var(--ui-sh3);
+}
+.ui-button--outline {
+  --_border: var(--ui-line-3);
+  --_fg: var(--ui-fg);
+}
+/* Grise pleine, comme les boutons secondaires d'iOS. */
+.ui-button--secondary {
+  --_bg: var(--ui-card-2);
+  --_fg: var(--ui-fg);
+}
+.ui-button--ghost {
+  --_fg: var(--ui-fg-2);
+  --_fg-hover: var(--ui-fg);
+}
+.ui-button--danger {
+  --_bg: var(--ui-err-soft);
+  --_fg: var(--ui-err);
+  --_border: var(--ui-err-line);
+}
+.ui-button--destructive {
+  --_bg: var(--ui-err);
+  --_fg: var(--ui-err-fg);
+  --_shadow-hover: var(--ui-sh-err);
+}
+.ui-button--link {
+  --_fg: var(--ui-pri);
+  --_px: 4px;
+  text-underline-offset: 4px;
+}
+.ui-button--link::before { display: none; }
+@media (hover: hover) {
+  .ui-button--link:hover { text-decoration: underline; }
+}
+.ui-button--on-dark {
+  --_bg: #ffffff;
+  --_fg: #0b1f4d; /* encre fixe : le bandeau reste sombre dans les deux thèmes */
+  --_shadow: 0 2px 10px rgb(3 12 33 / 0.28);
+  --_ring: rgb(255 255 255 / 0.35);
+  --_ring-border: #ffffff;
+}
+.ui-button--on-dark-ghost {
+  --_bg: rgb(255 255 255 / 0.12);
+  --_fg: #ffffff;
+  --_border: rgb(255 255 255 / 0.2);
+  --_ring: rgb(255 255 255 / 0.2);
+  --_ring-border: rgb(255 255 255 / 0.45);
+}
+@supports (backdrop-filter: blur(1px)) {
+  .ui-button--on-dark-ghost { backdrop-filter: var(--ui-blur); }
+}
+
+/* ── Tailles ───────────────────────────────────────────────────────── */
+
+.ui-button--size-sm,
+.ui-button--size-icon-sm {
+  --_h: 32px;
+  --_px: 12px;
+  --_font: 13px;
+  --_icon: 16px;
+  gap: 6px;
+}
+.ui-button--size-lg,
+.ui-button--size-icon-lg {
+  --_h: 44px;
+  --_px: 22px;
+  --_font: 15px;
+  --_icon: 20px;
+  gap: 10px;
+}
+/* Bouton icône : un cercle. */
+.ui-button--size-icon,
+.ui-button--size-icon-sm,
+.ui-button--size-icon-lg {
+  width: var(--_h);
+  padding: 0;
+}
+/* Le grand bouton surélevé prend le rayon d'une carte, comme le « Nouveau » de Drive. */
+.ui-button--elevated.ui-button--size-lg {
+  --_h: 56px;
+  --_px: 22px;
+  --_radius: var(--ui-r-lg);
+}
+.ui-button--elevated.ui-button--size-icon-lg {
+  --_h: 56px;
+  --_radius: var(--ui-r-lg);
+}
+.ui-button--full {
+  width: 100%;
+}
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-button:active:not(:disabled, [aria-disabled="true"]) { transform: none; }
+  .ui-button__spinner { animation-duration: 1.6s; }
+}
+/* Contraste élevé Windows : les couleurs système remplacent les nôtres. */
+@media (forced-colors: active) {
+  .ui-button { border-color: ButtonText; }
+  .ui-button::before { display: none; }
+  .ui-button:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+  .ui-button[aria-pressed="true"] { background: Highlight; color: HighlightText; forced-color-adjust: none; }
+}

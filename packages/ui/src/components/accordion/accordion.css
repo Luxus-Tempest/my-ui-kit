@@ -1,0 +1,140 @@
+/*
+ * Accordéon. `inset` : carte tonale d'iOS, filets décalés entre les éléments
+ * (comme la liste groupée). `plain` : filets fins pleine largeur, posé sur un panneau.
+ * Déclencheur 52 px, couche d'état Material, chevron qui pivote en ressort,
+ * contenu animé en hauteur (--radix-accordion-content-height).
+ */
+.ui-accordion {
+  --_px: 16px;
+  --_bg: var(--ui-card-2);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  font-family: var(--ui-font-sans);
+}
+.ui-accordion[data-variant="inset"] {
+  overflow: hidden;
+  border-radius: var(--ui-r-lg);
+  background: var(--_bg);
+}
+.ui-accordion[data-variant="plain"] { --_px: 12px; }
+
+.ui-accordion__item { position: relative; }
+
+/* Filet décalé : commence au retrait du titre, comme la liste groupée d'iOS. */
+.ui-accordion[data-variant="inset"] .ui-accordion__item + .ui-accordion__item::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto var(--_px);
+  z-index: 1;
+  height: 1px;
+  background: var(--ui-line);
+  pointer-events: none;
+}
+.ui-accordion[data-variant="plain"] .ui-accordion__item { border-bottom: 1px solid var(--ui-line); }
+
+.ui-accordion__header { display: flex; margin: 0; font: inherit; }
+
+.ui-accordion__trigger {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 14px;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 52px;
+  margin: 0;
+  padding: 10px var(--_px);
+  border: 0;
+  background: transparent;
+  color: var(--ui-fg);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  text-align: start;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-accordion[data-variant="plain"] .ui-accordion__trigger { border-radius: var(--ui-r-ctl); }
+
+/* Couche d'état : currentColor sous le contenu. */
+.ui-accordion__trigger::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-accordion__trigger:hover:not([data-disabled])::before { opacity: var(--ui-state-hover); }
+}
+.ui-accordion__trigger:active:not([data-disabled])::before { opacity: var(--ui-state-press); }
+
+/* Focus : filet primaire + halo. Dans la carte (overflow masqué), l'anneau est intérieur. */
+.ui-accordion[data-variant="inset"] .ui-accordion__trigger:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ui-pri), inset 0 0 0 5px var(--ui-ring);
+}
+.ui-accordion[data-variant="plain"] .ui-accordion__trigger:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--ui-pri), 0 0 0 3px var(--ui-ring);
+}
+.ui-accordion__trigger[data-disabled] { opacity: 0.45; cursor: not-allowed; }
+
+.ui-accordion__leading { display: flex; flex-shrink: 0; align-items: center; color: var(--ui-fg-2); }
+.ui-accordion__leading :where(svg) { width: 20px; height: 20px; }
+.ui-accordion__title { flex: 1; min-width: 0; }
+
+.ui-accordion__chevron {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-inline-end: -2px;
+  color: var(--ui-fg-3);
+  transition: transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-accordion__trigger[data-state="open"] .ui-accordion__chevron { transform: rotate(180deg); }
+
+/* ── Contenu ───────────────────────────────────────────────────────── */
+.ui-accordion__content {
+  overflow: hidden;
+  color: var(--ui-fg-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ui-accordion__content[data-state="open"] {
+  animation: ui-accordion-down var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-accordion__content[data-state="closed"] {
+  animation: ui-accordion-up var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-accordion__body { padding: 0 var(--_px) 16px; }
+
+@keyframes ui-accordion-down {
+  from { height: 0; opacity: 0; }
+  to { height: var(--radix-accordion-content-height); opacity: 1; }
+}
+@keyframes ui-accordion-up {
+  from { height: var(--radix-accordion-content-height); opacity: 1; }
+  to { height: 0; opacity: 0; }
+}
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ui-accordion__content[data-state] { animation: none; }
+  .ui-accordion__chevron { transition: none; }
+}
+@media (forced-colors: active) {
+  .ui-accordion[data-variant="inset"] { border: 1px solid CanvasText; }
+  .ui-accordion[data-variant="inset"] .ui-accordion__item + .ui-accordion__item::before { background: CanvasText; }
+  .ui-accordion__trigger::before { display: none; }
+  .ui-accordion__trigger:focus-visible { outline: 2px solid Highlight; outline-offset: -2px; }
+}

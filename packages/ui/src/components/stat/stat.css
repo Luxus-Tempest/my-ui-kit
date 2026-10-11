@@ -1,0 +1,149 @@
+/*
+ * Chiffres clés. Tuile tonale aux coins de carte : libellé discret, valeur
+ * en 600 aux chiffres proportionnels (les chiffres tabulaires sont réservés
+ * aux colonnes), variation en pastille de statut avec flèche, tendance en
+ * sparkline. La tuile héros (une par vue) porte la valeur à 52 px.
+ */
+.ui-stat {
+  --_surface: var(--ui-card-2);
+  --ui-sparkline-surface: var(--_surface);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 16px 18px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-lg);
+  background: var(--_surface);
+  background-clip: padding-box;
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.ui-stat[data-variant="outlined"] { --_surface: var(--ui-panel); border-color: var(--ui-line); }
+
+.ui-stat__header { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 20px; }
+.ui-stat__label { min-width: 0; color: var(--ui-fg-2); font-size: 13px; font-weight: 500; line-height: 1.4; }
+.ui-stat__icon { display: flex; flex-shrink: 0; align-items: center; color: var(--ui-fg-3); }
+.ui-stat__icon :where(svg) { width: 18px; height: 18px; }
+
+.ui-stat__value {
+  overflow: hidden;
+  margin-top: 6px;
+  color: var(--ui-fg);
+  font-size: 28px;
+  font-weight: 600;
+  font-variant-numeric: proportional-nums;
+  line-height: 1.15;
+  letter-spacing: -0.022em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Devise, unité, signe % : plus petits, en retrait, pour que le nombre mène. */
+.ui-stat__affix { color: var(--ui-fg-2); font-size: 0.6em; font-weight: 500; letter-spacing: 0; }
+
+/* ── Variation ─────────────────────────────────────────────────────── */
+.ui-stat__delta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 10px;
+  color: var(--ui-fg-3);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.ui-stat__delta-chip {
+  --_soft: var(--ui-card-hover);
+  --_edge: var(--ui-line-2);
+  --_ink: var(--ui-fg-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  box-sizing: border-box;
+  height: 22px;
+  padding: 0 8px 0 5px;
+  border-radius: var(--ui-r-pill);
+  background: var(--_soft);
+  box-shadow: inset 0 0 0 1px var(--_edge);
+  color: var(--_ink);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.ui-stat__delta-chip[data-tone="ok"] { --_soft: var(--ui-ok-soft); --_edge: var(--ui-ok-line); --_ink: var(--ui-ok); }
+.ui-stat__delta-chip[data-tone="err"] { --_soft: var(--ui-err-soft); --_edge: var(--ui-err-line); --_ink: var(--ui-err); }
+.ui-stat__delta-chip :where(svg) { width: 14px; height: 14px; flex-shrink: 0; }
+
+.ui-stat__trend { margin-top: 14px; }
+
+/* ── Héros : le chiffre qui ouvre la vue ───────────────────────────── */
+.ui-stat[data-size="hero"] { padding: 22px 24px; }
+.ui-stat[data-size="hero"] .ui-stat__label { font-size: 14px; }
+.ui-stat[data-size="hero"] .ui-stat__value { margin-top: 8px; font-size: 52px; line-height: 1.05; letter-spacing: -0.035em; }
+.ui-stat[data-size="hero"] .ui-stat__delta { margin-top: 14px; font-size: 13px; }
+.ui-stat[data-size="hero"] .ui-stat__trend { margin-top: 20px; }
+
+/* Sans surface (dans une carte) : le fond de l'anneau de la sparkline vient du conteneur. */
+.ui-stat[data-variant="plain"] {
+  --_surface: var(--ui-stat-surface, var(--ui-panel));
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+/* ── Rangée de tuiles ──────────────────────────────────────────────── */
+.ui-stat-group {
+  container: ui-stat-group / inline-size;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--ui-stat-min, 220px)), 1fr));
+  gap: 12px;
+}
+@container ui-stat-group (min-width: 560px) {
+  .ui-stat-group > .ui-stat[data-size="hero"] { grid-column: span 2; }
+}
+
+/* ── Sparkline ─────────────────────────────────────────────────────── */
+.ui-sparkline {
+  --_accent: var(--ui-sparkline-color, var(--ui-c1));
+  --_surface: var(--ui-sparkline-surface, var(--ui-panel));
+  /* Teinte effacée : l'accent fondu dans le fond. */
+  --_muted: color-mix(in srgb, var(--_accent) 42%, var(--_surface));
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 0;
+}
+/* Sur fond sombre, la teinte fondue a besoin de plus d'accent pour rester lisible. */
+[data-theme="dark"] .ui-sparkline,
+.dark .ui-sparkline { --_muted: color-mix(in srgb, var(--_accent) 58%, var(--_surface)); }
+.ui-sparkline[data-fluid] { display: block; width: 100%; }
+.ui-sparkline__svg { display: block; overflow: visible; }
+.ui-sparkline__area { fill: var(--_accent); fill-opacity: 0.1; stroke: none; }
+.ui-sparkline__line,
+.ui-sparkline__current {
+  fill: none;
+  stroke: var(--_muted);
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ui-sparkline__current { stroke: var(--_accent); }
+.ui-sparkline__ring { fill: var(--_surface); }
+.ui-sparkline__dot { fill: var(--_accent); }
+.ui-sparkline__bar { fill: var(--_muted); }
+.ui-sparkline__bar[data-current] { fill: var(--_accent); }
+
+@media (forced-colors: active) {
+  .ui-stat { border-color: CanvasText; }
+  .ui-stat[data-variant="plain"] { border: 0; }
+  .ui-stat__delta-chip { forced-color-adjust: none; background: Canvas; color: CanvasText; box-shadow: inset 0 0 0 1px CanvasText; }
+  .ui-sparkline__svg { forced-color-adjust: none; }
+  .ui-sparkline__area { fill: CanvasText; }
+  .ui-sparkline__line { stroke: CanvasText; }
+  .ui-sparkline__bar { fill: CanvasText; }
+  .ui-sparkline__current { stroke: Highlight; }
+  .ui-sparkline__bar[data-current], .ui-sparkline__dot { fill: Highlight; }
+  .ui-sparkline__ring { fill: Canvas; }
+}

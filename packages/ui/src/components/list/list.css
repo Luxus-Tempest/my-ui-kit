@@ -1,0 +1,125 @@
+/*
+ * Liste. `inset` : liste groupée d'iOS (carte tonale, filets décalés).
+ * `plain` : lignes nues de Drive, survol en couche d'état.
+ */
+.ui-list {
+  --_bg: var(--ui-card-2);
+  --_row-h: 52px;
+  --_px: 16px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--ui-font-sans);
+}
+.ui-list[data-variant="inset"] {
+  overflow: hidden;
+  border-radius: var(--ui-r-lg);
+  background: var(--_bg);
+}
+.ui-list[data-variant="plain"] { --_row-h: 48px; gap: 2px; }
+
+.ui-list-item { display: block; margin: 0; padding: 0; }
+
+.ui-list-item__row {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--_row-h);
+  margin: 0;
+  padding: 0 0 0 var(--_px);
+  border: 0;
+  background: transparent;
+  color: var(--ui-fg);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: start;
+  text-decoration: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ui-list[data-variant="plain"] .ui-list-item__row { border-radius: var(--ui-r-pill); }
+
+/* Ligne cliquable : couche d'état, focus intérieur. */
+.ui-list-item__row[data-interactive] { cursor: pointer; }
+.ui-list-item__row[data-interactive]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-list-item__row[data-interactive]:hover::before { opacity: var(--ui-state-hover); }
+}
+.ui-list-item__row[data-interactive]:active::before { opacity: var(--ui-state-press); }
+.ui-list-item__row[data-interactive]:focus-visible { box-shadow: inset 0 0 0 2px var(--ui-pri); }
+.ui-list[data-variant="inset"] .ui-list-item:first-child .ui-list-item__row:focus-visible { border-top-left-radius: var(--ui-r-lg); border-top-right-radius: var(--ui-r-lg); }
+.ui-list-item__row[aria-disabled="true"], .ui-list-item__row:disabled { opacity: 0.45; pointer-events: none; }
+
+.ui-list-item__row[data-selected] { background: var(--ui-sel); color: var(--ui-on-pri-container); }
+.ui-list-item__row[data-selected] .ui-list-item__description,
+.ui-list-item__row[data-selected] .ui-list-item__trailing { color: inherit; }
+
+.ui-list-item__leading { display: flex; flex-shrink: 0; align-items: center; color: var(--ui-fg-2); }
+.ui-list-item__leading :where(svg) { width: 20px; height: 20px; }
+
+/* Corps : porte le filet, qui commence donc après l'élément de tête (iOS). */
+.ui-list-item__body {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  align-self: stretch;
+  min-width: 0;
+  padding: 10px var(--_px) 10px 0;
+}
+.ui-list[data-variant="inset"] .ui-list-item + .ui-list-item .ui-list-item__body { box-shadow: inset 0 1px 0 var(--ui-line); }
+.ui-list[data-variant="inset"] .ui-list-item__row[data-selected] .ui-list-item__body,
+.ui-list[data-variant="inset"] .ui-list-item:has(.ui-list-item__row[data-selected]) + .ui-list-item .ui-list-item__body { box-shadow: none; }
+
+/* Colonne rétrécissable : un titre ou une description tronqués (ellipsis) cèdent la place à l'élément de fin. */
+.ui-list-item__text { display: grid; grid-template-columns: minmax(0, 1fr); flex: 1; gap: 1px; min-width: 0; }
+.ui-list-item__title { overflow: hidden; text-overflow: ellipsis; }
+.ui-list-item__description { color: var(--ui-fg-3); font-size: 13px; line-height: 1.4; }
+.ui-list-item__trailing { display: flex; flex-shrink: 0; align-items: center; gap: 6px; color: var(--ui-fg-3); }
+.ui-list-item__chevron { width: 16px; height: 16px; margin-inline-end: -4px; color: var(--ui-fg-3); opacity: 0.8; }
+
+/* Tuile d'icône des réglages d'iOS */
+.ui-list-item-icon {
+  --ui-list-icon-tint: var(--ui-pri);
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--ui-r-xs);
+  background: var(--ui-list-icon-tint);
+  color: var(--ui-panel);
+}
+.ui-list-item-icon :where(svg) { width: 18px; height: 18px; }
+
+/* Section : intitulé et note de bas, en retrait à la marge de la liste. */
+.ui-list-section { display: grid; align-content: start; gap: 6px; font-family: var(--ui-font-sans); }
+.ui-list-section__title { margin: 0; padding: 0 16px; color: var(--ui-fg-3); font-size: 13px; font-weight: 500; line-height: 1.4; }
+.ui-list-section__footer { margin: 0; padding: 0 16px; color: var(--ui-fg-3); font-size: 12.5px; line-height: 1.45; }
+
+@media (forced-colors: active) {
+  .ui-list[data-variant="inset"] { border: 1px solid CanvasText; }
+  .ui-list-item__row[data-interactive]::before { display: none; }
+  .ui-list-item__row[data-selected] { outline: 2px solid Highlight; outline-offset: -2px; }
+}
+
+/* Sens de lecture : le chevron « ouvrir » pointe vers la fin de ligne. */
+[dir="rtl"] .ui-list-item__chevron { transform: scaleX(-1); }

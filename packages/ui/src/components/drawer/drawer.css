@@ -1,0 +1,131 @@
+/*
+ * Tiroir glissable (vaul). Même surface que la feuille (Sheet) : panneau,
+ * filet capillaire, ombre sh4 ; coins de 28 px du côté de l'écran, poignée.
+ * Le voile est celui de Dialog (.ui-dialog__overlay).
+ *
+ * vaul injecte sa propre feuille (glissement d'entrée et de sortie, transitions
+ * de 0,5 s sur la courbe ressort, identique à --ui-ease-spring) : ses durées
+ * sont calées sur sa physique de geste et ses temporisations, on ne les
+ * surcharge pas. Les sélecteurs ci-dessous gagnent en spécificité quand ils
+ * doivent l'emporter sur les siens.
+ */
+.ui-drawer {
+  --_gap: 24px;
+  position: fixed;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  border: 1px solid var(--ui-material-line);
+  background: var(--ui-panel);
+  color: var(--ui-fg);
+  box-shadow: var(--ui-sh4);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  outline: none;
+}
+
+/* ── Bas et haut : pleine largeur, 92 % de l'écran au plus ─────────── */
+.ui-drawer:is([data-direction="bottom"], [data-direction="top"]) {
+  left: 0;
+  right: 0;
+  max-height: 92%;
+}
+.ui-drawer[data-direction="bottom"] {
+  bottom: 0;
+  border-bottom: 0;
+  border-radius: var(--ui-r-2xl) var(--ui-r-2xl) 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.ui-drawer[data-direction="top"] {
+  top: 0;
+  border-top: 0;
+  border-radius: 0 0 var(--ui-r-2xl) var(--ui-r-2xl);
+  padding-top: env(safe-area-inset-top);
+}
+/* Avec des crans, la feuille prend toute la hauteur : vaul la décale pour n'en montrer qu'une part. */
+.ui-drawer[data-snap]:is([data-direction="bottom"], [data-direction="top"]) {
+  height: 100%;
+  max-height: 96%;
+}
+/* Sur grand écran, la feuille reste une colonne lisible, comme sur iPad (et comme Sheet). */
+@media (min-width: 720px) {
+  .ui-drawer:is([data-direction="bottom"], [data-direction="top"]) { left: calc(50% - 320px); right: auto; width: 640px; }
+}
+
+/* ── Côtés : toute la hauteur, coins arrondis du côté intérieur ───── */
+.ui-drawer:is([data-direction="left"], [data-direction="right"]) {
+  top: 0;
+  bottom: 0;
+  width: min(400px, calc(100vw - var(--_gap) * 2));
+}
+.ui-drawer[data-direction="right"] {
+  right: 0;
+  border-right: 0;
+  border-radius: var(--ui-r-2xl) 0 0 var(--ui-r-2xl);
+}
+.ui-drawer[data-direction="left"] {
+  left: 0;
+  border-left: 0;
+  border-radius: 0 var(--ui-r-2xl) var(--ui-r-2xl) 0;
+}
+
+/* ── Poignée : pilule de 36 × 5 px, celle des feuilles d'iOS ───────── */
+.ui-drawer .ui-drawer__handle {
+  flex-shrink: 0;
+  width: 36px;
+  height: 5px;
+  margin: 8px auto 0;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-line-3);
+  opacity: 1;
+  cursor: grab;
+  transition: background-color var(--ui-duration) var(--ui-ease);
+}
+.ui-drawer .ui-drawer__handle:active { cursor: grabbing; }
+@media (hover: hover) {
+  .ui-drawer .ui-drawer__handle:hover { background: var(--ui-outline); }
+}
+/* Feuille du haut : la poignée passe en bas, côté écran. */
+.ui-drawer[data-direction="top"] .ui-drawer__handle { order: 99; margin: 0 auto 8px; }
+/* Feuilles latérales (si `showHandle`) : pilule verticale sur le bord intérieur. */
+.ui-drawer:is([data-direction="left"], [data-direction="right"]) .ui-drawer__handle {
+  position: absolute;
+  top: calc(50% - 18px);
+  width: 5px;
+  height: 36px;
+  margin: 0;
+}
+.ui-drawer[data-direction="right"] .ui-drawer__handle { left: 8px; }
+.ui-drawer[data-direction="left"] .ui-drawer__handle { right: 8px; }
+
+/* ── Contenu ───────────────────────────────────────────────────────── */
+.ui-drawer__header { display: grid; flex-shrink: 0; gap: 4px; padding: 16px 24px 8px; }
+.ui-drawer__title { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.3; letter-spacing: -0.014em; }
+.ui-drawer__description { margin: 0; color: var(--ui-fg-2); font-size: 13.5px; }
+.ui-drawer__body { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 24px 16px; overscroll-behavior: contain; }
+/* Pied : sur téléphone, actions empilées pleine largeur, la principale (dernière) en haut, comme iOS. */
+.ui-drawer__footer {
+  display: flex;
+  flex-direction: column-reverse;
+  flex-shrink: 0;
+  gap: 8px;
+  padding: 12px 24px 20px;
+}
+.ui-drawer__footer > * { width: 100%; }
+@media (min-width: 720px) {
+  .ui-drawer__footer { flex-direction: row; flex-wrap: wrap-reverse; justify-content: flex-end; }
+  .ui-drawer__footer > * { width: auto; }
+}
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  /* Fondu à la place du glissement ; le geste reste direct, sans rebond. */
+  .ui-drawer[data-vaul-drawer] { animation-name: ui-fade-in !important; transition: none !important; }
+  .ui-drawer[data-vaul-drawer][data-state="closed"] { animation-name: ui-fade-out !important; animation-fill-mode: forwards !important; }
+}
+@media (forced-colors: active) {
+  .ui-drawer { border: 1px solid CanvasText; }
+  .ui-drawer .ui-drawer__handle { background: CanvasText; }
+}

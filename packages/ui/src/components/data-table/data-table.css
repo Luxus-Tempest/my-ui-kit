@@ -1,0 +1,384 @@
+/*
+ * DataTable : barre d'outils (recherche, puces de filtres, colonnes, densité),
+ * surface (table + pied de pagination), barre d'actions groupées et panneau de
+ * filtre à facettes. En-têtes, lignes, densités et sélection viennent de
+ * table.css ; ce fichier n'ajoute que ce qui est propre à la table de données.
+ */
+.ui-data-table {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+}
+
+/* ── Barre d'outils ────────────────────────────────────────────────── */
+/* Deux blocs alignés en haut : si les filtres passent à la ligne, les actions restent sur la première. */
+.ui-data-table__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px 12px;
+  min-height: 40px;
+}
+.ui-data-table__filters,
+.ui-data-table__toolbar-end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+}
+.ui-data-table__filters { flex: 1 1 360px; min-width: 0; }
+.ui-data-table__toolbar-end { margin-inline-start: auto; }
+/* Recherche : un cran plus basse que la barre de Drive, alignée sur les puces ;
+   elle rétrécit (jusqu'à 160 px) avant que les puces ne passent à la ligne. */
+.ui-search.ui-data-table__search {
+  --_h: 36px;
+  flex: 1 1 200px;
+  width: auto;
+  min-width: 160px;
+  max-width: 300px;
+}
+.ui-data-table__reset :where(svg) { width: 16px; height: 16px; }
+
+/* Compteur de colonnes masquées dans le bouton « Colonnes ». */
+.ui-data-table__hidden-count {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-pri-container);
+  color: var(--ui-on-pri-container);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Barre d'actions groupées (Drive) ──────────────────────────────── */
+.ui-data-table__selection {
+  display: flex;
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  box-sizing: border-box;
+  min-height: 40px;
+  padding-block: 2px;
+  padding-inline: 4px 6px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-card-hover);
+  color: var(--ui-fg);
+  animation: ui-data-table-bar-in var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-data-table__selection-count {
+  padding-inline-end: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ui-data-table__selection-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-inline-start: auto;
+}
+@keyframes ui-data-table-bar-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+}
+
+/* ── Surface : table et pied ───────────────────────────────────────── */
+.ui-data-table__surface {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+/* Carte : un seul panneau arrondi pour la table et sa pagination. */
+.ui-data-table[data-variant="card"] .ui-data-table__surface {
+  overflow: hidden;
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-r-lg);
+  background: var(--ui-panel);
+}
+@supports (overflow: clip) {
+  .ui-data-table[data-variant="card"] .ui-data-table__surface { overflow: clip; }
+}
+/* Le conteneur de Table garde ses marges de carte, le panneau porte le cadre. */
+.ui-data-table[data-variant="card"] .ui-table-container[data-variant="card"] {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.ui-data-table__view { position: relative; min-width: 0; }
+
+/* Rechargement : l'ancien contenu reste en place, estompé, sous un filet de progression. */
+.ui-data-table__view .ui-table__body {
+  transition: opacity var(--ui-duration-slow) var(--ui-ease);
+}
+.ui-data-table__view[data-state="reloading"] .ui-table__body {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.ui-data-table__progress {
+  position: absolute;
+  z-index: 3;
+  inset: 0 0 auto;
+  height: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--ui-pri) 18%, transparent);
+}
+.ui-data-table__progress::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-pri);
+  animation: ui-data-table-progress calc(var(--ui-duration-slow) * 4) var(--ui-ease) infinite;
+}
+@keyframes ui-data-table-progress {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+
+/* ── En-têtes ──────────────────────────────────────────────────────── */
+.ui-data-table__column-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 100%;
+  vertical-align: middle;
+  user-select: none;
+}
+/* L'intitulé triable reprend .ui-table__sort ; sa marge négative ne déborde que côté bord. */
+.ui-data-table__column-header > .ui-table__sort { margin-block: 0; margin-inline: -10px 0; }
+.ui-table__head[data-numeric] .ui-data-table__column-header { flex-direction: row-reverse; }
+.ui-table__head[data-numeric] .ui-data-table__column-header > .ui-table__sort { margin-inline: 0 -10px; }
+.ui-data-table__title { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ui-table__head[data-group] { text-align: center; }
+
+/* Rang de la colonne dans un tri sur plusieurs colonnes (Maj+clic). */
+.ui-data-table__sort-index {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  min-width: 16px;
+  height: 16px;
+  margin-inline-start: -2px;
+  padding: 0 4px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-pri-container);
+  color: var(--ui-on-pri-container);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Menu de colonne : chevron discret, révélé au survol de l'en-tête et au focus. */
+.ui-data-table__column-menu {
+  position: relative;
+  isolation: isolate;
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: var(--ui-fg-3);
+  cursor: pointer;
+  opacity: 0;
+  outline: none;
+  transition:
+    opacity var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-data-table__column-menu::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+.ui-data-table__column-menu svg { width: 16px; height: 16px; }
+@media (hover: hover) {
+  .ui-table__head:hover .ui-data-table__column-menu { opacity: 1; }
+  .ui-data-table__column-menu:hover { color: var(--ui-fg); }
+  .ui-data-table__column-menu:hover::before { opacity: var(--ui-state-hover); }
+}
+@media (hover: none) {
+  .ui-data-table__column-menu { opacity: 1; }
+}
+.ui-data-table__column-menu:focus-visible,
+.ui-data-table__column-menu[aria-expanded="true"] { opacity: 1; color: var(--ui-fg); }
+.ui-data-table__column-menu[aria-expanded="true"]::before { opacity: var(--ui-state-hover); }
+.ui-data-table__column-menu:focus-visible { box-shadow: 0 0 0 3px var(--ui-ring), inset 0 0 0 1px var(--ui-pri); }
+.ui-data-table__column-header[data-sorted] .ui-data-table__column-menu { color: var(--ui-fg-2); }
+
+/* ── Cellules ──────────────────────────────────────────────────────── */
+.ui-data-table__nil { color: var(--ui-fg-3); }
+.ui-table__cell.ui-data-table__actions-cell,
+.ui-table__head.ui-data-table__actions-cell { text-align: end; }
+.ui-data-table__row-actions { margin-block: -4px; }
+/*
+ * Une ligne par cellule : la densité choisie reste régulière (« Électro Sud »
+ * ne casse pas une ligne compacte) ; la table défile si elle déborde.
+ * `meta.wrap` rouvre le retour à la ligne, sauf en virtualisé (hauteur fixe).
+ */
+.ui-data-table__view .ui-table__cell { white-space: nowrap; }
+.ui-data-table__view:not([data-virtualized]) .ui-table__cell[data-wrap],
+.ui-data-table__view .ui-table__cell.ui-data-table__state-cell { white-space: normal; }
+.ui-data-table__spacer > td { padding: 0; border: 0; }
+
+/* Lignes cliquables : focalisables, filet primaire et halo à l'intérieur de la ligne. */
+.ui-data-table__row[data-clickable] { cursor: pointer; outline: none; }
+.ui-data-table__row[data-clickable]:focus-visible {
+  outline: 1px solid var(--ui-pri);
+  outline-offset: -4px;
+}
+.ui-data-table__row[data-clickable]:focus-visible > .ui-table__cell {
+  box-shadow: inset 0 3px 0 var(--ui-ring), inset 0 -3px 0 var(--ui-ring);
+}
+.ui-data-table__row[data-clickable]:focus-visible > .ui-table__cell:first-child {
+  box-shadow: inset 3px 0 0 var(--ui-ring), inset 0 3px 0 var(--ui-ring), inset 0 -3px 0 var(--ui-ring);
+}
+.ui-data-table__row[data-clickable]:focus-visible > .ui-table__cell:last-child,
+.ui-data-table__row[data-clickable]:focus-visible:dir(rtl) > .ui-table__cell:first-child {
+  box-shadow: inset -3px 0 0 var(--ui-ring), inset 0 3px 0 var(--ui-ring), inset 0 -3px 0 var(--ui-ring);
+}
+.ui-data-table__row[data-clickable]:focus-visible:dir(rtl) > .ui-table__cell:last-child {
+  box-shadow: inset 3px 0 0 var(--ui-ring), inset 0 3px 0 var(--ui-ring), inset 0 -3px 0 var(--ui-ring);
+}
+
+/* États (vide, aucun résultat) et squelettes : pas de survol, pas de hauteur de ligne. */
+.ui-table__cell.ui-data-table__state-cell { height: auto; padding: 0; }
+.ui-data-table__state-cell .ui-empty-state { padding-block: 56px; }
+@media (hover: hover) {
+  .ui-data-table .ui-table__body .ui-data-table__state-row:hover > .ui-table__cell,
+  .ui-data-table .ui-table__body .ui-data-table__skeleton-row:hover > .ui-table__cell { background: transparent; }
+}
+.ui-data-table__skeleton {
+  display: inline-block;
+  height: 12px;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+/* ── Pied : lignes par page, plage, pages ──────────────────────────── */
+.ui-data-table__pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 24px;
+  min-height: 52px;
+  color: var(--ui-fg-2);
+  font-size: 13px;
+}
+.ui-data-table__footer { box-sizing: border-box; padding-block: 6px; padding-inline: 20px 12px; border-top: 1px solid var(--ui-line); }
+.ui-data-table[data-variant="plain"] .ui-data-table__footer { padding: 4px 0 0; border-top: 0; }
+.ui-data-table__page-size { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.ui-select-trigger.ui-data-table__page-size-trigger { width: auto; min-width: 72px; }
+.ui-data-table__range { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ui-pagination.ui-data-table__pages { --_size: 32px; }
+
+/* ── Filtre à facettes ─────────────────────────────────────────────── */
+.ui-chip.ui-data-table-facet__trigger { gap: 6px; padding-inline-end: 10px; }
+.ui-data-table-facet__chevron {
+  width: 16px;
+  height: 16px;
+  margin-inline-start: -2px;
+  transition: transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-data-table-facet__trigger[aria-expanded="true"] .ui-data-table-facet__chevron { transform: rotate(180deg); }
+
+.ui-popover.ui-data-table-facet {
+  width: 272px;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--ui-r-md);
+}
+.ui-data-table-facet .ui-command__search { height: 44px; gap: 10px; padding: 0 12px; }
+.ui-data-table-facet .ui-command__search svg { width: 18px; height: 18px; }
+.ui-data-table-facet .ui-command__input { font-size: 14px; letter-spacing: -0.006em; }
+.ui-data-table-facet .ui-command__list {
+  max-height: min(300px, calc(var(--radix-popover-content-available-height, 360px) - 104px));
+}
+.ui-data-table-facet .ui-command__empty { padding: 20px 12px; font-size: 13px; }
+.ui-data-table-facet__item { gap: 10px; }
+/* Case visuelle (l'option porte aria-checked) : géométrie de la Checkbox, en plus petit. */
+.ui-data-table-facet__box {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--ui-outline);
+  border-radius: calc(var(--ui-r-xs) / 2);
+  color: var(--ui-pri-fg);
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease);
+}
+.ui-data-table-facet__box[data-state="checked"] { border-color: var(--ui-pri); background: var(--ui-pri); }
+.ui-data-table-facet__box svg { width: 12px; height: 12px; color: inherit; }
+.ui-data-table-facet__icon { display: flex; color: var(--ui-fg-2); }
+.ui-data-table-facet__icon svg { width: 16px; height: 16px; }
+.ui-data-table-facet__label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ui-data-table-facet__item[data-checked] .ui-data-table-facet__label { font-weight: 500; }
+.ui-data-table-facet__item[data-empty] .ui-data-table-facet__label { color: var(--ui-fg-3); }
+.ui-data-table-facet__count {
+  margin-inline-start: auto;
+  padding-inline-start: 12px;
+  color: var(--ui-fg-3);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.ui-data-table-facet__footer { padding: 6px; border-top: 1px solid var(--ui-line); }
+
+/* ── Espaces étroits ───────────────────────────────────────────────── */
+@container (max-width: 640px) {
+  .ui-search.ui-data-table__search { flex: 1 1 100%; max-width: none; }
+  .ui-data-table__toolbar-end { margin-inline-start: 0; }
+  .ui-data-table__pagination { justify-content: space-between; }
+  .ui-data-table__footer { padding-inline-start: 12px; }
+}
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ui-data-table__selection { animation: none; }
+  .ui-data-table__progress::before { width: 100%; opacity: 0.6; animation: none; }
+}
+@media (forced-colors: active) {
+  .ui-data-table[data-variant="card"] .ui-data-table__surface,
+  .ui-data-table__selection { border: 1px solid CanvasText; }
+  .ui-data-table__column-menu { opacity: 1; }
+  .ui-data-table__column-menu::before { display: none; }
+  .ui-data-table__column-menu:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+  .ui-data-table__row[data-clickable]:focus-visible { outline: 2px solid Highlight; outline-offset: -2px; }
+  .ui-data-table__row[data-clickable]:focus-visible > .ui-table__cell { box-shadow: none; }
+  .ui-data-table__progress,
+  .ui-data-table__progress::before { background: Highlight; forced-color-adjust: none; }
+  .ui-data-table__sort-index,
+  .ui-data-table__hidden-count { border: 1px solid CanvasText; }
+  .ui-data-table-facet__box { border-color: ButtonText; }
+  .ui-data-table-facet__box[data-state="checked"] { background: Highlight; color: HighlightText; forced-color-adjust: none; }
+}

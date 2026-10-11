@@ -1,0 +1,26 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Fondations/Langage Drive × iOS" />
+
+# Langage Drive × iOS
+
+Deux grammaires, à parts égales. Drive apporte la **structure** (surfaces tonales, sélection, densité
+de lecture) ; iOS apporte la **matière** (grands rayons, translucidité, mouvement). L'écran
+*Blocs › Drive* les montre assemblées.
+
+| De Google Drive | D'iOS |
+|---|---|
+| Surfaces tonales bleutées plutôt qu'ombres (`--ui-app`, `--ui-card-2`, `--ui-card-hover`) | Grands rayons continus (`--ui-r-lg` 16, `--ui-r-xl` 20, `--ui-r-2xl` 28) |
+| Sélection en conteneur bleu (`--ui-sel`, `--ui-pri-container`) | Matériau translucide flouté pour ce qui flotte (`--ui-material`, `--ui-blur`) |
+| Actions et filtres en pilule (`--ui-r-pill`), boutons `tonal` et `elevated` | Interrupteur 44 × 26 qui s'étire, segmented control en capsule, stepper |
+| Couches d'état : texte à 8 % au survol, 12 % à l'appui (`--ui-state-*`) | Courbe « ressort » pour les surfaces (`--ui-ease-spring`), pression à 97 % |
+| Infobulle inversée, onglets à indicateur arrondi, tiroir de navigation, fil d'Ariane | Listes groupées, feuille du bas avec poignée, graisses légères (400 / 500 / 600) |
+
+## Règles
+
+1. **Pas d'ombre au repos.** Une surface se distingue par sa teinte ; l'ombre signale ce qui flotte.
+2. **Pilule pour agir, rayon doux pour contenir.** Boutons, puces, recherche : pilule. Champs : 12 px. Cartes : 16 px. Modales : 20 px.
+3. **La sélection est un conteneur, pas une couleur de texte.** `--ui-sel` + `--ui-on-pri-container`.
+4. **Un seul focus** : filet primaire + halo de 3 px, partout.
+5. **Le ressort est réservé aux surfaces** (entrées de menus, feuilles, pastilles) ; les changements d'état restent sobres.
+6. **Couleurs de données à part** : la palette `--ui-c1…c8` sert aux graphiques et aux tuiles, dans un ordre validé pour le daltonisme.

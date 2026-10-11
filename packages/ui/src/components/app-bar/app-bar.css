@@ -1,0 +1,132 @@
+/*
+ * Barre supérieure d'application.
+ * `plain` : surface héritée du conteneur (la barre de Drive, posée sur le fond
+ * d'application ou en tête d'un panneau). `material` : matériau translucide
+ * flouté d'iOS. Dans les deux cas, un filet capillaire apparaît quand du contenu
+ * passe dessous (data-scrolled), en fondu.
+ */
+.ui-app-bar {
+  --_h: 64px;
+  --_px: 16px;
+  --_line: var(--ui-line);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: var(--_h);
+  margin: 0;
+  padding: 0 var(--_px);
+  background-color: inherit;
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ui-app-bar[data-position="static"] { position: relative; top: auto; }
+.ui-app-bar[data-density="compact"] { --_h: 56px; --_px: 12px; gap: 8px; }
+
+/* Filet d'élévation : invisible tant que rien ne défile dessous. */
+.ui-app-bar::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: var(--_line);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration-slow) var(--ui-ease);
+}
+.ui-app-bar[data-scrolled]::after { opacity: 1; }
+
+/* Matériau iOS : panneau translucide flouté ; repli opaque sans backdrop-filter. */
+.ui-app-bar[data-variant="material"] { --_line: var(--ui-material-line); background-color: var(--ui-panel); }
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .ui-app-bar[data-variant="material"] {
+    background-color: var(--ui-material);
+    -webkit-backdrop-filter: var(--ui-blur);
+    backdrop-filter: var(--ui-blur);
+  }
+}
+
+/* Sentinelle de l'IntersectionObserver : au point de départ de la barre, hors du flux. */
+.ui-app-bar__sentinel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ── Contenu ──────────────────────────────────────────────────────────── */
+
+.ui-app-bar__leading,
+.ui-app-bar__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+/* Alignement optique : l'icône d'un bouton rond tombe sur la marge de la barre. */
+.ui-app-bar__leading { margin-inline-start: -8px; }
+.ui-app-bar__actions { margin-inline-start: auto; margin-inline-end: -8px; }
+
+.ui-app-bar__title {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--ui-fg);
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 28px;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ui-app-bar[data-density="compact"] .ui-app-bar__title { font-size: 18px; line-height: 24px; }
+
+/* Titre centré d'iOS : trois colonnes, le titre reste au centre de la barre. */
+.ui-app-bar[data-title-align="center"] {
+  display: grid;
+  grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr);
+}
+.ui-app-bar[data-title-align="center"] > .ui-app-bar__leading { grid-column: 1; justify-self: start; }
+.ui-app-bar[data-title-align="center"] > .ui-app-bar__title {
+  grid-column: 2;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 22px;
+  letter-spacing: -0.024em;
+  text-align: center;
+}
+.ui-app-bar[data-title-align="center"] > .ui-app-bar__actions { grid-column: 3; justify-self: end; margin-inline-start: 0; }
+
+/* ── Accessibilité système ────────────────────────────────────────────── */
+
+@media (prefers-reduced-transparency: reduce) {
+  .ui-app-bar[data-variant="material"] {
+    background-color: var(--ui-panel);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-app-bar::after { transition: none; }
+}
+@media (forced-colors: active) {
+  .ui-app-bar { background-color: Canvas; }
+  .ui-app-bar[data-scrolled]::after { background: CanvasText; }
+}

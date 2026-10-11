@@ -1,0 +1,37 @@
+/* Encadré : carte tonale aux coins doux ; les tons de statut gardent leur filet. */
+.ui-alert {
+  --_fg: var(--ui-fg-2);
+  --_icon: var(--ui-fg-2);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-md);
+  background: var(--ui-card-2);
+  color: var(--_fg);
+  font-family: var(--ui-font-sans);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.ui-alert[data-tone="pri"]  { --_fg: var(--ui-fg); --_icon: var(--ui-pri);  border-color: var(--ui-pri-line);  background: var(--ui-pri-soft); }
+.ui-alert[data-tone="ok"]   { --_fg: var(--ui-fg); --_icon: var(--ui-ok);   border-color: var(--ui-ok-line);   background: var(--ui-ok-soft); }
+.ui-alert[data-tone="warn"] { --_fg: var(--ui-fg); --_icon: var(--ui-warn); border-color: var(--ui-warn-line); background: var(--ui-warn-soft); }
+.ui-alert[data-tone="err"]  { --_fg: var(--ui-fg); --_icon: var(--ui-err);  border-color: var(--ui-err-line);  background: var(--ui-err-soft); }
+.ui-alert__icon { display: flex; flex-shrink: 0; margin-top: 1px; color: var(--_icon); }
+.ui-alert__icon svg { width: 20px; height: 20px; }
+.ui-alert__body { display: grid; flex: 1; gap: 2px; min-width: 0; }
+.ui-alert__title { margin: 0; color: var(--ui-fg); font-size: 14px; font-weight: 600; }
+.ui-alert[data-tone="err"] .ui-alert__title { color: var(--ui-err); }
+.ui-alert[data-tone="warn"] .ui-alert__title { color: var(--ui-warn); }
+.ui-alert__description { color: var(--ui-fg-2); text-wrap: pretty; }
+.ui-alert__description a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.ui-alert__description p { margin: 0; }
+.ui-alert__description p + p { margin-top: 6px; }
+.ui-alert__action { flex-shrink: 0; align-self: center; margin: -4px -6px -4px 4px; }
+
+@media (forced-colors: active) {
+  .ui-alert { border-color: CanvasText; }
+}

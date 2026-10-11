@@ -1,0 +1,25 @@
+/*
+ * Zone repliable. Le déclencheur ne reçoit aucun style (il prend celui de
+ * l'élément rendu via asChild) ; seul le contenu est animé en hauteur,
+ * avec la courbe ressort des surfaces (--radix-collapsible-content-height).
+ */
+.ui-collapsible__content { overflow: hidden; }
+.ui-collapsible__content[data-state="open"] {
+  animation: ui-collapsible-down var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-collapsible__content[data-state="closed"] {
+  animation: ui-collapsible-up var(--ui-duration-slow) var(--ui-ease-spring);
+}
+
+@keyframes ui-collapsible-down {
+  from { height: 0; opacity: 0; }
+  to { height: var(--radix-collapsible-content-height); opacity: 1; }
+}
+@keyframes ui-collapsible-up {
+  from { height: var(--radix-collapsible-content-height); opacity: 1; }
+  to { height: 0; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-collapsible__content[data-state] { animation: none; }
+}

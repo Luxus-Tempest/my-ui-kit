@@ -1,0 +1,369 @@
+/*
+ * Fab et SpeedDial.
+ *
+ * Fab : carré arrondi de 40 / 56 / 96 px, rayons 12 / 16 / 28 px, comme le FAB
+ * de Material 3 et le « + Nouveau » de Drive (même forme avec `extended`). Comme Button,
+ * chaque variante ne pose que des variables (--_bg, --_fg) ; les états sont
+ * écrits une fois. Il flotte : ombre diffuse au repos, plus marquée au survol,
+ * couche d'état Material et pression en ressort.
+ *
+ * SpeedDial : les actions (pastilles surélevées de 40 px + libellé) se
+ * déploient en cascade depuis le FAB ; le « + » pivote en « × ».
+ */
+
+/* ══ Fab ═════════════════════════════════════════════════════════════ */
+.ui-fab {
+  --_bg: var(--ui-panel);
+  --_fg: var(--ui-fg);
+  --_shadow: var(--ui-sh2);
+  --_shadow-hover: var(--ui-sh3);
+  --_size: 56px;
+  --_radius: var(--ui-r-lg);
+  --_icon: 24px;
+  --_px: 20px;
+  --_font: 15px;
+  box-sizing: border-box;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: var(--_size);
+  height: var(--_size);
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--_radius);
+  background: var(--_bg);
+  background-clip: padding-box;
+  color: var(--_fg);
+  box-shadow: var(--_shadow);
+  font-family: var(--ui-font-sans);
+  font-size: var(--_font);
+  font-weight: 500;
+  letter-spacing: -0.006em;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-fab::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+:where(.ui-fab svg) {
+  width: var(--_icon);
+  height: var(--_icon);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .ui-fab:hover:not(:disabled, [aria-disabled="true"]) { box-shadow: var(--_shadow-hover); }
+  .ui-fab:hover:not(:disabled, [aria-disabled="true"])::before { opacity: var(--ui-state-hover); }
+}
+.ui-fab[aria-expanded="true"]::before { opacity: var(--ui-state-hover); }
+.ui-fab:active:not(:disabled, [aria-disabled="true"]) {
+  transform: scale(0.95);
+  transition-duration: var(--ui-duration), var(--ui-duration), var(--ui-duration), calc(var(--ui-duration) / 2);
+}
+.ui-fab:active:not(:disabled, [aria-disabled="true"])::before { opacity: var(--ui-state-press); }
+.ui-fab:focus-visible {
+  border-color: var(--ui-pri);
+  box-shadow: var(--_shadow), 0 0 0 3px var(--ui-ring);
+}
+.ui-fab:disabled,
+.ui-fab[aria-disabled="true"] {
+  box-shadow: none;
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Variantes (rôles) */
+.ui-fab--elevated { --_bg: var(--ui-panel); --_fg: var(--ui-fg); }
+.ui-fab--primary { --_bg: var(--ui-pri); --_fg: var(--ui-pri-fg); }
+.ui-fab--tonal { --_bg: var(--ui-pri-container); --_fg: var(--ui-on-pri-container); }
+
+/* Tailles */
+.ui-fab--size-sm { --_radius: var(--ui-r-ctl); --_size: 40px; --_icon: 20px; --_px: 16px; --_font: 14px; gap: 8px; }
+.ui-fab--size-lg { --_radius: var(--ui-r-2xl); --_size: 96px; --_icon: 36px; --_px: 32px; --_font: 20px; gap: 16px; }
+
+/* Étendu : icône + libellé, pilule de même hauteur. */
+.ui-fab--extended {
+  width: auto;
+  min-width: var(--_size);
+  padding: 0 var(--_px);
+}
+.ui-fab--extended:has(> svg:first-child, > .ui-speed-dial__fab-icon) {
+  padding-inline-start: calc(var(--_px) - 4px);
+}
+
+/* Flottant : bas à droite de la fenêtre (à gauche en RTL), hors des zones sûres. */
+.ui-fab[data-position="fixed"],
+.ui-speed-dial[data-position="fixed"] {
+  --_offset: 24px;
+  position: fixed;
+  right: calc(var(--_offset) + env(safe-area-inset-right, 0px));
+  bottom: calc(var(--_offset) + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+}
+.ui-fab[data-position="fixed"]:dir(rtl),
+.ui-speed-dial[data-position="fixed"]:dir(rtl) {
+  right: auto;
+  left: calc(var(--_offset) + env(safe-area-inset-left, 0px));
+}
+@media (max-width: 600px) {
+  .ui-fab[data-position="fixed"],
+  .ui-speed-dial[data-position="fixed"] { --_offset: 16px; }
+}
+/* Au-dessus du contenu, l'ombre se marque. */
+.ui-fab[data-position="fixed"],
+.ui-speed-dial[data-position="fixed"] .ui-fab {
+  --_shadow: var(--ui-sh3);
+  --_shadow-hover: var(--ui-sh4);
+}
+
+/* ══ SpeedDial ═══════════════════════════════════════════════════════ */
+.ui-speed-dial {
+  --_fab: 56px;          /* côté du FAB : centre les actions sur son axe */
+  --_action: 40px;       /* pastille d'action */
+  --_gap: 16px;          /* FAB ↔ première action */
+  --_spacing: 12px;      /* entre deux actions */
+  --_stagger: calc(var(--ui-duration) / 4);
+  --_tx: 0px;
+  --_ty: 0px;
+  position: relative;
+  display: inline-flex;
+  font-family: var(--ui-font-sans);
+}
+.ui-speed-dial[data-size="sm"] { --_fab: 40px; }
+.ui-speed-dial[data-size="lg"] { --_fab: 96px; }
+.ui-speed-dial[data-direction="up"] { --_ty: 16px; }
+.ui-speed-dial[data-direction="down"] { --_ty: -16px; }
+.ui-speed-dial[data-direction="left"] { --_tx: 16px; }
+.ui-speed-dial[data-direction="right"] { --_tx: -16px; }
+
+/* Icône du FAB : le « + » pivote en « × » ; avec openIcon, fondu pivotant. */
+.ui-speed-dial__fab-icon { display: grid; place-items: center; }
+.ui-speed-dial__fab-icon > span {
+  display: inline-flex;
+  grid-area: 1 / 1;
+  transition:
+    transform var(--ui-duration-slow) var(--ui-ease-spring),
+    opacity var(--ui-duration) var(--ui-ease);
+}
+.ui-speed-dial[data-state="open"] .ui-speed-dial__icon-closed { transform: rotate(45deg); }
+.ui-speed-dial__icon-open { opacity: 0; transform: rotate(-45deg); }
+.ui-speed-dial[data-state="open"] .ui-speed-dial__fab-icon[data-open-icon] .ui-speed-dial__icon-closed { opacity: 0; }
+.ui-speed-dial[data-state="open"] .ui-speed-dial__icon-open { opacity: 1; transform: none; }
+
+/* Menu des actions : hors du flux, il ne pousse rien. Il reste visible le
+   temps que la dernière action reparte, puis disparaît (visibility). */
+.ui-speed-dial__actions {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  gap: var(--_spacing);
+  box-sizing: border-box;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear calc(var(--ui-duration-slow) + var(--_stagger) * var(--_n, 0));
+}
+.ui-speed-dial[data-state="open"] .ui-speed-dial__actions {
+  visibility: visible;
+  transition-delay: 0s;
+}
+/* Au survol, le menu entier fait pont avec le FAB : le pointeur peut y passer. */
+.ui-speed-dial[data-hover][data-state="open"] .ui-speed-dial__actions { pointer-events: auto; }
+
+.ui-speed-dial[data-direction="up"] .ui-speed-dial__actions,
+.ui-speed-dial[data-direction="down"] .ui-speed-dial__actions {
+  inset-inline-end: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-inline-end: calc((var(--_fab) - var(--_action)) / 2);
+}
+.ui-speed-dial[data-direction="up"] .ui-speed-dial__actions {
+  bottom: 100%;
+  flex-direction: column-reverse;
+  padding-bottom: var(--_gap);
+}
+.ui-speed-dial[data-direction="down"] .ui-speed-dial__actions {
+  top: 100%;
+  padding-top: var(--_gap);
+}
+.ui-speed-dial[data-direction="left"] .ui-speed-dial__actions,
+.ui-speed-dial[data-direction="right"] .ui-speed-dial__actions {
+  top: 0;
+  bottom: 0;
+  align-items: center;
+}
+.ui-speed-dial[data-direction="left"] .ui-speed-dial__actions {
+  right: 100%;
+  flex-direction: row-reverse;
+  padding-right: var(--_gap);
+}
+.ui-speed-dial[data-direction="right"] .ui-speed-dial__actions {
+  left: 100%;
+  padding-left: var(--_gap);
+}
+
+/* Action : libellé + pastille. Fermée, elle se replie vers le FAB ; elle
+   arrive en ressort, l'une après l'autre (la plus proche d'abord), et repart
+   dans l'ordre inverse. */
+.ui-speed-dial__action {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ui-fg);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  transform: translate(var(--_tx), var(--_ty)) scale(0.6);
+  transition:
+    opacity var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+  transition-delay: calc((var(--_n, 1) - 1 - var(--_i, 0)) * var(--_stagger));
+}
+.ui-speed-dial[data-state="open"] .ui-speed-dial__action {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--_i, 0) * var(--_stagger));
+}
+.ui-speed-dial[data-state="closed"] .ui-speed-dial__action { pointer-events: none; }
+.ui-speed-dial[data-state="open"] .ui-speed-dial__action:is(:disabled, [aria-disabled="true"]) {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+/* En ligne (left/right), un libellé rendu visible (showLabels) se pose
+   au-dessus de la pastille sans la décentrer de l'axe du FAB. */
+.ui-speed-dial[data-direction="left"] .ui-speed-dial__label,
+.ui-speed-dial[data-direction="right"] .ui-speed-dial__label {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  translate: -50% 0;
+}
+
+/* Pastille : petit FAB surélevé. */
+.ui-speed-dial__tile {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--_action);
+  height: var(--_action);
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-ctl);
+  background: var(--ui-panel);
+  background-clip: padding-box;
+  color: var(--ui-fg-2);
+  box-shadow: var(--ui-sh2);
+  transition:
+    box-shadow var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-speed-dial__tile :where(svg) { width: 20px; height: 20px; flex-shrink: 0; pointer-events: none; }
+
+/* Libellé : étiquette surélevée, lisible sur n'importe quel contenu. */
+.ui-speed-dial__label {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-panel);
+  color: var(--ui-fg);
+  box-shadow: var(--ui-sh2);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.006em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Couche d'état sur la pastille et le libellé ensemble : c'est une seule action. */
+.ui-speed-dial__tile::before,
+.ui-speed-dial__label::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-speed-dial__action:hover:not(:disabled, [aria-disabled="true"]) :is(.ui-speed-dial__tile, .ui-speed-dial__label)::before {
+    opacity: var(--ui-state-hover);
+  }
+  .ui-speed-dial__action:hover:not(:disabled, [aria-disabled="true"]) .ui-speed-dial__tile { box-shadow: var(--ui-sh3); }
+}
+.ui-speed-dial__action:active:not(:disabled, [aria-disabled="true"]) :is(.ui-speed-dial__tile, .ui-speed-dial__label)::before {
+  opacity: var(--ui-state-press);
+}
+.ui-speed-dial__action:active:not(:disabled, [aria-disabled="true"]) .ui-speed-dial__tile { transform: scale(0.94); }
+.ui-speed-dial__action:focus-visible .ui-speed-dial__tile {
+  border-color: var(--ui-pri);
+  box-shadow: var(--ui-sh2), 0 0 0 3px var(--ui-ring);
+}
+.ui-speed-dial__action:focus-visible .ui-speed-dial__label::before { opacity: var(--ui-state-hover); }
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ui-fab:active:not(:disabled, [aria-disabled="true"]) { transform: none; }
+  .ui-speed-dial__action,
+  .ui-speed-dial[data-state="open"] .ui-speed-dial__action {
+    transform: none;
+    transition-duration: 0s;
+    transition-delay: 0s;
+  }
+  .ui-speed-dial__actions { transition-delay: 0s; }
+  .ui-speed-dial__fab-icon > span { transition: none; }
+}
+@media (forced-colors: active) {
+  .ui-fab,
+  .ui-speed-dial__tile,
+  .ui-speed-dial__label { border: 1px solid ButtonText; }
+  .ui-fab::before,
+  .ui-speed-dial__tile::before,
+  .ui-speed-dial__label::before { display: none; }
+  .ui-fab:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+  .ui-speed-dial__action:focus-visible .ui-speed-dial__tile { outline: 2px solid Highlight; outline-offset: 2px; }
+}

@@ -1,0 +1,15 @@
+.ui-skeleton {
+  display: block;
+  border-radius: var(--ui-r-xs);
+  background: linear-gradient(90deg, var(--ui-card-2) 0%, var(--ui-card-hover) 50%, var(--ui-card-2) 100%);
+  background-size: 200% 100%;
+  animation: ui-sk-shimmer 1.6s var(--ui-ease) infinite;
+}
+.ui-skeleton[data-circle] { border-radius: 50%; }
+@keyframes ui-sk-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-skeleton { animation: none; background: var(--ui-card-hover); }
+}

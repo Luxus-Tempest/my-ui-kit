@@ -1,0 +1,38 @@
+// Icônes de démonstration (16 px, trait). Dans une vraie appli : lucide-react, etc.
+const base = { viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true } as const;
+
+export const PlusIcon = () => <svg {...base}><path d="M8 3.5v9M3.5 8h9" /></svg>;
+export const TrashIcon = () => <svg {...base}><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5" /></svg>;
+export const DownloadIcon = () => <svg {...base}><path d="M8 2.5v7.5M5 7l3 3 3-3M3 12.5h10" /></svg>;
+export const BoldIcon = () => <svg {...base}><path d="M5 3h4a2.5 2.5 0 0 1 0 5H5zM5 8h4.5a2.5 2.5 0 0 1 0 5H5z" /></svg>;
+export const MoreIcon = () => <svg {...base}><circle cx="3.5" cy="8" r=".6" /><circle cx="8" cy="8" r=".6" /><circle cx="12.5" cy="8" r=".6" /></svg>;
+export const ArrowIcon = () => <svg {...base}><path d="M3 8h10M9 4l4 4-4 4" /></svg>;
+export const CopyIcon = () => <svg {...base}><rect x="5.5" y="5.5" width="8" height="8" rx="1.5" /><path d="M10.5 5.5V3.75A1.25 1.25 0 0 0 9.25 2.5h-5.5A1.25 1.25 0 0 0 2.5 3.75v5.5a1.25 1.25 0 0 0 1.25 1.25H5.5" /></svg>;
+export const FilterIcon = () => <svg {...base}><path d="M2.5 4h11M4.5 8h7M6.5 12h3" /></svg>;
+export const ArchiveIcon = () => <svg {...base}><rect x="2" y="3" width="12" height="3" rx="1" /><path d="M3 6v6.5A1.5 1.5 0 0 0 4.5 14h7a1.5 1.5 0 0 0 1.5-1.5V6M6.5 9h3" /></svg>;
+export const EditIcon = () => <svg {...base}><path d="M10.5 2.75 13.25 5.5 6 12.75 2.75 13.25 3.25 10z" /></svg>;
+export const SearchIcon = () => <svg {...base}><circle cx="7" cy="7" r="4.25" /><path d="m10.25 10.25 3.25 3.25" /></svg>;
+export const HomeIcon = () => <svg {...base}><path d="M2.5 7 8 2.5 13.5 7v6a.5.5 0 0 1-.5.5H10V10H6v3.5H3a.5.5 0 0 1-.5-.5z" /></svg>;
+export const FolderIcon = () => <svg {...base}><path d="M2 4.5A1.5 1.5 0 0 1 3.5 3h2.6l1.4 1.5h5A1.5 1.5 0 0 1 14 6v5.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 11.5z" /></svg>;
+export const ClockIcon = () => <svg {...base}><circle cx="8" cy="8" r="5.5" /><path d="M8 5v3l2 1.5" /></svg>;
+export const StarIcon = () => <svg {...base}><path d="m8 2.5 1.7 3.5 3.8.5-2.8 2.6.7 3.8L8 11.1l-3.4 1.8.7-3.8-2.8-2.6 3.8-.5z" /></svg>;
+export const CloudIcon = () => <svg {...base}><path d="M4.5 12.5a3 3 0 0 1-.3-6A4 4 0 0 1 12 6.8a2.9 2.9 0 0 1-.5 5.7z" /></svg>;
+export const FileIcon = () => <svg {...base}><path d="M4 2.5h5l3 3v8H4z" /><path d="M9 2.5v3h3M6 9h4M6 11h3" /></svg>;
+export const GridIcon = () => <svg {...base}><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1" /><rect x="9" y="2.5" width="4.5" height="4.5" rx="1" /><rect x="2.5" y="9" width="4.5" height="4.5" rx="1" /><rect x="9" y="9" width="4.5" height="4.5" rx="1" /></svg>;
+export const ChevronIcon = () => <svg {...base}><path d="m6 3.5 4.5 4.5L6 12.5" /></svg>;
+export const ChevronDownIcon = () => <svg {...base}><path d="m4 6 4 4 4-4" /></svg>;
+export const UploadIcon = () => <svg {...base}><path d="M8 10.5V3M5 6l3-3 3 3M3 12.5h10" /></svg>;
+export const SettingsIcon = () => <svg {...base}><circle cx="8" cy="8" r="2" /><path d="M8 1.75v1.5M8 12.75v1.5M3.6 3.6l1.05 1.05M11.35 11.35l1.05 1.05M1.75 8h1.5M12.75 8h1.5M3.6 12.4l1.05-1.05M11.35 4.65l1.05-1.05" /></svg>;
+export const UsersIcon = () => <svg {...base}><circle cx="6" cy="5.5" r="2.25" /><path d="M2 13a4 4 0 0 1 8 0M10.5 3.4a2.25 2.25 0 0 1 0 4.2M12 9.4A4 4 0 0 1 14 13" /></svg>;
+export const InboxIcon = () => <svg {...base}><path d="M2.5 9.5 4.2 3.5h7.6l1.7 6v3a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1z" /><path d="M2.5 9.5h3l.75 1.5h3.5l.75-1.5h3" /></svg>;
+export const LockIcon = () => <svg {...base}><rect x="3.5" y="7" width="9" height="6.5" rx="1.5" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" /></svg>;
+export const ListIcon = () => <svg {...base}><path d="M5.5 4h8M5.5 8h8M5.5 12h8M2.5 4h.01M2.5 8h.01M2.5 12h.01" /></svg>;
+export const ItalicIcon = () => <svg {...base}><path d="M7 3h5M4 13h5M9.5 3l-3 10" /></svg>;
+export const UnderlineIcon = () => <svg {...base}><path d="M4.5 2.5V7a3.5 3.5 0 0 0 7 0V2.5M3.5 13.5h9" /></svg>;
+export const AlignLeftIcon = () => <svg {...base}><path d="M2.5 4h11M2.5 8h7M2.5 12h9" /></svg>;
+export const AlignCenterIcon = () => <svg {...base}><path d="M2.5 4h11M4.5 8h7M3.5 12h9" /></svg>;
+export const AlignRightIcon = () => <svg {...base}><path d="M2.5 4h11M6.5 8h7M4.5 12h9" /></svg>;
+export const PinIcon = () => <svg {...base}><path d="M6 2.5h4M6.75 2.5v4L4.5 9h7L9.25 6.5v-4M8 9v4.5" /></svg>;
+export const ShareIcon = () => <svg {...base}><circle cx="6" cy="6" r="2.25" /><path d="M2 13a4 4 0 0 1 8 0M11.5 5.5v4M9.5 7.5h4" /></svg>;
+export const LinkIcon = () => <svg {...base}><path d="M6.75 9.25a2.75 2.75 0 0 0 3.9 0l1.85-1.85a2.75 2.75 0 0 0-3.9-3.9l-.6.6M9.25 6.75a2.75 2.75 0 0 0-3.9 0L3.5 8.6a2.75 2.75 0 0 0 3.9 3.9l.6-.6" /></svg>;
+export const InfoIcon = () => <svg {...base}><circle cx="8" cy="8" r="5.5" /><path d="M8 7.25v3.5M8 5.25h.01" /></svg>;

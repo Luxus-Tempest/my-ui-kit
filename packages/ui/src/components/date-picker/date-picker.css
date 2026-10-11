@@ -1,0 +1,149 @@
+/* Déclencheur : gabarit du déclencheur de Select (remplissage tonal, focus, erreur). */
+.ui-date-picker-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  margin: 0;
+  padding: 0 14px 0 12px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-ctl);
+  background: var(--ui-card-2);
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  text-align: start;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-date-picker-trigger[data-density="sm"] { height: 32px; gap: 8px; padding: 0 11px 0 9px; border-radius: var(--ui-r-sm); font-size: 13px; }
+.ui-date-picker-trigger[data-placeholder] { color: var(--ui-fg-3); }
+@media (hover: hover) {
+  .ui-date-picker-trigger:hover:not(:disabled, [data-state="open"]) { background: var(--ui-card-hover); }
+}
+.ui-date-picker-trigger:focus-visible,
+.ui-date-picker-trigger[data-state="open"] {
+  border-color: var(--ui-pri);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px var(--ui-ring);
+}
+.ui-date-picker-trigger[aria-invalid="true"] {
+  border-color: var(--ui-err);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-err) 18%, transparent);
+}
+.ui-date-picker-trigger:disabled { cursor: not-allowed; opacity: 0.5; }
+.ui-date-picker-trigger__icon { display: flex; flex-shrink: 0; color: var(--ui-fg-2); }
+.ui-date-picker-trigger__icon svg { width: 18px; height: 18px; }
+.ui-date-picker-trigger[data-density="sm"] .ui-date-picker-trigger__icon svg { width: 16px; height: 16px; }
+.ui-date-picker-trigger[data-state="open"] .ui-date-picker-trigger__icon { color: var(--ui-pri); }
+.ui-date-picker-trigger__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Panneau : surface .ui-popup, largeur du calendrier. Double classe : l'emporte
+   sur .ui-popover quel que soit l'ordre des feuilles. */
+.ui-popover.ui-date-picker__content {
+  width: auto;
+  max-width: calc(100vw - 16px);
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--ui-r-lg);
+}
+.ui-date-picker__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 -4px -4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--ui-line);
+}
+.ui-date-picker__footer > :only-child:not(.ui-date-picker__status) { margin-inline-start: auto; }
+/* Ligne d'état entre les deux clics d'une période. */
+.ui-date-picker__status { align-self: center; padding: 6px 4px; color: var(--ui-fg-2); font-size: 13px; }
+
+/* Corps : périodes prédéfinies à gauche, calendrier à droite. */
+.ui-date-picker__body { display: flex; gap: 8px; }
+.ui-date-picker__calendar { min-width: 0; }
+
+/* Périodes : entrées en pilule, comme le tiroir de Drive ; l'active en conteneur de sélection. */
+.ui-date-picker__presets {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 156px;
+  padding-inline-end: 8px;
+  border-inline-end: 1px solid var(--ui-line);
+}
+.ui-date-picker__preset {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  margin: 0;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: var(--ui-fg);
+  font: inherit;
+  font-size: 13.5px;
+  text-align: start;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+}
+.ui-date-picker__preset::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-date-picker__preset:hover:not(:disabled)::before { opacity: var(--ui-state-hover); }
+}
+.ui-date-picker__preset:active:not(:disabled)::before { opacity: var(--ui-state-press); }
+.ui-date-picker__preset:focus-visible { box-shadow: inset 0 0 0 2px var(--ui-pri); }
+.ui-date-picker__preset[aria-pressed="true"] { background: var(--ui-sel); color: var(--ui-on-pri-container); font-weight: 500; }
+.ui-date-picker__preset:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Petit écran : les périodes passent en rangée défilante au-dessus du calendrier. */
+@media (max-width: 640px) {
+  .ui-date-picker__body { flex-direction: column; }
+  .ui-date-picker__presets {
+    flex-direction: row;
+    /* N'élargit pas le panneau : épouse la largeur du calendrier et défile. */
+    width: 0;
+    min-width: 100%;
+    overflow-x: auto;
+    padding: 0 0 8px;
+    border-inline-end: 0;
+    border-bottom: 1px solid var(--ui-line);
+  }
+  .ui-date-picker__preset { flex-shrink: 0; height: 32px; padding: 0 12px; box-shadow: inset 0 0 0 1px var(--ui-line-3); }
+  .ui-date-picker__preset[aria-pressed="true"] { box-shadow: none; }
+}
+
+@media (forced-colors: active) {
+  .ui-date-picker-trigger { border-color: ButtonText; }
+}

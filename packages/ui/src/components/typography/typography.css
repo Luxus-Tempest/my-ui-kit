@@ -1,0 +1,103 @@
+/* ── Text ── */
+.ui-text { font-family: var(--ui-font-sans); margin: 0; }
+.ui-text[data-size="10"] { font-size: 10px; line-height: 1.4; }
+.ui-text[data-size="11"] { font-size: 11px; line-height: 1.45; }
+.ui-text[data-size="11.5"] { font-size: 11.5px; line-height: 1.45; }
+.ui-text[data-size="12"] { font-size: 12px; line-height: 1.45; }
+.ui-text[data-size="12.5"] { font-size: 12.5px; line-height: 1.5; }
+.ui-text[data-size="13"] { font-size: 13px; line-height: 1.45; }
+.ui-text[data-size="14"] { font-size: 14px; line-height: 1.45; }
+.ui-text[data-size="15"] { font-size: 15px; line-height: 1.4; }
+.ui-text[data-size="16"] { font-size: 16px; line-height: 1.4; }
+
+.ui-text[data-weight="regular"] { font-weight: 400; }
+.ui-text[data-weight="medium"] { font-weight: 500; }
+.ui-text[data-weight="semibold"] { font-weight: 600; }
+.ui-text[data-weight="bold"] { font-weight: 650; }
+.ui-text[data-weight="extrabold"] { font-weight: 700; }
+
+:is(.ui-text, .ui-heading)[data-tone="default"] { color: var(--ui-fg); }
+:is(.ui-text, .ui-heading)[data-tone="muted"] { color: var(--ui-fg-2); }
+:is(.ui-text, .ui-heading)[data-tone="subtle"] { color: var(--ui-fg-3); }
+:is(.ui-text, .ui-heading)[data-tone="pri"] { color: var(--ui-pri-d); }
+:is(.ui-text, .ui-heading)[data-tone="ok"] { color: var(--ui-ok); }
+:is(.ui-text, .ui-heading)[data-tone="warn"] { color: var(--ui-warn); }
+:is(.ui-text, .ui-heading)[data-tone="err"] { color: var(--ui-err); }
+:is(.ui-text, .ui-heading)[data-tone="inherit"] { color: inherit; }
+
+.ui-text[data-truncate] { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 0; }
+.ui-text[data-clamp] { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+.ui-text[data-mono] { font-family: var(--ui-font-mono); font-variant-ligatures: none; }
+.ui-text[data-numeric] { font-variant-numeric: tabular-nums; }
+.ui-text[data-eyebrow] {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ui-fg-3);
+}
+
+/* ── Heading : graisse 600 (SF Pro / Google Sans), interlettrage négatif sur les grands corps ── */
+.ui-heading { margin: 0; font-family: var(--ui-font-sans); color: var(--ui-fg); text-wrap: balance; }
+.ui-heading[data-size="2xl"] { font-size: 34px; line-height: 1.15; letter-spacing: -0.028em; font-weight: 700; }
+.ui-heading[data-size="xl"] { font-size: 28px; line-height: 1.2; letter-spacing: -0.024em; font-weight: 650; }
+.ui-heading[data-size="lg"] { font-size: 24px; line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
+.ui-heading[data-size="md"] { font-size: 20px; line-height: 1.3; letter-spacing: -0.016em; font-weight: 600; }
+.ui-heading[data-size="sm"] { font-size: 18px; line-height: 1.35; letter-spacing: -0.012em; font-weight: 600; }
+.ui-heading[data-size="xs"] { font-size: 15px; line-height: 1.4; letter-spacing: -0.01em; font-weight: 600; }
+
+/* ── Link ── */
+.ui-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  color: var(--ui-pri);
+  font-weight: 500;
+  text-decoration: none;
+  text-underline-offset: 3px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.ui-link[data-variant="subtle"] { color: inherit; text-decoration: underline; text-decoration-color: var(--ui-line-3); }
+@media (hover: hover) {
+  .ui-link:hover { color: var(--ui-pri-d); text-decoration: underline; }
+  .ui-link[data-variant="subtle"]:hover { color: var(--ui-fg); text-decoration-color: currentColor; }
+}
+.ui-link:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ui-ring); }
+.ui-link__external { width: 10px; height: 10px; flex-shrink: 0; align-self: center; }
+
+/* ── Kbd ── */
+.ui-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border: 1px solid var(--ui-line);
+  border-radius: 6px;
+  background: var(--ui-card-2);
+  box-shadow: inset 0 -1px 0 var(--ui-line);
+  color: var(--ui-fg-2);
+  font-family: var(--ui-font-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1;
+  font-variant-ligatures: none;
+  white-space: nowrap;
+}
+
+/* ── Masqué à l'écran ── */
+.ui-sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

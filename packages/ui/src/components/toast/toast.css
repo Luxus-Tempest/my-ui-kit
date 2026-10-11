@@ -1,0 +1,57 @@
+/* Toast : une notification iOS (matériau translucide, grand rayon) à la place d'un snackbar. */
+.ui-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-sizing: border-box;
+  width: var(--width, 360px);
+  padding: 14px 16px;
+  border: 1px solid var(--ui-material-line);
+  border-radius: var(--ui-r-lg);
+  background: var(--ui-panel);
+  color: var(--ui-fg);
+  box-shadow: var(--ui-sh3);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+@supports (backdrop-filter: blur(1px)) {
+  .ui-toast {
+    background: var(--ui-material);
+    backdrop-filter: var(--ui-blur);
+    -webkit-backdrop-filter: var(--ui-blur);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .ui-toast { background: var(--ui-panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+.ui-toast__icon { display: flex; flex-shrink: 0; margin-top: 0; color: var(--ui-fg-2); }
+.ui-toast__icon svg { width: 20px; height: 20px; }
+.ui-toast[data-type="success"] .ui-toast__icon { color: var(--ui-ok); }
+.ui-toast[data-type="info"] .ui-toast__icon { color: var(--ui-pri); }
+.ui-toast[data-type="warning"] .ui-toast__icon { color: var(--ui-warn); }
+.ui-toast[data-type="error"] .ui-toast__icon { color: var(--ui-err); }
+.ui-toast__content { display: grid; flex: 1; gap: 2px; min-width: 0; }
+.ui-toast__title { color: var(--ui-fg); }
+.ui-toast__description { color: var(--ui-fg-2); font-size: 13px; font-weight: 400; }
+.ui-toast__button { align-self: center; margin-inline-start: auto; }
+.ui-toast__close {
+  position: absolute;
+  top: -7px;
+  inset-inline-start: -7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--ui-line);
+  border-radius: 50%;
+  background: var(--ui-panel);
+  color: var(--ui-fg-2);
+  box-shadow: var(--ui-sh1);
+  cursor: pointer;
+}
+.ui-toast__close svg { width: 10px; height: 10px; }
+.ui-toast__close:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ui-ring); }

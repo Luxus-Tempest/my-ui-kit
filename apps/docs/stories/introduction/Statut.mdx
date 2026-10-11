@@ -1,0 +1,149 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Introduction/Statut des composants" />
+
+# Statut des composants
+
+- **Stable** : API figée (changement cassant = version majeure), testé, documenté, vérifié en clair, en sombre et de droite à gauche.
+- **Bêta** : utilisable en production ; l'API peut encore évoluer sur retour d'usage (signalé dans le changelog).
+
+Tous les composants ont un test de comportement et un test d'accessibilité (axe), et une page dans *Composants*.
+Chaque composant n'importe que ce qu'il utilise : une application qui n'affiche aucun graphique n'embarque pas ECharts,
+une application sans tableau de données n'embarque pas TanStack Table.
+
+## Actions
+
+| Composant | Statut | Primitive | Notes |
+|---|---|---|---|
+| Button | Stable | Radix Slot | 11 rôles, 6 tailles, chargement, `asChild` |
+| ButtonGroup | Bêta | — | Segments soudés, bouton scindé, `variant` et `size` transmis |
+| Toggle | Bêta | Radix Toggle | Bascule seule (gras, favori) |
+| ToggleGroup | Bêta | Radix ToggleGroup | Segmenté (iOS) ou sélecteur de vue (Drive) ; un choix toujours sélectionné (`allowEmpty`) |
+| Chip | Stable | — | Action, filtre, entrée retirable |
+| Fab, SpeedDial | Bêta | Radix Slot | Bouton flottant, « + Nouveau » de Drive, actions déployées |
+
+## Formulaire
+
+| Composant | Statut | Primitive | Notes |
+|---|---|---|---|
+| Field | Stable | — | Relie libellé, aide, erreur à tout contrôle |
+| Label | Stable | — | |
+| Input / Textarea | Stable | — | Remplissage tonal, `autoResize` |
+| InputGroup | Stable | — | Préfixe, unité, bouton, barre d'outils |
+| SearchBar | Stable | — | Pilule Drive, Échap pour vider |
+| NumberInput | Bêta | — | Stepper, formatage fr-FR, `spinbutton` |
+| InputOTP | Bêta | input-otp | Code SMS ou PIN, collage, autocomplétion `one-time-code` |
+| Select | Stable | Radix Select | Liste courte |
+| NativeSelect | Bêta | `<select>` | Sélecteur natif du système, idéal sur mobile |
+| Combobox | Bêta | Radix Popover + cmdk | Recherche, sélection multiple |
+| Checkbox | Stable | Radix Checkbox | Indéterminé |
+| RadioGroup | Stable | Radix RadioGroup | |
+| Switch | Stable | Radix Switch | Proportions iOS |
+| Slider | Bêta | Radix Slider | Valeur ou plage, graduations, vertical |
+| Rating | Bêta | — | Demi-étoiles, icône libre, lecture seule |
+| Calendar | Bêta | react-day-picker 9 | Locale fr, semaine au lundi |
+| DatePicker / DateRangePicker | Bêta | Popover + Calendar | Préréglages, un mois sur mobile |
+| TimePicker / DateTimePicker | Bêta | Popover | Pas, bornes, saisie libre |
+| Dropzone, FileUploadList | Bêta | — | Glisser-déposer, progression, erreurs par fichier |
+
+## Affichage
+
+| Composant | Statut | Primitive | Notes |
+|---|---|---|---|
+| Avatar | Stable | Radix Avatar | Présence, groupe |
+| Badge | Stable | — | Pastilles d'état et compteurs |
+| Card | Stable | Radix Slot | 3 surfaces, interactive, sélection |
+| List | Stable | Radix Slot | Groupée (iOS) ou nue (Drive) |
+| Table | Stable | — | Tri, densités, en-tête collant |
+| AspectRatio | Bêta | — | Cadrage `cover` / `contain`, superposition |
+| Carousel | Bêta | Embla | Points, plusieurs par vue, vertical, clavier |
+
+## Données
+
+| Composant | Statut | Primitive | Notes |
+|---|---|---|---|
+| DataTable | Bêta | TanStack Table 8 + Virtual | Tri, recherche, facettes, sélection, colonnes, densité, export CSV, mode serveur, virtualisation |
+| TreeView | Bêta | — | Arborescence de dossiers, sélection multiple, chargement paresseux |
+| Timeline | Bêta | — | Fil d'activité, jalons, alterné |
+| DescriptionList | Bêta | — | Horizontal, vertical, grille, valeurs copiables |
+| Stat, StatGroup, Sparkline | Bêta | — | Indicateur clé, variation favorable ou non, tendance |
+
+## Typographie
+
+| Composant | Statut | Notes |
+|---|---|---|
+| Text, Heading, Link, Kbd, VisuallyHidden | Stable | Échelle, tons, chiffres tabulaires |
+
+## Mise en page
+
+| Composant | Statut | Primitive | Notes |
+|---|---|---|---|
+| Box, Stack, HStack, Grid, Container | Stable | — | Pas de 4 px, surfaces du thème |
+| Separator | Stable | Radix Separator | |
+| ScrollArea | Stable | Radix ScrollArea | |
+| Accordion | Bêta | Radix Accordion | Groupé ou nu |
+| Collapsible | Bêta | Radix Collapsible | |
+| Resizable | Bêta | react-resizable-panels 3 | Panneaux repliables, clavier, disposition mémorisée |
+
+## Navigation
+
+| Composant | Statut | Primitive | Notes |
+|---|---|---|---|
+| Sidebar | Bêta | Radix Slot | Panneau, flottante, réduite en icônes, tiroir sur mobile, ⌘B |
+| AppBar | Bêta | — | Material ou iOS (titre centré), compacte, filet au défilement (`elevateOnScroll`) |
+| BottomNavigation | Bêta | — | Barre d'onglets mobile, pastilles, liens de routeur |
+| Tabs | Stable | Radix Tabs | Ligne, segmenté, vertical (tiroir) |
+| Breadcrumb | Bêta | — | Chemin-titre de Drive en `lg` |
+| Pagination | Bêta | — | Pages ou compacte |
+| Stepper | Bêta | — | Horizontal, vertical, non linéaire, erreur, `useStepper` |
+| Menubar | Bêta | Radix Menubar | Barre de menus d'application (Docs) |
+| NavigationMenu | Bêta | Radix NavigationMenu | En-tête de site, panneaux en grille |
+
+## Surcouches
+
+| Composant | Statut | Primitive | Notes |
+|---|---|---|---|
+| Tooltip | Stable | Radix Tooltip | Inversée, raccourci |
+| Popover | Stable | Radix Popover | |
+| HoverCard | Bêta | Radix HoverCard | Aperçu au survol d'un lien ou d'un nom |
+| Menu | Stable | Radix DropdownMenu | |
+| ContextMenu | Bêta | Radix ContextMenu | Clic droit, même API que Menu |
+| Dialog | Stable | Radix Dialog | |
+| AlertDialog | Stable | Radix AlertDialog | |
+| Sheet | Stable | Radix Dialog | Latérale flottante ou feuille du bas |
+| Drawer | Bêta | vaul | Feuille iOS à glisser, arrière-plan qui recule |
+| Command | Stable | cmdk | Palette ⌘K |
+
+## Retour
+
+| Composant | Statut | Primitive | Notes |
+|---|---|---|---|
+| Alert | Stable | — | |
+| Toast | Stable | sonner | |
+| Progress | Stable | Radix Progress | |
+| Spinner, Skeleton | Stable | — | |
+| EmptyState | Bêta | — | |
+
+## Messagerie
+
+| Composant | Statut | Primitive | Notes |
+|---|---|---|---|
+| MessageList, MessageGroup, Message | Bêta | — | Bulles iOS, regroupement, statuts, horodatage, pièces jointes |
+| ChatComposer | Bêta | — | Entrée envoie, Maj+Entrée va à la ligne, envoi asynchrone |
+| TypingIndicator, MessageDateSeparator | Bêta | — | |
+
+## Graphiques
+
+| Composant | Statut | Moteur | Notes |
+|---|---|---|---|
+| LineChart, BarChart, DonutChart | Bêta | Apache ECharts 6 | Légende, clavier, vue tableau, texture |
+| Chart | Bêta | Apache ECharts 6 | Option ECharts libre, thème des jetons |
+
+## Thème et hooks
+
+| API | Statut | Notes |
+|---|---|---|
+| ThemeProvider | Stable | Clair, sombre, système ; `dir="rtl"` |
+| DirectionProvider, useDirection | Bêta | Sens de lecture transmis aux primitives Radix |
+| useMediaQuery, breakpoints | Bêta | `sm` 640, `md` 768, `lg` 1024 px |
+| useControllableState | Bêta | Valeur contrôlée ou non, pour vos propres composants |

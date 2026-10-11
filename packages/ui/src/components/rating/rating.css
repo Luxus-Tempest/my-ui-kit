@@ -1,0 +1,123 @@
+/*
+ * Note en étoiles.
+ *
+ * Chaque étoile superpose deux calques de la même icône : la partie vide au
+ * trait (--ui-outline, 3:1 comme le bord d'une case à cocher), la partie pleine
+ * remplie et rognée par clip-path (demi-étoile, ou fraction d'une moyenne en
+ * lecture seule). Plein et vide diffèrent par la forme, pas seulement par la couleur.
+ *
+ * Couleur pleine : l'or de la palette (--ui-c4) mêlé à parts égales à --ui-warn,
+ * pour rester doré tout en tenant 3:1 sur les surfaces claires (WCAG 1.4.11).
+ *
+ * Les options radio (Radix) sont des boutons transparents posés sur l'étoile,
+ * ou sur chacune de ses moitiés en demi-étoiles. Survol : l'étoile visée grossit
+ * en ressort ; focus : filet primaire + halo autour de l'étoile.
+ */
+.ui-rating {
+  --_size: 24px;
+  --_gap: 4px;
+  --_on: color-mix(in srgb, var(--ui-c4), var(--ui-warn));
+  --_off: var(--ui-outline);
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--_gap);
+  width: fit-content;
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+}
+.ui-rating[data-size="sm"] { --_size: 18px; --_gap: 2px; }
+.ui-rating[data-size="lg"] { --_size: 32px; --_gap: 4px; }
+.ui-rating[aria-invalid="true"] { --_off: var(--ui-err); }
+.ui-rating[data-disabled] { opacity: 0.45; }
+
+.ui-rating__star {
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  width: var(--_size);
+  height: var(--_size);
+  border-radius: var(--ui-r-xs);
+  transition:
+    transform var(--ui-duration-slow) var(--ui-ease-spring),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+
+.ui-rating__icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+}
+.ui-rating__icon svg {
+  width: 100%;
+  height: 100%;
+}
+.ui-rating__icon--empty {
+  color: var(--_off);
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+/* Étoile entièrement pleine : le trait vide ne déborde pas de l'anticrénelage. */
+.ui-rating__star[data-fill="full"] .ui-rating__icon--empty { opacity: 0; }
+.ui-rating__icon--full {
+  color: var(--_on);
+  clip-path: inset(0 var(--_clip, 0%) 0 0);
+  transition: clip-path var(--ui-duration) var(--ui-ease);
+}
+.ui-rating[dir="rtl"] .ui-rating__icon--full { clip-path: inset(0 0 0 var(--_clip, 0%)); }
+.ui-rating__icon--full svg { fill: currentColor; }
+
+/* Options : boutons transparents sur l'étoile entière ou sur une moitié. */
+.ui-rating__item {
+  box-sizing: border-box;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ui-rating__item[data-half="start"] { inset-inline-end: 50%; }
+.ui-rating__item[data-half="end"] { inset-inline-start: 50%; }
+/* Cible tactile ≥ 24 px même en sm. */
+.ui-rating__item::after {
+  content: "";
+  position: absolute;
+  inset: -3px 0;
+}
+.ui-rating__item:disabled { cursor: not-allowed; }
+
+@media (hover: hover) {
+  .ui-rating:not([data-disabled]) .ui-rating__star[data-hover] { transform: scale(1.15); }
+}
+.ui-rating__star:has(> .ui-rating__item:active:not(:disabled)) { transform: scale(0.9); }
+.ui-rating__star:has(> .ui-rating__item:focus-visible) {
+  box-shadow: 0 0 0 1px var(--ui-pri), 0 0 0 4px var(--ui-ring);
+}
+.ui-rating[aria-invalid="true"] .ui-rating__star:has(> .ui-rating__item:focus-visible) {
+  box-shadow: 0 0 0 1px var(--ui-err), 0 0 0 4px color-mix(in srgb, var(--ui-err) 18%, transparent);
+}
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-rating__star,
+  .ui-rating__star[data-hover],
+  .ui-rating__star:has(> .ui-rating__item:active:not(:disabled)) { transform: none; }
+}
+@media (forced-colors: active) {
+  .ui-rating__icon { forced-color-adjust: none; }
+  .ui-rating__icon--empty { color: CanvasText; }
+  .ui-rating__icon--full { color: Highlight; }
+  .ui-rating__star:has(> .ui-rating__item:focus-visible) {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+    box-shadow: none;
+  }
+}

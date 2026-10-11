@@ -1,0 +1,3 @@
+.ui-separator { flex-shrink: 0; background: var(--ui-line); }
+.ui-separator[data-orientation="horizontal"] { width: 100%; height: 1px; }
+.ui-separator[data-orientation="vertical"] { width: 1px; align-self: stretch; }

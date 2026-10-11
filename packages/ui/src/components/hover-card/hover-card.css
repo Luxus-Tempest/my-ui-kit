@@ -1,0 +1,28 @@
+/*
+ * Carte d'aperçu au survol. La surface est celle de tout ce qui flotte
+ * (.ui-popup : matériau translucide, filet capillaire, ombre diffuse, entrée
+ * en ressort) ; la carte ne pose que sa géométrie : 300 px, rayon 16 px.
+ */
+.ui-hover-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 300px;
+  max-width: calc(100vw - 16px);
+  padding: 16px;
+  border-radius: var(--ui-r-lg);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Flèche : remplissage opaque du panneau, glissée d'un pixel sous la carte
+   pour masquer son filet à la jonction. */
+.ui-hover-card__arrow {
+  fill: var(--ui-panel);
+  transform: translateY(-1px);
+}
+
+@media (forced-colors: active) {
+  .ui-hover-card { border-color: CanvasText; }
+  .ui-hover-card__arrow { fill: CanvasText; }
+}

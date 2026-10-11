@@ -1,0 +1,57 @@
+.ui-badge {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: fit-content;
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-card-2);
+  color: var(--ui-fg-2);
+  font-family: var(--ui-font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.ui-badge :where(svg) { width: 14px; height: 14px; flex-shrink: 0; pointer-events: none; }
+.ui-badge__dot { display: block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* Compteurs */
+.ui-badge--count {
+  height: 20px;
+  min-width: 20px;
+  padding: 0 6px;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+.ui-badge--count-outline { border-color: var(--ui-line-2); background: transparent; }
+
+/* Pastilles d'état : fond estompé + filet du ton */
+.ui-badge--pri  { border-color: var(--ui-pri-line);  background: var(--ui-pri-soft);  color: var(--ui-pri-d); }
+.ui-badge--ok   { border-color: var(--ui-ok-line);   background: var(--ui-ok-soft);   color: var(--ui-ok); }
+.ui-badge--warn { border-color: var(--ui-warn-line); background: var(--ui-warn-soft); color: var(--ui-warn); }
+.ui-badge--err  { border-color: var(--ui-err-line);  background: var(--ui-err-soft);  color: var(--ui-err); }
+
+/* Couleur libre : le fond et le filet se déduisent de la teinte. */
+.ui-badge--tinted {
+  --ui-badge-tint: var(--ui-fg-2);
+  border-color: color-mix(in srgb, var(--ui-badge-tint) 30%, var(--ui-panel));
+  background: color-mix(in srgb, var(--ui-badge-tint) 9%, var(--ui-panel));
+  /* La teinte seule (un vert, un orange vifs) descend sous 3:1 sur son propre fond :
+     mêlée à moitié à l'encre, elle garde sa couleur et passe 4,5:1. */
+  color: color-mix(in oklab, var(--ui-badge-tint) 50%, var(--ui-fg));
+}
+[data-theme="dark"] .ui-badge--tinted,
+.dark .ui-badge--tinted {
+  color: color-mix(in srgb, var(--ui-badge-tint) 70%, white);
+}
+
+a.ui-badge:focus-visible,
+button.ui-badge:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ui-ring); border-color: var(--ui-pri); }

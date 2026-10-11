@@ -1,0 +1,10 @@
+/*
+ * Menu contextuel : surface .ui-popup et entrées .ui-menu-item partagées avec
+ * Menu (popup.css, menu.css). Seules les variables Radix diffèrent : un menu
+ * contextuel n'a pas de déclencheur dont il reprendrait la largeur.
+ * Double classe pour l'emporter sur .ui-menu quel que soit l'ordre des @import.
+ */
+.ui-menu.ui-context-menu {
+  min-width: 220px;
+  max-height: var(--radix-context-menu-content-available-height);
+}

@@ -1,0 +1,78 @@
+/*
+ * Panneaux redimensionnables (react-resizable-panels). La bibliothèque pose
+ * la mise en page en ligne (flex, tailles en %) ; on ne fait qu'habiller.
+ *
+ * Séparateur : filet de 1 px au repos. Au survol (après un court délai, pour
+ * qu'un simple passage ne clignote pas), au glissement et au focus, une barre
+ * primaire de 3 px s'y superpose ; le focus clavier ajoute le halo. La zone de
+ * saisie déborde du filet (5 px de chaque côté à la souris, 15 px au doigt) :
+ * c'est la bibliothèque qui l'étend, sans pseudo-élément.
+ */
+.ui-resizable__panel { min-width: 0; min-height: 0; }
+
+.ui-resizable__handle {
+  position: relative;
+  display: flex;
+  flex: 0 0 1px;
+  align-items: center;
+  justify-content: center;
+  /* La pilule (6 px) déborde du filet sans l'élargir. */
+  min-width: 0;
+  min-height: 0;
+  background: var(--ui-line);
+  outline: none;
+  cursor: col-resize;
+}
+.ui-resizable__handle[data-panel-group-direction="vertical"] { cursor: row-resize; }
+.ui-resizable__handle[data-panel-resize-handle-enabled="false"] { cursor: default; }
+
+/* Barre active : centrée sur le filet, 3 px. */
+.ui-resizable__handle::before {
+  content: "";
+  position: absolute;
+  inset: 0 -1px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-pri);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-resizable__handle[data-panel-group-direction="vertical"]::before { inset: -1px 0; }
+
+.ui-resizable__handle[data-resize-handle-state="hover"]::before {
+  opacity: 1;
+  transition-delay: var(--ui-duration);
+}
+.ui-resizable__handle[data-resize-handle-state="drag"]::before,
+.ui-resizable__handle:focus-visible::before { opacity: 1; }
+.ui-resizable__handle:focus-visible::before { box-shadow: 0 0 0 3px var(--ui-ring); }
+.ui-resizable__handle[data-panel-resize-handle-enabled="false"]::before { display: none; }
+
+/* Pilule de préhension (`withHandle`) : grise au repos, primaire quand le séparateur est actif. */
+.ui-resizable__grip {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 6px;
+  height: 32px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-line-3);
+  box-shadow: 0 0 0 2px var(--ui-panel);
+  pointer-events: none;
+  transition: background-color var(--ui-duration) var(--ui-ease);
+}
+.ui-resizable__handle[data-panel-group-direction="vertical"] .ui-resizable__grip { width: 32px; height: 6px; }
+.ui-resizable__handle[data-resize-handle-state="hover"] .ui-resizable__grip {
+  background: var(--ui-pri);
+  transition-delay: var(--ui-duration);
+}
+.ui-resizable__handle:is([data-resize-handle-state="drag"], :focus-visible) .ui-resizable__grip { background: var(--ui-pri); }
+
+@media (forced-colors: active) {
+  .ui-resizable__handle { background: CanvasText; }
+  .ui-resizable__handle::before { background: Highlight; }
+  .ui-resizable__handle:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+  .ui-resizable__grip { background: CanvasText; box-shadow: none; }
+}

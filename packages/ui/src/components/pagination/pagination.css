@@ -1,0 +1,130 @@
+/*
+ * Pagination. `pages` : flèches circulaires fantômes et pastilles de 36 px,
+ * page courante en conteneur de sélection (Drive). `compact` : « Page 3 sur 12 »
+ * entre deux flèches, à la manière d'iOS.
+ */
+.ui-pagination {
+  --_size: 36px;
+  display: flex;
+  font-family: var(--ui-font-sans);
+}
+
+.ui-pagination__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ui-pagination__list > li { display: flex; }
+
+.ui-pagination__button {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: var(--_size);
+  height: var(--_size);
+  margin: 0;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: var(--ui-fg-2);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-pagination__arrow { width: var(--_size); padding: 0; }
+.ui-pagination__button :where(svg) { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* Couche d'état : currentColor sous le contenu. */
+.ui-pagination__button::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-pagination__button:hover:not([aria-disabled="true"]) { color: var(--ui-fg); }
+  .ui-pagination__button:hover:not([aria-disabled="true"])::before { opacity: var(--ui-state-hover); }
+}
+.ui-pagination__button:active:not([aria-disabled="true"]) { transform: scale(0.94); }
+.ui-pagination__button:active:not([aria-disabled="true"])::before { opacity: var(--ui-state-press); }
+.ui-pagination__button:focus-visible {
+  border-color: var(--ui-pri);
+  box-shadow: 0 0 0 3px var(--ui-ring);
+}
+
+/* Page courante : conteneur de sélection de Drive. */
+.ui-pagination__page[aria-current="page"] {
+  background: var(--ui-sel);
+  color: var(--ui-on-pri-container);
+  font-weight: 600;
+}
+@media (hover: hover) {
+  .ui-pagination__page[aria-current="page"]:hover { color: var(--ui-on-pri-container); }
+}
+
+/* Bornes : restent focusables (aria-disabled), sans effet. */
+.ui-pagination__button[aria-disabled="true"] { opacity: 0.38; cursor: default; }
+.ui-pagination__page[aria-current="page"][aria-disabled="true"] { opacity: 0.6; }
+
+.ui-pagination__ellipsis {
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: var(--_size);
+  color: var(--ui-fg-3);
+  font-size: 14px;
+  user-select: none;
+}
+
+/* ── Compacte ──────────────────────────────────────────────────────── */
+.ui-pagination--compact .ui-pagination__list { flex-wrap: nowrap; gap: 4px; }
+.ui-pagination__status {
+  min-width: 0;
+  padding: 0 8px;
+  color: var(--ui-fg-2);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ui-pagination__button:active:not([aria-disabled="true"]) { transform: none; }
+}
+@media (forced-colors: active) {
+  .ui-pagination__button::before { display: none; }
+  .ui-pagination__button:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+  .ui-pagination__page[aria-current="page"] {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+  .ui-pagination__button[aria-disabled="true"] { color: GrayText; }
+}
+
+/* Sens de lecture : « précédente » pointe vers le début de ligne. */
+[dir="rtl"] .ui-pagination__arrow svg { transform: scaleX(-1); }

@@ -1,0 +1,115 @@
+/*
+ * Groupe de boutons : des .ui-button accolés en une seule pilule.
+ *
+ * - Seuls les bouts extérieurs gardent leur arrondi ; les coins intérieurs sont droits.
+ * - Les segments se chevauchent d'1 px : les filets des `outline` se fondent en un
+ *   seul trait, et deux segments pleins (dont le filet est transparent, fond
+ *   rogné au padding-box) gardent entre eux un liseré de la surface, comme les
+ *   groupes « connectés » de Material 3.
+ * - Le segment focalisé passe au-dessus de ses voisins : filet primaire et halo entiers.
+ * Les variantes, tailles et états restent ceux de button.css.
+ */
+.ui-button-group {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: stretch;
+  width: fit-content;
+  max-width: 100%;
+  vertical-align: middle;
+}
+.ui-button-group[data-orientation="vertical"] { flex-direction: column; }
+.ui-button-group[data-full-width] { display: flex; width: 100%; }
+.ui-button-group[data-full-width][data-orientation="horizontal"]
+  > :not(.ui-button-group__separator, .ui-button--size-icon, .ui-button--size-icon-sm, .ui-button--size-icon-lg) {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* ── Arrondis ──────────────────────────────────────────────────────── */
+
+/* Pile verticale : l'arrondi d'une demi-hauteur (celui d'une pilule), pas un arc étiré. */
+.ui-button-group[data-orientation="vertical"] > .ui-button { --_radius: calc(var(--_h) / 2); }
+.ui-button-group[data-orientation="vertical"] > .ui-button-group__text { border-radius: var(--ui-r-lg); }
+
+.ui-button-group[data-orientation="horizontal"] > :not(:first-child) {
+  margin-inline-start: -1px;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+.ui-button-group[data-orientation="horizontal"] > :not(:last-child) {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+.ui-button-group[data-orientation="vertical"] > :not(:first-child) {
+  margin-block-start: -1px;
+  border-start-start-radius: 0;
+  border-start-end-radius: 0;
+}
+.ui-button-group[data-orientation="vertical"] > :not(:last-child) {
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+}
+
+/* Bouton icône en bout de groupe (déclencheur d'un bouton scindé) : un peu plus
+   large, et l'icône recentrée optiquement vers le côté droit du segment. */
+.ui-button-group[data-orientation="horizontal"] > :is(.ui-button--size-icon, .ui-button--size-icon-sm, .ui-button--size-icon-lg) {
+  width: calc(var(--_h) + 4px);
+}
+.ui-button-group[data-orientation="horizontal"]
+  > :is(.ui-button--size-icon, .ui-button--size-icon-sm, .ui-button--size-icon-lg):last-child:not(:first-child) {
+  padding-inline-end: 3px;
+}
+.ui-button-group[data-orientation="horizontal"]
+  > :is(.ui-button--size-icon, .ui-button--size-icon-sm, .ui-button--size-icon-lg):first-child:not(:last-child) {
+  padding-inline-start: 3px;
+}
+
+/* Le segment focalisé passe devant ses voisins. */
+.ui-button-group > :focus-visible { z-index: 2; }
+
+/* Groupes imbriqués (barre d'outils) : espacés, sans chevauchement. */
+.ui-button-group:has(> .ui-button-group) { gap: 8px; }
+.ui-button-group[data-orientation] > .ui-button-group { margin: 0; }
+
+/* ── Séparateur ────────────────────────────────────────────────────── */
+
+/* Posé sur le liseré commun des deux segments ; teinte de l'encre, lisible
+   sur la surface comme sur un segment plein. */
+.ui-button-group > .ui-button-group__separator {
+  position: relative;
+  z-index: 1;
+  background: color-mix(in srgb, var(--ui-fg) 16%, transparent);
+}
+
+/* ── Texte ─────────────────────────────────────────────────────────── */
+
+.ui-button-group__text {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid var(--ui-line-3);
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-card-2);
+  color: var(--ui-fg-2);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.006em;
+  line-height: 1;
+  white-space: nowrap;
+}
+:where(.ui-button-group__text svg) {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+
+@media (forced-colors: active) {
+  .ui-button-group > .ui-button-group__separator { background: CanvasText; }
+  .ui-button-group__text { border-color: CanvasText; }
+}

@@ -1,0 +1,54 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Introduction/Bienvenue" />
+
+# @acme/ui
+
+Librairie de composants React accessible, au langage visuel **Drive × iOS** : la clarté tonale de
+Google Drive et la douceur d'iOS. Construite sur **Radix UI** (comportement, clavier, ARIA) avec une
+couche de style en **variables CSS** : aucune dépendance à Tailwind, thème clair et sombre natifs.
+
+## Installation
+
+```bash
+pnpm add @acme/ui
+```
+
+```tsx
+// Une fois, à la racine de l'application
+import "@acme/ui/styles.css";
+import { ThemeProvider, Toaster } from "@acme/ui";
+
+export function App({ children }) {
+  return (
+    <ThemeProvider defaultMode="light">
+      {children}
+      <Toaster />
+    </ThemeProvider>
+  );
+}
+```
+
+Le thème sombre s'active par `ThemeProvider` ou par la classe `.dark` sur un parent : la librairie
+fonctionne telle quelle avec `next-themes`. Les surcharges de jetons passent par
+`<ThemeProvider overrides={{ pri: "#0b57d0" }}>`.
+
+## Parcourir cette documentation
+
+| Rubrique | Contenu |
+|---|---|
+| **Fondations** | Langage visuel, couleurs, typographie, espacement, rayons, élévation et mouvement |
+| **Composants** | Une page par composant : documentation des props, contrôles, variantes, états, composition |
+| **Blocs** | Écrans prêts à l'emploi assemblés avec les composants : application, connexion, paramètres, tableau de bord, messagerie… |
+
+Chaque page de composant commence par un **Playground** pilotable depuis le panneau *Contrôles*.
+La barre d'outils bascule le thème clair / sombre ; l'onglet *Accessibilité* audite la story affichée.
+
+## Principes
+
+- **La variante est le rôle, jamais la couleur.** Une seule action primaire par vue.
+- **Accessible par construction** : focus visible, clavier complet, états annoncés par ARIA, test axe pour chaque composant.
+- **Jetons partout** : aucune valeur en dur, thème sombre conçu (pas inversé), contraste élevé et mouvement réduit respectés.
+- **Composable** : `className` toujours accepté, `asChild` pour rendre un lien, `Field` relie n'importe quel contrôle à son libellé.
+
+Pour contribuer, voir `CONTRIBUTING.md` à la racine du dépôt.

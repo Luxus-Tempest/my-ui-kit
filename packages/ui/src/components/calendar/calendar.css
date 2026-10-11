@@ -1,0 +1,225 @@
+/*
+ * Calendrier (DayPicker v9, sans son CSS par défaut).
+ * Jours en cercles de 36 px, sélection en disque primaire, plage en bande
+ * de sélection arrondie en pilule, couche d'état Material au survol.
+ */
+.ui-calendar {
+  --_cell: 36px;
+  --_nav: 36px;
+  position: relative;
+  display: inline-block;
+  box-sizing: border-box;
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.ui-calendar__months {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  max-width: fit-content;
+}
+.ui-calendar__month { display: flex; flex-direction: column; gap: 4px; }
+
+/* En-tête : libellé du mois à gauche, navigation en haut à droite. */
+.ui-calendar__caption {
+  display: flex;
+  align-items: center;
+  height: var(--_nav);
+  padding-inline: 8px calc(var(--_nav) * 2);
+}
+.ui-calendar__caption-label {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.ui-calendar__nav {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--_nav);
+}
+.ui-calendar__chevron { width: 16px; height: 16px; }
+.ui-calendar[dir="rtl"] .ui-calendar__chevron { transform: scaleX(-1); }
+
+/* navLayout="around" : boutons de part et d'autre du libellé centré. */
+.ui-calendar[data-nav-layout="around"] .ui-calendar__month,
+.ui-calendar[data-nav-layout="after"] .ui-calendar__month { position: relative; }
+.ui-calendar[data-nav-layout="around"] .ui-calendar__caption { justify-content: center; padding-inline: var(--_nav); }
+.ui-calendar[data-nav-layout="around"] .ui-calendar__nav-button { position: absolute; inset-block-start: 2px; }
+.ui-calendar[data-nav-layout="around"] .ui-calendar__nav-button--previous { inset-inline-start: 0; }
+.ui-calendar[data-nav-layout="around"] .ui-calendar__nav-button--next { inset-inline-end: 0; }
+
+/* captionLayout="dropdown" : listes natives discrètes. */
+.ui-calendar__dropdowns { display: inline-flex; align-items: center; gap: 6px; }
+.ui-calendar__dropdown-root { position: relative; display: inline-flex; align-items: center; gap: 2px; }
+.ui-calendar__dropdown {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+  appearance: none;
+}
+.ui-calendar__dropdown-root:has(.ui-calendar__dropdown:focus-visible) {
+  border-radius: var(--ui-r-xs);
+  box-shadow: 0 0 0 3px var(--ui-ring);
+}
+.ui-calendar__dropdown-root .ui-calendar__caption-label { display: inline-flex; align-items: center; gap: 2px; }
+
+/* Grille */
+.ui-calendar__grid { border-collapse: collapse; border-spacing: 0; }
+.ui-calendar__weekday,
+.ui-calendar__week-number-header {
+  width: var(--_cell);
+  height: 32px;
+  padding: 0;
+  color: var(--ui-fg-3);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  text-transform: capitalize;
+}
+.ui-calendar__week-number {
+  width: var(--_cell);
+  color: var(--ui-fg-3);
+  font-size: 12px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* La cellule porte la bande de plage ; le bouton porte le disque. */
+.ui-calendar__day {
+  width: var(--_cell);
+  height: var(--_cell);
+  padding: 1px 0;
+  background-clip: content-box;
+  text-align: center;
+}
+.ui-calendar__day-button {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--_cell);
+  height: var(--_cell);
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+/* Couche d'état Material sur currentColor. */
+.ui-calendar__day-button::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-calendar__day-button:hover:not(:disabled)::before { opacity: var(--ui-state-hover); }
+}
+.ui-calendar__day-button:active:not(:disabled) { transform: scale(0.94); }
+.ui-calendar__day-button:active:not(:disabled)::before { opacity: var(--ui-state-press); }
+.ui-calendar__day-button:focus-visible {
+  border-color: var(--ui-pri);
+  box-shadow: 0 0 0 3px var(--ui-ring);
+}
+
+/* Aujourd'hui : chiffre primaire, graisse 600. */
+.ui-calendar__day--today .ui-calendar__day-button { font-weight: 600; }
+.ui-calendar__day--today:not(.ui-calendar__day--selected) .ui-calendar__day-button { color: var(--ui-pri); }
+
+/* Hors du mois, désactivé, masqué. */
+.ui-calendar__day--outside { color: var(--ui-fg-3); }
+.ui-calendar__day--disabled .ui-calendar__day-button { color: var(--ui-fg-3); opacity: 0.5; cursor: not-allowed; }
+.ui-calendar__day.ui-calendar__day--hidden { visibility: hidden; background: none; }
+
+/* Sélection : disque primaire. */
+.ui-calendar__day--selected .ui-calendar__day-button {
+  background: var(--ui-pri);
+  color: var(--ui-pri-fg);
+  font-weight: 500;
+}
+.ui-calendar__day--selected .ui-calendar__day-button:focus-visible { border-color: var(--ui-panel); }
+
+/* Plage : bande de sélection entre début et fin, arrondie en pilule aux extrémités
+   et à chaque retour à la ligne de semaine. */
+.ui-calendar__day--range-middle,
+.ui-calendar__day--range-start,
+.ui-calendar__day--range-end { background-color: var(--ui-sel); }
+.ui-calendar__day--range-middle .ui-calendar__day-button {
+  background: transparent;
+  color: var(--ui-on-pri-container);
+  font-weight: 400;
+}
+.ui-calendar__day--range-start,
+.ui-calendar__week > .ui-calendar__day--range-middle:first-child {
+  border-start-start-radius: var(--ui-r-pill);
+  border-end-start-radius: var(--ui-r-pill);
+}
+.ui-calendar__day--range-end,
+.ui-calendar__week > .ui-calendar__day--range-middle:last-child {
+  border-start-end-radius: var(--ui-r-pill);
+  border-end-end-radius: var(--ui-r-pill);
+}
+
+.ui-calendar__footer { padding: 8px 8px 0; color: var(--ui-fg-2); font-size: 13px; line-height: 1.4; }
+
+/* Animation de changement de mois (prop `animate`) : glissement en ressort. */
+.ui-calendar__anim--weeks-before-enter { animation: ui-calendar-in-start var(--ui-duration-slow) var(--ui-ease-spring) forwards; }
+.ui-calendar__anim--weeks-after-enter { animation: ui-calendar-in-end var(--ui-duration-slow) var(--ui-ease-spring) forwards; }
+.ui-calendar__anim--weeks-before-exit { animation: ui-calendar-out-end var(--ui-duration-slow) var(--ui-ease-spring) forwards; }
+.ui-calendar__anim--weeks-after-exit { animation: ui-calendar-out-start var(--ui-duration-slow) var(--ui-ease-spring) forwards; }
+.ui-calendar__anim--caption-before-enter,
+.ui-calendar__anim--caption-after-enter { animation: ui-calendar-fade-in var(--ui-duration-slow) var(--ui-ease) forwards; }
+.ui-calendar__anim--caption-before-exit,
+.ui-calendar__anim--caption-after-exit { animation: ui-calendar-fade-out var(--ui-duration) var(--ui-ease) forwards; }
+@keyframes ui-calendar-in-start { from { transform: translateX(-100%); } }
+@keyframes ui-calendar-in-end { from { transform: translateX(100%); } }
+@keyframes ui-calendar-out-start { to { transform: translateX(-100%); } }
+@keyframes ui-calendar-out-end { to { transform: translateX(100%); } }
+@keyframes ui-calendar-fade-in { from { opacity: 0; } }
+@keyframes ui-calendar-fade-out { to { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-calendar__day-button:active:not(:disabled) { transform: none; }
+  .ui-calendar [class*="ui-calendar__anim--"] { animation: none; }
+}
+@media (forced-colors: active) {
+  .ui-calendar__day-button::before { display: none; }
+  .ui-calendar__day-button:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+  .ui-calendar__day--selected .ui-calendar__day-button { background: Highlight; color: HighlightText; forced-color-adjust: none; }
+  .ui-calendar__day--range-middle .ui-calendar__day-button { border-color: Highlight; }
+  .ui-calendar__day--disabled .ui-calendar__day-button { color: GrayText; }
+}

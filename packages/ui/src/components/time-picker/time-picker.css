@@ -1,0 +1,81 @@
+/*
+ * Champ d'heure : un .ui-input (remplissage tonal, focus, erreur, lecture seule
+ * et désactivé partagés avec Input) précédé d'une horloge, et une liste
+ * flottante d'heures en matériau translucide (.ui-popup) dont les entrées sont
+ * des .ui-menu-item. Chiffres tabulaires pour que les heures s'alignent.
+ * Le DateTimePicker pose un DatePicker et un TimePicker côte à côte.
+ */
+.ui-time-picker {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+.ui-time-picker .ui-time-picker__input {
+  padding-inline-start: 38px;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+}
+.ui-time-picker[data-density="sm"] .ui-time-picker__input { padding-inline-start: 31px; }
+
+.ui-time-picker__icon {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 12px;
+  display: flex;
+  align-items: center;
+  color: var(--ui-fg-2);
+  pointer-events: none;
+  transition: color var(--ui-duration) var(--ui-ease);
+}
+.ui-time-picker__icon svg { width: 18px; height: 18px; }
+.ui-time-picker[data-density="sm"] .ui-time-picker__icon { inset-inline-start: 9px; }
+.ui-time-picker[data-density="sm"] .ui-time-picker__icon svg { width: 16px; height: 16px; }
+/* Liste ouverte : l'horloge passe au primaire, comme le calendrier du DatePicker. */
+.ui-time-picker__input[aria-expanded="true"] + .ui-time-picker__icon { color: var(--ui-pri); }
+.ui-time-picker__input:disabled + .ui-time-picker__icon { opacity: 0.5; }
+
+/* Liste : largeur du champ (128 px au moins), environ huit heures visibles.
+   Double classe : l'emporte sur .ui-popover quel que soit l'ordre des feuilles. */
+.ui-popover.ui-time-picker__content {
+  position: relative;
+  display: block;
+  width: max(var(--radix-popover-trigger-width, 0px), 128px);
+  max-width: calc(100vw - 16px);
+  max-height: min(304px, var(--radix-popover-content-available-height, 304px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  border-radius: var(--ui-r-md);
+}
+.ui-time-picker__option {
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.ui-time-picker__option[aria-selected="true"] { font-weight: 500; }
+
+/* ── DateTimePicker ────────────────────────────────────────────────── */
+
+.ui-date-time-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.ui-date-time-picker > .ui-date-time-picker__date {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+}
+.ui-date-time-picker > .ui-date-time-picker__time {
+  flex: 0 0 auto;
+  width: 120px;
+}
+.ui-date-time-picker[data-density="sm"] > .ui-date-time-picker__time { width: 104px; }
+
+@media (forced-colors: active) {
+  .ui-time-picker__icon { color: CanvasText; }
+  .ui-time-picker__option[data-highlighted] { outline: 2px solid Highlight; outline-offset: -2px; }
+}

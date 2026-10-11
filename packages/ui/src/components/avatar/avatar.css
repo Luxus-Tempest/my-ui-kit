@@ -1,0 +1,75 @@
+.ui-avatar {
+  box-sizing: border-box;
+  --_size: 32px;
+  --_font: 13px;
+  --_badge: 10px;
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  width: var(--_size);
+  height: var(--_size);
+  border-radius: 50%;
+  vertical-align: middle;
+  user-select: none;
+}
+.ui-avatar[data-size="sm"] { --_size: 24px; --_font: 10.5px; --_badge: 8px; }
+.ui-avatar[data-size="lg"] { --_size: 40px; --_font: 16px; --_badge: 12px; }
+
+/* Filet intérieur discret : l'avatar tient sur un fond de même teinte que la photo. */
+.ui-avatar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ui-fg) 9%, transparent);
+  pointer-events: none;
+}
+.ui-avatar__image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.ui-avatar__fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--ui-pri-container);
+  color: var(--ui-on-pri-container);
+  font-family: var(--ui-font-sans);
+  font-size: var(--_font);
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1;
+}
+.ui-avatar__badge {
+  position: absolute;
+  inset-inline-end: 0;
+  bottom: 0;
+  z-index: 1;
+  width: var(--_badge);
+  height: var(--_badge);
+  border-radius: 50%;
+  background: var(--ui-ok);
+  box-shadow: 0 0 0 2px var(--ui-avatar-ring, var(--ui-panel));
+}
+.ui-avatar__badge[data-tone="pri"] { background: var(--ui-pri); }
+.ui-avatar__badge[data-tone="warn"] { background: var(--ui-warn); }
+.ui-avatar__badge[data-tone="err"] { background: var(--ui-err); }
+.ui-avatar__badge[data-tone="neu"] { background: var(--ui-outline); }
+
+/* Groupe : chevauchement de 8 px, chaque avatar cerclé de la couleur du fond
+   (personnalisable par --ui-avatar-ring quand le groupe est posé sur une carte). */
+.ui-avatar-group { display: inline-flex; align-items: center; }
+.ui-avatar-group > .ui-avatar { box-shadow: 0 0 0 2px var(--ui-avatar-ring, var(--ui-panel)); }
+.ui-avatar-group > .ui-avatar + .ui-avatar { margin-inline-start: -8px; }
+.ui-avatar-group[data-size="sm"] > .ui-avatar + .ui-avatar { margin-inline-start: -6px; }
+.ui-avatar-group__count {
+  width: var(--_size);
+  height: var(--_size);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}

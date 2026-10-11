@@ -1,0 +1,255 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Jetons de design : langage « Drive × iOS »
+
+   Un mélange équilibré de deux grammaires :
+   - Google Drive (Material 3) : surfaces tonales plutôt qu'ombres, sélection
+     en conteneur bleu, actions en pilule, couches d'état au survol (8 %),
+     infobulles inversées, densité de lecture confortable (14 px).
+   - iOS : grands rayons continus, matériau translucide flouté pour ce qui
+     flotte, courbes « ressort », graisses légères (400 / 500 / 600),
+     contrôles aux proportions tactiles (interrupteur, segmented control).
+
+   Les noms de jetons historiques (--ui-pri, --ui-line-2, --ui-r-ctl…) sont
+   conservés : une application qui les surcharge continue de fonctionner.
+
+   Thème clair par défaut. Le sombre s'active par `data-theme="dark"`
+   (ThemeProvider) ou par la classe `.dark` (next-themes) : ses pas sont
+   choisis pour le fond #131416, ce n'est pas une inversion du clair.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root,
+[data-theme="light"] {
+  /* Surfaces : du fond d'application au conteneur le plus marqué.
+     Teinte bleutée très légère, comme Drive ; aucune ombre au repos. */
+  --ui-app: #f6f8fc;
+  --ui-panel: #ffffff;
+  --ui-panel-2: #fbfcfe;
+  --ui-card: #ffffff;
+  --ui-card-2: #f0f4f9;        /* surface-container : champs, segmented, listes groupées */
+  --ui-card-hover: #e9eef6;    /* surface-container-high : barre de recherche, survol */
+  --ui-sel: #c2e7ff;           /* sélection (entrée de navigation, fichier choisi) */
+
+  /* Encre */
+  --ui-fg: #1f1f1f;
+  --ui-fg-2: #444746;
+  --ui-fg-3: #5f6368;
+
+  /* Filets : fins et discrets, la structure vient surtout des surfaces. */
+  --ui-line: #e3e6ea;
+  --ui-line-2: #d3d7dd;
+  --ui-line-3: #c4c7c5;
+  --ui-outline: #747775;       /* bord des cases et radios : contraste 3:1 sur blanc */
+
+  /* Primaire */
+  --ui-pri: #0b57d0;
+  --ui-pri-d: #0842a0;
+  --ui-pri-fg: #ffffff;
+  --ui-pri-soft: #e8f0fe;
+  --ui-pri-line: #c4d7fb;
+  /* Conteneur primaire (Drive « Nouveau », bouton tonal, état sélectionné) */
+  --ui-pri-container: #c2e7ff;
+  --ui-on-pri-container: #001d35;
+
+  /* Anneau de focus : filet primaire + halo 3 px. */
+  --ui-ring: color-mix(in srgb, var(--ui-pri) 26%, transparent);
+
+  /* Tons sémantiques : un fond teinté de statut va avec son filet. */
+  --ui-ok: #146c2e;
+  --ui-ok-soft: #e6f4ea;
+  --ui-ok-line: #b7dfc1;
+  --ui-warn: #8f4c00;
+  --ui-warn-soft: #fef3e0;
+  --ui-warn-line: #f6d7a6;
+  --ui-err: #b3261e;
+  --ui-err-d: #8c1d18;
+  --ui-err-fg: #ffffff;
+  --ui-err-soft: #fce8e6;
+  --ui-err-line: #f4c7c3;
+
+  /* Palette catégorielle (graphiques, tuiles d'icône) : ordre fixe, jamais
+     recyclé ni régénéré au-delà de 8. Validée par le contrôle daltonisme
+     (ΔE adjacents ≥ 8 en protan/deutan/tritan) sur #ffffff et #1c1d20 :
+     l'ordre fait partie de la validation, ne pas le permuter. c3, c4 et c5
+     sont sous 3:1 sur blanc : légende, étiquettes ou vue tableau obligatoires. */
+  --ui-c1: #2a78d6;
+  --ui-c2: #eb6834;
+  --ui-c3: #1baf7a;
+  --ui-c4: #eda100;
+  --ui-c5: #e87ba4;
+  --ui-c6: #008300;
+  --ui-c7: #6250d6;
+  --ui-c8: #e34948;
+
+  /* Graphiques : grille et axe en filets, gamme séquentielle bleue (clair → foncé),
+     pôles divergents bleu ↔ rouge autour d'un gris neutre. */
+  --ui-chart-grid: #eceef1;
+  --ui-chart-axis: #c4c7c5;
+  --ui-seq-1: #cde2fb;
+  --ui-seq-2: #9ec5f4;
+  --ui-seq-3: #6da7ec;
+  --ui-seq-4: #3987e5;
+  --ui-seq-5: #256abf;
+  --ui-seq-6: #184f95;
+  --ui-seq-7: #0d366b;
+  --ui-div-neg: #2a78d6;
+  --ui-div-mid: #f0efec;
+  --ui-div-pos: #e34948;
+
+  /* Surface inversée (infobulle, snackbar) : sombre en clair, claire en sombre. */
+  --ui-inverse: #303134;
+  --ui-inverse-fg: #f2f2f2;
+
+  /* Matériau iOS : surface translucide, à poser avec --ui-blur. */
+  --ui-material: color-mix(in srgb, var(--ui-panel) 82%, transparent);
+  --ui-material-line: color-mix(in srgb, var(--ui-fg) 8%, transparent);
+  --ui-blur: saturate(180%) blur(24px);
+
+  /* Couches d'état (Material) : mêlées à la couleur du texte du contrôle. */
+  --ui-state-hover: 8%;
+  --ui-state-press: 12%;
+
+  /* Surface publique */
+  --ui-ink: #0b1f4d;
+  --ui-ink-2: #3c4d75;
+  --ui-wash: #f3f7fe;
+  --ui-brand-wash: linear-gradient(158deg, #041e49 0%, #0842a0 48%, #0b57d0 78%, #4c8df6 100%);
+  --ui-scrim: rgba(15, 23, 42, 0.32);
+
+  /* Ombres : diffuses et larges, réservées à ce qui flotte. */
+  --ui-sh1: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --ui-sh2: 0 1px 3px rgba(15, 23, 42, 0.06), 0 6px 16px rgba(15, 23, 42, 0.06);
+  --ui-sh3: 0 2px 6px rgba(15, 23, 42, 0.06), 0 16px 40px rgba(15, 23, 42, 0.12);
+  --ui-sh4: 0 4px 12px rgba(15, 23, 42, 0.08), 0 32px 72px rgba(15, 23, 42, 0.18);
+  --ui-sh-pri: 0 1px 2px rgba(11, 87, 208, 0.24);
+  --ui-sh-err: 0 1px 2px rgba(179, 38, 30, 0.24);
+  /* Pastille posée sur une piste (interrupteur, segmented control) : ombre courte d'iOS. */
+  --ui-sh-raised: 0 3px 8px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.06);
+  --ui-thumb: #ffffff;
+
+  /* Rayons : continus et généreux, la pilule pour les actions. */
+  --ui-r-2xl: 28px;  /* feuille, panneau latéral */
+  --ui-r-xl: 20px;   /* modale */
+  --ui-r-lg: 16px;   /* carte, panneau */
+  --ui-r-md: 12px;   /* menu, encadré, toast */
+  --ui-r-ctl: 12px;  /* champ de saisie */
+  --ui-r-sm: 10px;   /* vignette, contrôle compact */
+  --ui-r-xs: 8px;    /* entrée de menu, infobulle */
+  --ui-r-pill: 999px;/* bouton, pastille, segmented, recherche */
+
+  /* Typographie : neutre et lisible, comme SF Pro / Google Sans Text. */
+  --ui-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", Roboto, sans-serif;
+  --ui-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Mouvement : standard Material pour les états, ressort iOS pour les surfaces. */
+  --ui-duration: 140ms;
+  --ui-duration-slow: 280ms;
+  --ui-ease: cubic-bezier(0.2, 0, 0, 1);
+  --ui-ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+
+  color-scheme: light;
+}
+
+[data-theme="dark"],
+.dark {
+  --ui-app: #131416;
+  --ui-panel: #1c1d20;
+  --ui-panel-2: #1f2023;
+  --ui-card: #1e1f22;
+  --ui-card-2: #26282b;
+  --ui-card-hover: #2f3134;
+  --ui-sel: #004a77;
+
+  --ui-fg: #e8eaed;
+  --ui-fg-2: #c4c7c5;
+  --ui-fg-3: #9aa0a6;
+
+  --ui-line: #2e3033;
+  --ui-line-2: #3b3e42;
+  --ui-line-3: #4d5156;
+  --ui-outline: #8e918f;
+
+  --ui-pri: #a8c7fa;
+  --ui-pri-d: #c2d7fb;
+  --ui-pri-fg: #062e6f;   /* sur fond sombre le primaire s'éclaircit : son texte s'assombrit */
+  --ui-pri-soft: #1b2a42;
+  --ui-pri-line: #2c4670;
+  --ui-pri-container: #004a77;
+  --ui-on-pri-container: #c2e7ff;
+
+  --ui-ok: #6dd58c;
+  --ui-ok-soft: #142b1c;
+  --ui-ok-line: #24502f;
+  --ui-warn: #f6b35e;
+  --ui-warn-soft: #2f230f;
+  --ui-warn-line: #5a4216;
+  --ui-err: #f2b8b5;
+  --ui-err-d: #f9dedc;
+  --ui-err-fg: #601410;
+  --ui-err-soft: #3a1a18;
+  --ui-err-line: #63302c;
+
+  --ui-c1: #3987e5;
+  --ui-c2: #d95926;
+  --ui-c3: #199e70;
+  --ui-c4: #c98500;
+  --ui-c5: #d55181;
+  --ui-c6: #008300;
+  --ui-c7: #9085e9;
+  --ui-c8: #e66767;
+
+  --ui-chart-grid: #2a2c30;
+  --ui-chart-axis: #3b3e42;
+  --ui-seq-1: #0d366b;
+  --ui-seq-2: #104281;
+  --ui-seq-3: #184f95;
+  --ui-seq-4: #256abf;
+  --ui-seq-5: #3987e5;
+  --ui-seq-6: #6da7ec;
+  --ui-seq-7: #9ec5f4;
+  --ui-div-neg: #3987e5;
+  --ui-div-mid: #383835;
+  --ui-div-pos: #e66767;
+
+  --ui-inverse: #e3e3e3;
+  --ui-inverse-fg: #1f1f1f;
+
+  --ui-material: color-mix(in srgb, var(--ui-panel) 78%, transparent);
+  --ui-material-line: color-mix(in srgb, #ffffff 10%, transparent);
+
+  --ui-ink: #eaf0fb;
+  --ui-ink-2: #9fadc8;
+  --ui-wash: #161b24;
+  --ui-scrim: rgba(0, 0, 0, 0.55);
+
+  --ui-sh1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --ui-sh2: 0 1px 3px rgba(0, 0, 0, 0.4), 0 6px 16px rgba(0, 0, 0, 0.3);
+  --ui-sh3: 0 2px 6px rgba(0, 0, 0, 0.35), 0 16px 40px rgba(0, 0, 0, 0.5);
+  --ui-sh4: 0 4px 12px rgba(0, 0, 0, 0.4), 0 32px 72px rgba(0, 0, 0, 0.62);
+  --ui-sh-pri: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --ui-sh-err: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --ui-sh-raised: 0 3px 8px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.3);
+  --ui-thumb: #f4f4f5;
+
+  color-scheme: dark;
+}
+
+/* Base posée par ThemeProvider : corps de lecture 14 px / 1.5. */
+.ui-root {
+  background-color: var(--ui-app);
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.006em;
+  font-feature-settings: "cv11", "ss03";
+  -webkit-font-smoothing: antialiased;
+}
+.ui-root ::selection { background: var(--ui-sel); }
+
+/* Utilitaires transverses */
+.ui-mono { font-family: var(--ui-font-mono); font-variant-ligatures: none; }
+.ui-num { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  :root, [data-theme], .dark { --ui-duration: 0ms; --ui-duration-slow: 0ms; }
+}

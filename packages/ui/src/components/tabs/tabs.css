@@ -1,0 +1,108 @@
+.ui-tabs { display: flex; flex-direction: column; gap: 16px; font-family: var(--ui-font-sans); }
+.ui-tabs[data-orientation="vertical"] { flex-direction: row; gap: 24px; }
+
+.ui-tabs__list { display: flex; align-items: center; }
+.ui-tabs__trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  border: 0;
+  background: none;
+  color: var(--ui-fg-2);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.006em;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--ui-duration) var(--ui-ease),
+    background-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-tabs__trigger :where(svg) { width: 18px; height: 18px; flex-shrink: 0; }
+.ui-tabs__trigger:disabled { opacity: 0.45; cursor: not-allowed; }
+@media (hover: hover) {
+  .ui-tabs__trigger:hover:not(:disabled) { color: var(--ui-fg); }
+}
+.ui-tabs__trigger[data-state="active"] { color: var(--ui-fg); }
+
+/* line : onglets de Drive, indicateur de 3 px arrondi sous le libellé, texte primaire. */
+.ui-tabs__list[data-variant="line"] { gap: 28px; border-bottom: 1px solid var(--ui-line); }
+.ui-tabs__list[data-variant="line"] .ui-tabs__trigger { height: 48px; padding: 0 2px; }
+.ui-tabs__list[data-variant="line"] .ui-tabs__trigger[data-state="active"] { color: var(--ui-pri); }
+.ui-tabs__list[data-variant="line"] .ui-tabs__trigger::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--ui-pri);
+  transform: scaleX(0.4);
+  opacity: 0;
+  transition:
+    opacity var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-tabs__list[data-variant="line"] .ui-tabs__trigger[data-state="active"]::after { opacity: 1; transform: none; }
+.ui-tabs__list[data-variant="line"] .ui-tabs__trigger:focus-visible { border-radius: var(--ui-r-xs); box-shadow: 0 0 0 3px var(--ui-ring); }
+
+/* segmented : segmented control d'iOS, capsule grise et pastille blanche surélevée. */
+.ui-tabs__list[data-variant="segmented"] {
+  display: inline-flex;
+  width: fit-content;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-card-hover);
+}
+.ui-tabs__list[data-variant="segmented"] .ui-tabs__trigger {
+  height: 30px;
+  padding: 0 16px;
+  border-radius: var(--ui-r-pill);
+  font-size: 13px;
+}
+.ui-tabs__list[data-variant="segmented"] .ui-tabs__trigger[data-state="active"] {
+  background: var(--ui-panel);
+  box-shadow: var(--ui-sh-raised);
+}
+[data-theme="dark"] .ui-tabs__list[data-variant="segmented"] .ui-tabs__trigger[data-state="active"],
+.dark .ui-tabs__list[data-variant="segmented"] .ui-tabs__trigger[data-state="active"] {
+  background: var(--ui-line-3);
+}
+.ui-tabs__list[data-variant="segmented"] .ui-tabs__trigger:focus-visible { box-shadow: 0 0 0 3px var(--ui-ring); }
+
+/* Vertical : le tiroir de navigation de Drive, entrée active en pilule de sélection. */
+.ui-tabs__list[data-orientation="vertical"] { flex-direction: column; align-items: stretch; }
+.ui-tabs__list[data-orientation="vertical"][data-variant="line"] { gap: 2px; min-width: 200px; border-bottom: 0; }
+.ui-tabs__list[data-orientation="vertical"][data-variant="line"] .ui-tabs__trigger {
+  justify-content: flex-start;
+  gap: 14px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--ui-r-pill);
+  color: var(--ui-fg);
+}
+.ui-tabs__list[data-orientation="vertical"][data-variant="line"] .ui-tabs__trigger::after { display: none; }
+@media (hover: hover) {
+  .ui-tabs__list[data-orientation="vertical"][data-variant="line"] .ui-tabs__trigger:hover:not(:disabled, [data-state="active"]) {
+    background: color-mix(in srgb, var(--ui-fg) var(--ui-state-hover), transparent);
+  }
+}
+.ui-tabs__list[data-orientation="vertical"][data-variant="line"] .ui-tabs__trigger[data-state="active"] {
+  background: var(--ui-sel);
+  color: var(--ui-on-pri-container);
+  font-weight: 600;
+}
+
+.ui-tabs__content { flex: 1; min-width: 0; outline: none; }
+.ui-tabs__content:focus-visible { border-radius: var(--ui-r-sm); box-shadow: 0 0 0 3px var(--ui-ring); }
+
+@media (forced-colors: active) {
+  .ui-tabs__trigger[data-state="active"] { outline: 2px solid Highlight; }
+}

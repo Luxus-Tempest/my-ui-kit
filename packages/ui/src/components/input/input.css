@@ -1,0 +1,98 @@
+/*
+ * Champ et zone de texte : remplissage tonal au repos (barre de recherche de
+ * Drive, champs d'iOS), surface claire + filet primaire + halo au focus.
+ * Partagent remplissage, focus, erreur et désactivé avec le déclencheur de Select.
+ */
+.ui-input {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  margin: 0;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-ctl);
+  background: var(--ui-card-2);
+  color: var(--ui-fg);
+  font: inherit;
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  letter-spacing: -0.006em;
+  outline: none;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-input[data-density="sm"] {
+  height: 32px;
+  padding: 0 11px;
+  border-radius: var(--ui-r-sm);
+  font-size: 13px;
+}
+.ui-input::placeholder { color: var(--ui-fg-3); opacity: 1; }
+.ui-input[type="number"] { font-variant-numeric: tabular-nums; }
+
+@media (hover: hover) {
+  .ui-input:hover:not(:disabled, :focus-visible, :read-only) { background: var(--ui-card-hover); }
+}
+.ui-input:focus-visible {
+  border-color: var(--ui-pri);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px var(--ui-ring);
+}
+.ui-input[aria-invalid="true"] {
+  border-color: var(--ui-err);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-err) 18%, transparent);
+}
+.ui-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+/* Lecture seule : lisible et sélectionnable, mais visiblement non modifiable. */
+.ui-input:read-only:not(:disabled) {
+  border-color: var(--ui-line);
+  background: transparent;
+}
+.ui-input:read-only:not(:disabled):focus-visible {
+  border-color: var(--ui-line-2);
+  box-shadow: 0 0 0 3px var(--ui-ring);
+}
+
+/* Sélecteur de fichier */
+.ui-input[type="file"] { display: flex; align-items: center; padding-inline-start: 4px; color: var(--ui-fg-2); }
+.ui-input::file-selector-button {
+  height: 30px;
+  margin-inline-end: 10px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-pri-container);
+  color: var(--ui-on-pri-container);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Zone de texte */
+.ui-textarea {
+  height: auto;
+  min-height: 88px;
+  padding: 10px 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.ui-textarea:disabled { resize: none; }
+.ui-textarea[data-autoresize] {
+  field-sizing: content;
+  resize: none;
+  max-height: 320px;
+}
+
+@media (forced-colors: active) {
+  .ui-input { border-color: ButtonText; }
+  .ui-input:focus-visible { outline: 2px solid Highlight; outline-offset: 1px; }
+}

@@ -1,0 +1,168 @@
+/*
+ * Barre d'onglets d'iOS : matériau translucide flouté, filet capillaire en haut,
+ * zone de sécurité du bas. L'entrée active passe en primaire ; derrière son
+ * icône, la pastille de sélection de Material (--ui-sel) s'ouvre en ressort.
+ */
+.ui-bottom-nav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 0 env(safe-area-inset-bottom, 0px);
+  background: var(--ui-panel);
+  box-shadow: inset 0 1px 0 var(--ui-material-line);
+  color: var(--ui-fg-2);
+  font-family: var(--ui-font-sans);
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .ui-bottom-nav {
+    background: var(--ui-material);
+    -webkit-backdrop-filter: var(--ui-blur);
+    backdrop-filter: var(--ui-blur);
+  }
+}
+.ui-bottom-nav[data-position="sticky"] { position: sticky; }
+.ui-bottom-nav[data-position="static"] { position: relative; right: auto; bottom: auto; left: auto; }
+
+.ui-bottom-nav__list {
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 4px;
+  list-style: none;
+}
+.ui-bottom-nav__item { display: flex; flex: 1 1 0; min-width: 0; margin: 0; padding: 0; }
+
+.ui-bottom-nav__button {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 64px;
+  margin: 0;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: var(--ui-fg-2);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--ui-duration) var(--ui-ease);
+}
+
+/* Pastille de 56 × 32 : porte l'indicateur (::before) et la couche d'état (::after). */
+.ui-bottom-nav__icon {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 56px;
+  height: 32px;
+  border-radius: var(--ui-r-pill);
+  transition: box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-bottom-nav__icon :where(svg) { width: 24px; height: 24px; pointer-events: none; }
+.ui-bottom-nav__icon::before,
+.ui-bottom-nav__icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.ui-bottom-nav__icon::before {
+  background: var(--ui-sel);
+  opacity: 0;
+  transform: scaleX(0.4);
+  transition:
+    opacity var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-bottom-nav__icon::after {
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-bottom-nav__button:hover:not(:disabled, [aria-disabled="true"]) { color: var(--ui-fg); }
+  .ui-bottom-nav__button:hover:not(:disabled, [aria-disabled="true"]) .ui-bottom-nav__icon::after { opacity: var(--ui-state-hover); }
+}
+.ui-bottom-nav__button:active:not(:disabled, [aria-disabled="true"]) .ui-bottom-nav__icon::after { opacity: var(--ui-state-press); }
+.ui-bottom-nav__button:focus-visible .ui-bottom-nav__icon { box-shadow: inset 0 0 0 1px var(--ui-pri), 0 0 0 3px var(--ui-ring); }
+.ui-bottom-nav__button:is(:disabled, [aria-disabled="true"]) { opacity: 0.45; cursor: not-allowed; }
+
+/* Entrée active : primaire, pastille de sélection ouverte en ressort. */
+.ui-bottom-nav__button[data-active],
+.ui-bottom-nav__button[data-active]:hover { color: var(--ui-pri); }
+.ui-bottom-nav__button[data-active] .ui-bottom-nav__icon::before { opacity: 1; transform: none; }
+.ui-bottom-nav__button[data-active] .ui-bottom-nav__label { font-weight: 600; }
+
+.ui-bottom-nav__label {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Badges : en haut à droite de l'icône (le centre du bouton est celui de l'icône). */
+.ui-bottom-nav__badge {
+  position: absolute;
+  top: 4px;
+  left: calc(50% + 4px);
+  z-index: 1;
+  box-sizing: border-box;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-err);
+  box-shadow: 0 0 0 2px var(--ui-panel);
+  color: var(--ui-err-fg);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 18px;
+  text-align: center;
+  pointer-events: none;
+}
+.ui-bottom-nav__badge[data-dot] { top: 8px; left: calc(50% + 7px); min-width: 0; width: 8px; height: 8px; padding: 0; }
+.ui-bottom-nav__badge-slot { position: absolute; top: 2px; left: calc(50% + 2px); z-index: 1; display: flex; pointer-events: none; }
+
+/* ── Accessibilité système ────────────────────────────────────────────── */
+
+@media (prefers-reduced-transparency: reduce) {
+  .ui-bottom-nav { background: var(--ui-panel); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-bottom-nav__button,
+  .ui-bottom-nav__icon,
+  .ui-bottom-nav__icon::before,
+  .ui-bottom-nav__icon::after { transition: none; }
+}
+@media (forced-colors: active) {
+  .ui-bottom-nav { border-top: 1px solid CanvasText; background: Canvas; }
+  .ui-bottom-nav__icon::before,
+  .ui-bottom-nav__icon::after { display: none; }
+  .ui-bottom-nav__button[data-active] .ui-bottom-nav__icon { outline: 2px solid Highlight; }
+  .ui-bottom-nav__button:focus-visible .ui-bottom-nav__icon { outline: 2px solid Highlight; outline-offset: 2px; }
+  .ui-bottom-nav__badge { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+}

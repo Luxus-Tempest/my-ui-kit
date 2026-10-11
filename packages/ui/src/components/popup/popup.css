@@ -1,0 +1,104 @@
+/*
+ * Surface partagée par tout ce qui flotte : popover, menu, liste d'un select.
+ * Matériau iOS : panneau translucide flouté, filet capillaire, ombre diffuse,
+ * rayon 12 px. Entrée « ressort » depuis le bord qui touche le déclencheur.
+ * (L'infobulle reprend l'animation mais pose sa propre surface inversée.)
+ */
+.ui-popup {
+  box-sizing: border-box;
+  z-index: 50;
+  border: 1px solid var(--ui-material-line);
+  border-radius: var(--ui-r-md);
+  background: var(--ui-panel);
+  color: var(--ui-fg);
+  box-shadow: var(--ui-sh3);
+  font-family: var(--ui-font-sans);
+  outline: none;
+  transform-origin: var(--radix-popper-transform-origin, var(--radix-tooltip-content-transform-origin, center));
+  animation: ui-popup-in var(--ui-duration-slow) var(--ui-ease-spring);
+}
+@supports (backdrop-filter: blur(1px)) {
+  .ui-popup {
+    background: var(--ui-material);
+    backdrop-filter: var(--ui-blur);
+    -webkit-backdrop-filter: var(--ui-blur);
+  }
+}
+.ui-popup[data-state="closed"] { animation: ui-popup-out var(--ui-duration) var(--ui-ease) forwards; }
+.ui-popup[data-side="top"] { --_from: 0 6px; }
+.ui-popup[data-side="bottom"] { --_from: 0 -6px; }
+.ui-popup[data-side="left"] { --_from: 6px 0; }
+.ui-popup[data-side="right"] { --_from: -6px 0; }
+@keyframes ui-popup-in {
+  from { opacity: 0; transform: scale(0.94); translate: var(--_from, 0 0); }
+}
+@keyframes ui-popup-out {
+  to { opacity: 0; transform: scale(0.96); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-popup, .ui-popup[data-state="closed"] { animation: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .ui-popup { background: var(--ui-panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+/* ── Entrées de liste (menu, select) ─────────────────────────────────── */
+.ui-menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: var(--ui-r-xs);
+  color: var(--ui-fg);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1;
+  cursor: default;
+  user-select: none;
+  outline: none;
+  white-space: nowrap;
+  transition: background-color var(--ui-duration) var(--ui-ease);
+}
+/* Couche d'état Material : la couleur du texte à 8 %. */
+.ui-menu-item[data-highlighted] { background: color-mix(in srgb, currentColor var(--ui-state-hover), transparent); }
+.ui-menu-item[data-disabled] { opacity: 0.45; pointer-events: none; }
+.ui-menu-item[data-inset] { padding-inline-start: 40px; }
+.ui-menu-item :where(svg) { width: 18px; height: 18px; flex-shrink: 0; color: var(--ui-fg-2); pointer-events: none; }
+.ui-menu-item[data-variant="danger"],
+.ui-menu-item[data-variant="danger"] :where(svg) { color: var(--ui-err); }
+
+/* Entrée cochable : la coche vit à droite, comme dans iOS. */
+.ui-menu-item--check { padding-inline-end: 36px; }
+.ui-menu-item__indicator {
+  position: absolute;
+  inset-inline-end: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--ui-pri);
+}
+.ui-menu-item__indicator svg { width: 16px; height: 16px; color: inherit; }
+
+/* Intitulé de groupe : casse de phrase, discret, comme les sections iOS. */
+.ui-menu-label {
+  padding: 8px 10px 4px;
+  color: var(--ui-fg-3);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.ui-menu-label[data-inset] { padding-inline-start: 40px; }
+.ui-menu-separator { height: 1px; margin: 6px 10px; background: var(--ui-line); }
+.ui-menu-shortcut {
+  margin-inline-start: auto;
+  padding-inline-start: 16px;
+  color: var(--ui-fg-3);
+  font-family: var(--ui-font-sans);
+  font-size: 12.5px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}

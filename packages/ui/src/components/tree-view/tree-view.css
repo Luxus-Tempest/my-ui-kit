@@ -1,0 +1,195 @@
+/*
+ * Arborescence : le volet de dossiers de Drive. Lignes en pilule de 36 px
+ * (32 en `sm`), couche d'état Material au survol, sélection en conteneur
+ * bleu, chevron qui pivote en ressort, guides d'indentation discrets,
+ * groupes qui se déroulent en hauteur.
+ *
+ * Le retrait d'une ligne vient de `--_level` (posé par le composant sur
+ * chaque nœud) : padding = marge + (niveau - 1) × indentation.
+ */
+.ui-tree {
+  --_row-h: 36px;
+  --_pad: 8px;
+  --_indent: 20px;
+  --_toggle: 20px;
+  --_gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.ui-tree[data-size="sm"] { --_row-h: 32px; --_indent: 18px; --_toggle: 18px; --_gap: 6px; font-size: 13px; }
+
+.ui-tree__item { display: block; margin: 0; padding: 0; outline: none; }
+.ui-tree__group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 2px 0 0;
+  list-style: none;
+}
+
+/* ── Ligne ─────────────────────────────────────────────────────────── */
+.ui-tree__row {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: var(--_gap);
+  box-sizing: border-box;
+  min-height: var(--_row-h);
+  padding-block: 4px;
+  padding-inline: calc(var(--_pad) + (var(--_level, 1) - 1) * var(--_indent)) 12px;
+  border-radius: var(--ui-r-pill);
+  color: var(--ui-fg);
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+/* Couche d'état : currentColor sous le contenu. */
+.ui-tree__row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-tree__item:not([aria-disabled="true"]) > .ui-tree__row:hover::before { opacity: var(--ui-state-hover); }
+}
+.ui-tree__item:not([aria-disabled="true"]) > .ui-tree__row:active::before { opacity: var(--ui-state-press); }
+
+/* Sélection : le conteneur bleu de Drive. */
+.ui-tree__item[aria-selected="true"] > .ui-tree__row {
+  background: var(--ui-sel);
+  color: var(--ui-on-pri-container);
+  font-weight: 600;
+}
+.ui-tree__item[aria-selected="true"] > .ui-tree__row :is(.ui-tree__icon, .ui-tree__toggle, .ui-tree__trailing) { color: inherit; }
+
+/* Focus : filet primaire + halo, sur la ligne (le nœud contient aussi ses enfants). */
+.ui-tree__item:focus-visible > .ui-tree__row {
+  box-shadow: inset 0 0 0 1px var(--ui-pri), 0 0 0 3px var(--ui-ring);
+}
+
+.ui-tree__item[aria-disabled="true"] > .ui-tree__row { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Parties ───────────────────────────────────────────────────────── */
+.ui-tree__toggle {
+  position: relative;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: var(--_toggle);
+  height: var(--_toggle);
+  margin-inline-start: -2px;
+  border-radius: var(--ui-r-pill);
+  color: var(--ui-fg-3);
+  transition: background-color var(--ui-duration) var(--ui-ease);
+}
+.ui-tree__toggle[data-expandable] { cursor: pointer; }
+/* Cible tactile de 24 px au moins. */
+.ui-tree__toggle[data-expandable]::after { content: ""; position: absolute; inset: -3px; border-radius: inherit; }
+@media (hover: hover) {
+  .ui-tree__item:not([aria-disabled="true"]) > .ui-tree__row .ui-tree__toggle[data-expandable]:hover {
+    background: color-mix(in srgb, currentColor var(--ui-state-press), transparent);
+  }
+}
+
+.ui-tree__chevron {
+  width: 16px;
+  height: 16px;
+  transition: transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-tree__item[aria-expanded="true"] > .ui-tree__row .ui-tree__chevron { transform: rotate(90deg); }
+[dir="rtl"] .ui-tree__item:not([aria-expanded="true"]) > .ui-tree__row .ui-tree__chevron,
+.ui-tree[dir="rtl"] .ui-tree__item:not([aria-expanded="true"]) > .ui-tree__row .ui-tree__chevron { transform: scaleX(-1); }
+
+.ui-tree__icon { display: flex; flex-shrink: 0; align-items: center; color: var(--ui-fg-2); }
+.ui-tree__icon :where(svg) { width: 20px; height: 20px; }
+.ui-tree[data-size="sm"] .ui-tree__icon :where(svg) { width: 18px; height: 18px; }
+
+.ui-tree__label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.ui-tree__trailing {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  color: var(--ui-fg-3);
+  font-size: 12.5px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+.ui-tree__trailing :where(svg) { width: 16px; height: 16px; }
+
+.ui-tree__error { flex-shrink: 0; color: var(--ui-err); font-size: 12.5px; font-weight: 500; }
+
+/* ── Guides d'indentation : un filet sous le chevron du parent ─────── */
+.ui-tree__group::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  inset-inline-start: calc(var(--_pad) + (var(--_level, 1) - 1) * var(--_indent) + var(--_toggle) / 2 - 2.5px);
+  width: 1px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-line);
+  pointer-events: none;
+  transition: background-color var(--ui-duration) var(--ui-ease);
+}
+.ui-tree:is(:hover, :focus-within) .ui-tree__group::before { background: var(--ui-line-2); }
+.ui-tree[data-guides="false"] .ui-tree__group::before { display: none; }
+
+/* ── Déroulé des groupes : hauteur animée en ressort ───────────────── */
+.ui-tree__collapse { display: grid; grid-template-rows: 1fr; }
+.ui-tree__collapse > .ui-tree__group { min-height: 0; }
+.ui-tree__collapse:is([data-phase="opening"], [data-phase="closing"]) > .ui-tree__group { overflow: hidden; }
+.ui-tree__collapse[data-phase="opening"] { animation: ui-tree-open var(--ui-duration-slow) var(--ui-ease-spring); }
+.ui-tree__collapse[data-phase="closing"] {
+  animation: ui-tree-close var(--ui-duration-slow) var(--ui-ease) forwards;
+  pointer-events: none;
+}
+@keyframes ui-tree-open {
+  from { grid-template-rows: 0fr; opacity: 0; }
+  to { grid-template-rows: 1fr; opacity: 1; }
+}
+@keyframes ui-tree-close {
+  from { grid-template-rows: 1fr; opacity: 1; }
+  to { grid-template-rows: 0fr; opacity: 0; }
+}
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ui-tree__collapse[data-phase] { animation: none; }
+  .ui-tree__chevron { transition: none; }
+}
+@media (forced-colors: active) {
+  .ui-tree__row::before { display: none; }
+  .ui-tree__item[aria-selected="true"] > .ui-tree__row {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+  .ui-tree__item:focus-visible > .ui-tree__row { outline: 2px solid CanvasText; outline-offset: 1px; }
+  .ui-tree__group::before { background: GrayText; }
+  .ui-tree__item[aria-disabled="true"] > .ui-tree__row { color: GrayText; }
+}

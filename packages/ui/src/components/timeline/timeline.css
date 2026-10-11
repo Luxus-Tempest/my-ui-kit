@@ -1,0 +1,208 @@
+/*
+ * Fil d'activité. Chaque évènement est une grille [axe | contenu] ; l'axe
+ * réserve une case de 28 px où l'indicateur est centré, aligné sur la
+ * première ligne du titre. Le connecteur (2 px) passe derrière les
+ * indicateurs, détourés d'un anneau de la couleur du fond, et s'arrête au
+ * centre du premier et du dernier indicateur de chaque liste.
+ *
+ * `alternate` : axe central, contenu alterné, heure en vis-à-vis. La mise en
+ * page alternée ne s'applique qu'au-delà de 480 px de large (requête de
+ * conteneur) ; en dessous, le fil revient à gauche.
+ */
+.ui-timeline {
+  --_axis: 28px;
+  --_gap: 12px;
+  --_space: 20px;
+  --_lh: 20px;
+  --_line: 2px;
+  --_surface: var(--ui-timeline-surface, var(--ui-panel));
+  display: grid;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  line-height: var(--_lh);
+}
+.ui-timeline[data-align="alternate"] { container: ui-timeline / inline-size; }
+
+/* ── Groupes par date ──────────────────────────────────────────────── */
+.ui-timeline__group { display: grid; gap: 12px; margin: 0; padding: 0; }
+.ui-timeline__group + .ui-timeline__group { margin-top: 28px; }
+.ui-timeline__heading {
+  margin: 0;
+  color: var(--ui-fg-2);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.003em;
+}
+.ui-timeline__list { display: grid; margin: 0; padding: 0; list-style: none; }
+
+/* ── Évènement ─────────────────────────────────────────────────────── */
+.ui-timeline__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--_axis) minmax(0, 1fr);
+  column-gap: var(--_gap);
+  margin: 0;
+  padding: 0;
+}
+
+/* Connecteur : du centre de l'indicateur au suivant, sans interruption. */
+.ui-timeline__item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: calc(var(--_axis) / 2 - var(--_line) / 2);
+  width: var(--_line);
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-line-2);
+  pointer-events: none;
+}
+.ui-timeline__item:first-child::before { top: calc(var(--_axis) / 2); }
+.ui-timeline__item:last-child::before { bottom: auto; height: calc(var(--_axis) / 2); }
+.ui-timeline__item:only-child::before { display: none; }
+
+.ui-timeline__separator {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--_axis);
+}
+
+/* ── Indicateur : point ou pastille ────────────────────────────────── */
+.ui-timeline__indicator {
+  --_tone: var(--ui-outline);
+  --_soft: var(--ui-card-hover);
+  --_edge: var(--ui-line-2);
+  --_ink: var(--ui-fg-2);
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  box-sizing: border-box;
+  border-radius: 50%;
+}
+.ui-timeline__indicator[data-tone="pri"] { --_tone: var(--ui-pri); --_soft: var(--ui-pri-soft); --_edge: var(--ui-pri-line); --_ink: var(--ui-pri); }
+.ui-timeline__indicator[data-tone="ok"] { --_tone: var(--ui-ok); --_soft: var(--ui-ok-soft); --_edge: var(--ui-ok-line); --_ink: var(--ui-ok); }
+.ui-timeline__indicator[data-tone="warn"] { --_tone: var(--ui-warn); --_soft: var(--ui-warn-soft); --_edge: var(--ui-warn-line); --_ink: var(--ui-warn); }
+.ui-timeline__indicator[data-tone="err"] { --_tone: var(--ui-err); --_soft: var(--ui-err-soft); --_edge: var(--ui-err-line); --_ink: var(--ui-err); }
+
+.ui-timeline__indicator[data-shape="dot"] {
+  width: 10px;
+  height: 10px;
+  background: var(--_tone);
+  box-shadow: 0 0 0 3px var(--_surface);
+}
+
+.ui-timeline__indicator[data-shape="icon"] {
+  width: var(--_axis);
+  height: var(--_axis);
+  background: var(--_soft);
+  color: var(--_ink);
+  box-shadow: inset 0 0 0 1px var(--_edge), 0 0 0 3px var(--_surface);
+}
+.ui-timeline__indicator[data-shape="icon"][data-variant="solid"] {
+  background: var(--_tone);
+  color: var(--ui-panel);
+  box-shadow: 0 0 0 3px var(--_surface);
+}
+.ui-timeline__indicator[data-shape="icon"][data-variant="solid"][data-tone="neu"] { --_tone: var(--ui-fg-2); }
+.ui-timeline__indicator :where(svg) { width: 16px; height: 16px; }
+
+/* Avatar dans la pastille : il en prend la place, détouré comme elle. */
+.ui-timeline__indicator[data-shape="icon"]:has(> .ui-avatar) { background: none; box-shadow: 0 0 0 3px var(--_surface); }
+.ui-timeline__indicator[data-shape="icon"] > .ui-avatar { --_size: var(--_axis); --_font: 11px; }
+
+/* ── Contenu ───────────────────────────────────────────────────────── */
+.ui-timeline__content {
+  grid-column: 2;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-content: start;
+  column-gap: 12px;
+  row-gap: 2px;
+  min-width: 0;
+  padding-top: calc((var(--_axis) - var(--_lh)) / 2);
+  padding-bottom: var(--_space);
+}
+.ui-timeline__item:last-child > .ui-timeline__content { padding-bottom: 0; }
+.ui-timeline__content > * { grid-column: 1 / -1; }
+.ui-timeline__content > .ui-timeline__title { grid-column: 1; }
+/* L'heure s'aligne en haut à droite, sur la première ligne du titre. */
+.ui-timeline__content > .ui-timeline__time { grid-column: 2; grid-row: 1; }
+/* Contenu libre (aperçu de fichier, citation) : un peu d'air au-dessus. */
+.ui-timeline__content > :not(.ui-timeline__title, .ui-timeline__description, .ui-timeline__time) { margin-top: 8px; }
+
+.ui-timeline__title { margin: 0; color: var(--ui-fg); font-size: 14px; line-height: var(--_lh); overflow-wrap: anywhere; }
+.ui-timeline__title :where(strong, b) { font-weight: 600; }
+.ui-timeline__description { margin: 0; color: var(--ui-fg-2); font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
+.ui-timeline__time {
+  color: var(--ui-fg-3);
+  font-size: 12.5px;
+  line-height: var(--_lh);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── Alterné (au-delà de 480 px) ───────────────────────────────────── */
+@container ui-timeline (min-width: 480px) {
+  .ui-timeline[data-align="alternate"] .ui-timeline__heading { text-align: center; }
+  .ui-timeline[data-align="alternate"] .ui-timeline__heading-text {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 12px;
+    border-radius: var(--ui-r-pill);
+    background: var(--ui-card-hover);
+  }
+  .ui-timeline[data-align="alternate"] .ui-timeline__item {
+    grid-template-columns: minmax(0, 1fr) var(--_axis) minmax(0, 1fr);
+  }
+  .ui-timeline[data-align="alternate"] .ui-timeline__item::before { inset-inline-start: calc(50% - var(--_line) / 2); }
+  .ui-timeline[data-align="alternate"] .ui-timeline__separator { grid-column: 2; }
+  .ui-timeline[data-align="alternate"] .ui-timeline__content {
+    position: relative;
+    grid-column: 3;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ui-timeline[data-align="alternate"] .ui-timeline__content > * { grid-column: 1; }
+  .ui-timeline[data-align="alternate"] .ui-timeline__item:nth-child(even) > .ui-timeline__content {
+    grid-column: 1;
+    text-align: end;
+    justify-items: end;
+  }
+  /* L'heure passe de l'autre côté de l'axe, en vis-à-vis du titre. */
+  .ui-timeline[data-align="alternate"] .ui-timeline__content > .ui-timeline__time {
+    position: absolute;
+    top: calc((var(--_axis) - var(--_lh)) / 2);
+    inset-inline-end: calc(100% + var(--_axis) + 2 * var(--_gap));
+    width: 100%;
+    text-align: end;
+  }
+  .ui-timeline[data-align="alternate"] .ui-timeline__item:nth-child(even) > .ui-timeline__content > .ui-timeline__time {
+    inset-inline-start: calc(100% + var(--_axis) + 2 * var(--_gap));
+    inset-inline-end: auto;
+    text-align: start;
+  }
+}
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+@media (forced-colors: active) {
+  .ui-timeline__item::before { forced-color-adjust: none; background: GrayText; }
+  .ui-timeline__indicator {
+    forced-color-adjust: none;
+    background: Canvas;
+    color: CanvasText;
+    box-shadow: inset 0 0 0 1px CanvasText, 0 0 0 3px Canvas;
+  }
+  .ui-timeline__indicator[data-shape="dot"] { background: CanvasText; }
+}

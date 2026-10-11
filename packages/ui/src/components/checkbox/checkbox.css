@@ -1,0 +1,55 @@
+/* Case à cocher : 18 px, coins doux, bord « outline » à 3:1 de contraste. */
+.ui-checkbox {
+  box-sizing: border-box;
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  border: 2px solid var(--ui-outline);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ui-pri-fg);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+/* Cible tactile élargie */
+.ui-checkbox::after { content: ""; position: absolute; inset: -11px; }
+@media (hover: hover) {
+  :where(.ui-checkbox:hover:not(:disabled)) { box-shadow: 0 0 0 8px color-mix(in srgb, var(--ui-fg) 6%, transparent); }
+}
+.ui-checkbox:active:not(:disabled) { transform: scale(0.9); }
+.ui-checkbox:focus-visible { border-color: var(--ui-pri); box-shadow: 0 0 0 3px var(--ui-ring); }
+
+.ui-checkbox[data-state="checked"],
+.ui-checkbox[data-state="indeterminate"] {
+  border-color: var(--ui-pri);
+  background: var(--ui-pri);
+}
+.ui-checkbox[aria-invalid="true"] { border-color: var(--ui-err); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-err) 18%, transparent); }
+.ui-checkbox:disabled { cursor: not-allowed; opacity: 0.45; }
+
+.ui-checkbox__indicator { display: grid; place-content: center; animation: ui-check-in var(--ui-duration-slow) var(--ui-ease-spring); }
+.ui-checkbox__indicator svg { width: 14px; height: 14px; }
+.ui-checkbox__indicator[data-state="checked"] [data-icon="minus"],
+.ui-checkbox__indicator[data-state="indeterminate"] [data-icon="check"] { display: none; }
+@keyframes ui-check-in { from { opacity: 0; transform: scale(0.5); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-checkbox:active:not(:disabled) { transform: none; }
+  .ui-checkbox__indicator { animation: none; }
+}
+@media (forced-colors: active) {
+  .ui-checkbox { border-color: ButtonText; }
+  .ui-checkbox[data-state="checked"], .ui-checkbox[data-state="indeterminate"] { background: Highlight; color: HighlightText; forced-color-adjust: none; }
+  .ui-checkbox:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+}

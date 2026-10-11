@@ -1,0 +1,210 @@
+/*
+ * Carrousel (Embla). Le rail est décalé d'un espace vers l'arrière et chaque
+ * diapositive porte cet espace en marge intérieure : la première s'aligne
+ * sur le bord, les mesures d'Embla restent justes, en boucle comme en RTL.
+ *
+ * Flèches : boutons ronds surélevés (Button `elevated`), posés sur les bords
+ * et révélés au survol sur les appareils à pointeur. Points : pastilles
+ * d'iOS, l'active s'allonge en pilule d'un ressort.
+ *
+ * Variables publiques : --ui-carousel-gap, --ui-carousel-per-view.
+ */
+.ui-carousel {
+  --ui-carousel-gap: 16px;
+  --ui-carousel-per-view: 1;
+  --_dots-offset: 0px;
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  outline: none;
+}
+
+.ui-carousel__viewport { overflow: hidden; }
+
+.ui-carousel__content {
+  display: flex;
+  margin-inline-start: calc(var(--ui-carousel-gap) * -1);
+  touch-action: pan-y pinch-zoom;
+  backface-visibility: hidden;
+}
+.ui-carousel[data-orientation="vertical"] .ui-carousel__content {
+  flex-direction: column;
+  margin-inline-start: 0;
+  margin-top: calc(var(--ui-carousel-gap) * -1);
+  touch-action: pan-x pinch-zoom;
+}
+
+.ui-carousel__item {
+  flex: 0 0 calc(100% / var(--ui-carousel-per-view));
+  box-sizing: border-box;
+  min-width: 0;
+  padding-inline-start: var(--ui-carousel-gap);
+}
+.ui-carousel[data-orientation="vertical"] .ui-carousel__item {
+  min-height: 0;
+  padding-inline-start: 0;
+  padding-top: var(--ui-carousel-gap);
+}
+
+/* Annonce « Diapositive 3 sur 8 » : lue, pas affichée. */
+.ui-carousel__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Flèches ───────────────────────────────────────────────────────── */
+
+.ui-carousel .ui-carousel__control {
+  transition:
+    opacity var(--ui-duration) var(--ui-ease),
+    scale var(--ui-duration-slow) var(--ui-ease-spring),
+    background-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+
+/* Posées sur les bords, centrées sur la fenêtre (les points en ligne sont décomptés). */
+.ui-carousel:has(> .ui-carousel-dots:not([data-variant="overlay"])) { --_dots-offset: 18px; }
+.ui-carousel__control[data-placement="overlay"] { position: absolute; z-index: 1; }
+.ui-carousel__control[data-placement="overlay"][data-orientation="horizontal"] {
+  top: calc(50% - var(--_dots-offset));
+  translate: 0 -50%;
+}
+.ui-carousel__control--previous[data-placement="overlay"][data-orientation="horizontal"] { inset-inline-start: 12px; }
+.ui-carousel__control--next[data-placement="overlay"][data-orientation="horizontal"] { inset-inline-end: 12px; }
+.ui-carousel__control[data-placement="overlay"][data-orientation="vertical"] {
+  left: calc(50% - var(--_dots-offset));
+  translate: -50% 0;
+}
+.ui-carousel__control--previous[data-placement="overlay"][data-orientation="vertical"] { top: 12px; }
+.ui-carousel__control--next[data-placement="overlay"][data-orientation="vertical"] { bottom: 12px; }
+
+/* Chevrons : vers le haut / le bas en vertical, miroir en RTL. */
+.ui-carousel__control[data-orientation="vertical"] svg { rotate: 90deg; }
+.ui-carousel[data-direction="rtl"] .ui-carousel__control[data-orientation="horizontal"] svg { scale: -1 1; }
+
+/* Révélées au survol ou au focus sur les appareils qui survolent ; toujours visibles au doigt. */
+@media (hover: hover) {
+  .ui-carousel .ui-carousel__control[data-placement="overlay"] { opacity: 0; scale: 0.9; }
+  .ui-carousel:is(:hover, :focus-within) .ui-carousel__control[data-placement="overlay"] { opacity: 1; scale: 1; }
+}
+/* Aux bornes, la flèche posée s'efface ; elle reste visible si le clavier l'a encore en main. */
+.ui-carousel .ui-carousel__control[data-placement="overlay"][aria-disabled="true"]:not(:focus-visible) { opacity: 0; scale: 0.9; }
+.ui-carousel .ui-carousel__control[data-placement="overlay"][aria-disabled="true"]:focus-visible { opacity: 0.45; }
+
+/* ── Points de pagination ──────────────────────────────────────────── */
+
+.ui-carousel-dots {
+  --_dot: var(--ui-outline);
+  --_dot-hover: var(--ui-fg-2);
+  --_dot-active: var(--ui-pri);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 24px;
+  margin-top: 12px;
+}
+.ui-carousel-dots[data-orientation="vertical"] {
+  flex-direction: column;
+  min-width: 24px;
+  min-height: 0;
+  margin-top: 0;
+}
+/* En vertical, les points se rangent à droite de la fenêtre. */
+.ui-carousel[data-orientation="vertical"]:has(> .ui-carousel-dots:not([data-variant="overlay"])) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+}
+
+/* Cible de 24 px ; la pastille visible (8 px) est dessinée par ::before. */
+.ui-carousel-dots__dot {
+  --_size: 8px;
+  --_length: var(--_size);
+  position: relative;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  box-sizing: border-box;
+  width: calc(var(--_length) + 16px);
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: width var(--ui-duration-slow) var(--ui-ease-spring), height var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-carousel-dots__dot::before {
+  content: "";
+  width: var(--_length);
+  height: var(--_size);
+  border-radius: var(--ui-r-pill);
+  background: var(--_dot);
+  transition:
+    width var(--ui-duration-slow) var(--ui-ease-spring),
+    height var(--ui-duration-slow) var(--ui-ease-spring),
+    background-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-carousel-dots__dot[data-state="active"] { --_length: 24px; cursor: default; }
+.ui-carousel-dots__dot[data-state="active"]::before { background: var(--_dot-active); }
+@media (hover: hover) {
+  .ui-carousel-dots__dot[data-state="inactive"]:hover::before { background: var(--_dot-hover); }
+}
+.ui-carousel-dots__dot:focus-visible::before { box-shadow: 0 0 0 1.5px var(--ui-pri), 0 0 0 4.5px var(--ui-ring); }
+
+.ui-carousel-dots[data-orientation="vertical"] .ui-carousel-dots__dot { width: 24px; height: calc(var(--_length) + 16px); }
+.ui-carousel-dots[data-orientation="vertical"] .ui-carousel-dots__dot::before { width: var(--_size); height: var(--_length); }
+
+/* Capsule translucide posée sur l'image (contrôle de page d'iOS). */
+.ui-carousel-dots[data-variant="overlay"] {
+  position: absolute;
+  z-index: 1;
+  bottom: 12px;
+  left: 50%;
+  min-height: 24px;
+  margin: 0;
+  padding: 0 4px;
+  border: 1px solid var(--ui-material-line);
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-material);
+  translate: -50% 0;
+}
+@supports (backdrop-filter: blur(1px)) {
+  .ui-carousel-dots[data-variant="overlay"] { backdrop-filter: var(--ui-blur); }
+}
+.ui-carousel-dots[data-variant="overlay"][data-orientation="vertical"] {
+  top: 50%;
+  right: 12px;
+  bottom: auto;
+  left: auto;
+  padding: 4px 0;
+  translate: 0 -50%;
+}
+.ui-carousel-dots[data-empty] { visibility: hidden; }
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-carousel .ui-carousel__control,
+  .ui-carousel-dots__dot,
+  .ui-carousel-dots__dot::before { transition: none; }
+}
+@media (forced-colors: active) {
+  .ui-carousel-dots__dot::before { background: ButtonText; forced-color-adjust: none; }
+  .ui-carousel-dots__dot[data-state="active"]::before { background: Highlight; }
+  .ui-carousel-dots__dot:focus-visible { outline: 2px solid Highlight; outline-offset: 1px; }
+  .ui-carousel-dots[data-variant="overlay"] { border-color: CanvasText; background: Canvas; }
+}

@@ -1,0 +1,151 @@
+/*
+ * Table : vue liste de Drive. En-tête en casse de phrase (13 px, fg-2),
+ * lignes de 48 px séparées par un filet, survol tonal, sélection bleue.
+ */
+.ui-table-container {
+  --_row-h: 48px;
+  --_head-h: 44px;
+  --_px: 16px;
+  --_edge: 8px;
+  position: relative;
+  width: 100%;
+  overflow: auto;
+  font-family: var(--ui-font-sans);
+}
+.ui-table-container[data-density="compact"] { --_row-h: 40px; --_head-h: 40px; --_px: 12px; }
+.ui-table-container[data-density="comfortable"] { --_row-h: 56px; --_head-h: 48px; }
+/*
+ * Défilement horizontal : un fondu du côté où il reste des colonnes, posé par
+ * Table (`data-overflow-start` / `-end`). Le masque n'agit que sur l'alpha.
+ * Pas sur une carte autonome : le fondu effacerait son filet. Dans DataTable,
+ * le cadre est sur la surface parente, le fondu s'applique.
+ */
+.ui-table-container { --_fade-start: 0px; --_fade-end: 0px; --_fade-dir: to right; }
+.ui-table-container:dir(rtl) { --_fade-dir: to left; }
+.ui-table-container[data-overflow-start] { --_fade-start: 40px; }
+.ui-table-container[data-overflow-end] { --_fade-end: 40px; }
+.ui-table-container:is([data-overflow-start], [data-overflow-end]):not([data-variant="card"]),
+.ui-data-table__surface .ui-table-container:is([data-overflow-start], [data-overflow-end]) {
+  mask-image: linear-gradient(var(--_fade-dir), transparent, #000 var(--_fade-start), #000 calc(100% - var(--_fade-end)), transparent);
+}
+@media (forced-colors: active) {
+  .ui-table-container { mask-image: none !important; }
+}
+/* Focalisable quand elle défile sans contenu focalisable (voir Table) : filet primaire intérieur. */
+.ui-table-container:focus-visible { outline: 2px solid var(--ui-pri); outline-offset: -2px; }
+/* Hors écran (vue tableau des graphiques) : rien à faire défiler. */
+.ui-sr-only .ui-table-container { overflow: visible; }
+
+/* Carte : panneau arrondi à filet, marges latérales plus larges. */
+.ui-table-container[data-variant="card"] {
+  --_edge: 20px;
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-r-lg);
+  background: var(--ui-panel);
+}
+
+.ui-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--ui-fg);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* ── En-tête ──────────────────────────────────────────────────────── */
+.ui-table__head {
+  height: var(--_head-h);
+  padding: 0 var(--_px);
+  border-bottom: 1px solid var(--ui-line);
+  background: var(--ui-panel);
+  color: var(--ui-fg-2);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: start;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.ui-table-container[data-sticky] .ui-table__head { position: sticky; top: 0; z-index: 1; }
+
+/* Intitulé triable : bouton à couche d'état, flèche qui pivote. */
+.ui-table__sort {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  margin: 0 -10px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  outline: none;
+}
+.ui-table__sort::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-table__sort:hover::before { opacity: var(--ui-state-hover); }
+}
+.ui-table__sort:focus-visible { box-shadow: 0 0 0 3px var(--ui-ring), inset 0 0 0 1px var(--ui-pri); }
+.ui-table__sort[data-direction] { color: var(--ui-fg); }
+.ui-table__sort-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+  transition: opacity var(--ui-duration) var(--ui-ease), transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+@media (hover: hover) {
+  .ui-table__sort:hover .ui-table__sort-icon { opacity: 0.45; }
+}
+.ui-table__sort:focus-visible .ui-table__sort-icon { opacity: 0.45; }
+.ui-table__sort[data-direction] .ui-table__sort-icon { opacity: 1; color: var(--ui-pri); }
+.ui-table__sort[data-direction="desc"] .ui-table__sort-icon { transform: rotate(180deg); }
+
+/* ── Cellules ─────────────────────────────────────────────────────── */
+.ui-table__cell {
+  height: var(--_row-h);
+  padding: 0 var(--_px);
+  border-bottom: 1px solid var(--ui-line);
+  vertical-align: middle;
+  transition: background-color var(--ui-duration) var(--ui-ease);
+}
+:is(.ui-table__head, .ui-table__cell)[data-numeric] { text-align: end; font-variant-numeric: tabular-nums; }
+:is(.ui-table__head, .ui-table__cell)[data-numeric] .ui-table__sort { flex-direction: row-reverse; }
+:is(.ui-table__head, .ui-table__cell):first-child { padding-inline-start: var(--_edge); }
+:is(.ui-table__head, .ui-table__cell):last-child { padding-inline-end: var(--_edge); }
+.ui-table__cell :where(.ui-checkbox), .ui-table__head :where(.ui-checkbox) { vertical-align: middle; }
+
+/* Survol tonal et sélection : posés sur les cellules, la ligne n'a pas de fond. */
+@media (hover: hover) {
+  .ui-table__body .ui-table__row:hover > .ui-table__cell { background: var(--ui-card-2); }
+}
+.ui-table__row[data-state="selected"] > .ui-table__cell {
+  background: var(--ui-sel);
+  color: var(--ui-on-pri-container);
+  border-bottom-color: transparent;
+}
+
+/* Dans une carte, la dernière ligne ne double pas le filet du panneau. */
+.ui-table-container[data-variant="card"] .ui-table__body .ui-table__row:last-child > .ui-table__cell { border-bottom: 0; }
+.ui-table-container[data-variant="card"]:has(.ui-table__footer) .ui-table__body .ui-table__row:last-child > .ui-table__cell { border-bottom: 1px solid var(--ui-line); }
+
+/* ── Pied et légende ──────────────────────────────────────────────── */
+.ui-table__footer .ui-table__cell { border-bottom: 0; background: var(--ui-panel-2); font-weight: 600; }
+.ui-table__caption { caption-side: bottom; padding: 12px var(--_edge); color: var(--ui-fg-3); font-size: 13px; text-align: start; }
+
+@media (forced-colors: active) {
+  .ui-table__row[data-state="selected"] > .ui-table__cell { outline: 1px solid Highlight; }
+}

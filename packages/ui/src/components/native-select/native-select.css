@@ -1,0 +1,103 @@
+/*
+ * Liste déroulante native : gabarit du déclencheur de Select (remplissage tonal,
+ * 40 px / 32 px, rayon de champ, focus, erreur, désactivé) posé sur un vrai
+ * <select>. Le chevron est un SVG en ligne à côté du champ, sans capter le clic ;
+ * la liste elle-même reste celle du système (thème clair ou sombre via color-scheme).
+ */
+.ui-native-select {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.ui-native-select__control {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  margin: 0;
+  padding: 0 38px 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-ctl);
+  background: var(--ui-card-2);
+  color: var(--ui-fg);
+  font: inherit;
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.006em;
+  line-height: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-native-select__control[data-density="sm"] {
+  height: 32px;
+  padding: 0 32px 0 11px;
+  border-radius: var(--ui-r-sm);
+  font-size: 13px;
+}
+/* Indication : tant que l'option vide est choisie, le texte passe en tertiaire. */
+.ui-native-select__control:has(> option[data-placeholder]:checked) { color: var(--ui-fg-3); }
+/* La liste ouverte garde l'encre normale (Windows, Linux peignent les options). */
+.ui-native-select__control option,
+.ui-native-select__control optgroup {
+  background: var(--ui-panel);
+  color: var(--ui-fg);
+}
+.ui-native-select__control option:disabled { color: var(--ui-fg-3); }
+
+@media (hover: hover) {
+  .ui-native-select__control:hover:not(:disabled, :focus-visible) { background: var(--ui-card-hover); }
+}
+.ui-native-select__control:focus-visible {
+  border-color: var(--ui-pri);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px var(--ui-ring);
+}
+.ui-native-select__control[aria-invalid="true"] {
+  border-color: var(--ui-err);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-err) 18%, transparent);
+}
+.ui-native-select__control:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.ui-native-select__icon {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-end: 10px;
+  display: flex;
+  align-items: center;
+  color: var(--ui-fg-2);
+  pointer-events: none;
+  transition: color var(--ui-duration) var(--ui-ease);
+}
+.ui-native-select__icon svg { width: 18px; height: 18px; }
+.ui-native-select[data-density="sm"] .ui-native-select__icon { inset-inline-end: 8px; }
+.ui-native-select[data-density="sm"] .ui-native-select__icon svg { width: 16px; height: 16px; }
+.ui-native-select__control:focus-visible + .ui-native-select__icon { color: var(--ui-pri); }
+.ui-native-select__control:disabled + .ui-native-select__icon { opacity: 0.5; }
+
+/* Écriture de droite à gauche : le chevron change de côté, le texte aussi. */
+.ui-native-select__control:dir(rtl) { padding: 0 14px 0 38px; }
+.ui-native-select__control[data-density="sm"]:dir(rtl) { padding: 0 11px 0 32px; }
+
+@media (forced-colors: active) {
+  .ui-native-select__control { border-color: ButtonText; }
+  .ui-native-select__control:focus-visible { outline: 2px solid Highlight; outline-offset: 1px; }
+  .ui-native-select__icon { color: ButtonText; }
+}

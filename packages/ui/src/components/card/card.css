@@ -1,0 +1,100 @@
+/*
+ * Carte : une surface, trois rôles. Respiration de 16 px (12 px en `sm`),
+ * rayon 16 px ; le média intérieur prend le rayon 12 px, en retrait du bord.
+ */
+.ui-card {
+  --_pad: 16px;
+  --_gap: 12px;
+  --_bg: var(--ui-card-2);
+  --_fg: var(--ui-fg);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: var(--_gap);
+  box-sizing: border-box;
+  min-width: 0;
+  padding: var(--_pad);
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-lg);
+  background: var(--_bg);
+  background-clip: padding-box;
+  color: var(--_fg);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: start;
+  text-decoration: none;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-card--size-sm { --_pad: 12px; --_gap: 10px; border-radius: var(--ui-r-md); font-size: 13px; }
+
+.ui-card--filled { --_bg: var(--ui-card-2); }
+.ui-card--elevated { --_bg: var(--ui-panel); box-shadow: var(--ui-sh2); }
+.ui-card--outlined { --_bg: var(--ui-panel); border-color: var(--ui-line); }
+
+/* ── Interactive : couche d'état, pression, focus ─────────────────── */
+:is(button, a).ui-card { font: inherit; font-family: var(--ui-font-sans); cursor: pointer; }
+.ui-card[data-interactive] { cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; }
+.ui-card[data-interactive]::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-card[data-interactive]:hover::before { opacity: var(--ui-state-hover); }
+  .ui-card--elevated[data-interactive]:hover { box-shadow: var(--ui-sh3); }
+}
+.ui-card[data-interactive]:active { transform: scale(0.985); transition-duration: var(--ui-duration), var(--ui-duration), 80ms; }
+.ui-card[data-interactive]:active::before { opacity: var(--ui-state-press); }
+.ui-card[data-interactive]:focus-visible { border-color: var(--ui-pri); box-shadow: 0 0 0 3px var(--ui-ring); }
+
+/* Sélection : le conteneur bleu de Drive, texte sur conteneur. */
+.ui-card[data-selected] { --_bg: var(--ui-sel); --_fg: var(--ui-on-pri-container); border-color: transparent; }
+.ui-card[data-selected] .ui-card__description { color: inherit; opacity: 0.8; }
+
+/* ── Parties ──────────────────────────────────────────────────────── */
+.ui-card__header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  column-gap: 12px;
+  row-gap: 2px;
+}
+.ui-card__header > :not(.ui-card__action) { grid-column: 1; }
+.ui-card__title { margin: 0; color: inherit; font-size: 16px; font-weight: 600; line-height: 1.35; letter-spacing: -0.012em; }
+.ui-card--size-sm .ui-card__title { font-size: 14px; }
+.ui-card__description { color: var(--ui-fg-2); font-size: 13px; line-height: 1.45; }
+/* L'action déborde dans la marge pour s'aligner sur le coin optique de la carte. */
+.ui-card__action { grid-column: 2; grid-row: 1 / span 2; align-self: start; margin: -6px -8px -6px 0; }
+
+.ui-card__media {
+  position: relative;
+  overflow: hidden;
+  margin: 0 calc(var(--_pad) * -0.4);
+  border-radius: var(--ui-r-md);
+  background: var(--ui-panel);
+}
+.ui-card__media:first-child { margin-top: calc(var(--_pad) * -0.4); }
+.ui-card__media > :is(img, video, picture) { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.ui-card__content { min-width: 0; }
+.ui-card__footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-card[data-interactive]:active { transform: none; }
+}
+@media (forced-colors: active) {
+  .ui-card { border-color: CanvasText; }
+  .ui-card[data-interactive]::before { display: none; }
+  .ui-card[data-selected] { outline: 2px solid Highlight; }
+}

@@ -1,0 +1,517 @@
+/*
+ * Messagerie façon iMessage, dans le langage Drive × iOS.
+ * Bulle envoyée : primaire pleine à droite. Bulle reçue : surface tonale à
+ * gauche. Rayon 20 px, 2 px entre les bulles d'un groupe, queue et avatar sur
+ * la dernière seulement. Ce qui flotte (retour en bas, date accrochée) prend le
+ * matériau translucide.
+ */
+
+/* ══ Fil ═════════════════════════════════════════════════════════════════ */
+.ui-message-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+}
+.ui-message-list__viewport {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  /* L'ancrage de lecture est fait en JavaScript (Safari n'a pas d'ancrage natif) :
+     on coupe celui du navigateur pour ne pas compenser deux fois. */
+  overflow-anchor: none;
+  overscroll-behavior: contain;
+  border-radius: inherit;
+  outline: none;
+}
+.ui-message-list__viewport:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--ui-pri), inset 0 0 0 4px var(--ui-ring);
+}
+.ui-message-list__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* une conversation courte se lit depuis le bas, comme sur iOS */
+  gap: 12px;
+  box-sizing: border-box;
+  min-height: 100%;
+  padding: 16px;
+}
+.ui-message-list__history {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+  color: var(--ui-fg-3);
+}
+
+/* Retour en bas : rond translucide, puis pastille primaire quand des messages sont arrivés. */
+.ui-message-list__jump {
+  position: absolute;
+  bottom: 12px;
+  inset-inline: 0;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  width: fit-content;
+  min-width: 36px;
+  height: 36px;
+  margin-inline: auto;
+  padding: 0 10px;
+  border: 1px solid var(--ui-material-line);
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-panel);
+  color: var(--ui-fg);
+  box-shadow: var(--ui-sh3);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  isolation: isolate;
+  animation: ui-message-jump-in var(--ui-duration-slow) var(--ui-ease-spring);
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+@supports (backdrop-filter: blur(1px)) {
+  .ui-message-list__jump:not([data-unread]) {
+    background: var(--ui-material);
+    backdrop-filter: var(--ui-blur);
+    -webkit-backdrop-filter: var(--ui-blur);
+  }
+}
+.ui-message-list__jump[data-unread] {
+  padding: 0 12px 0 14px;
+  border-color: transparent;
+  background: var(--ui-pri);
+  color: var(--ui-pri-fg);
+}
+.ui-message-list__jump svg { width: 16px; height: 16px; flex-shrink: 0; }
+.ui-message-list__jump::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-message-list__jump:hover::before { opacity: var(--ui-state-hover); }
+}
+.ui-message-list__jump:active::before { opacity: var(--ui-state-press); }
+.ui-message-list__jump:focus-visible { box-shadow: var(--ui-sh3), 0 0 0 1px var(--ui-pri), 0 0 0 4px var(--ui-ring); }
+@keyframes ui-message-jump-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.94); }
+}
+
+/* ══ Séparateur de jour : accroché en haut pendant le défilement ════════ */
+.ui-message-date {
+  position: sticky;
+  top: 8px;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  margin: 4px 0;
+  pointer-events: none;
+}
+.ui-message-date__label {
+  padding: 3px 10px;
+  border: 1px solid var(--ui-material-line);
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-panel);
+  color: var(--ui-fg-2);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  pointer-events: auto;
+}
+@supports (backdrop-filter: blur(1px)) {
+  .ui-message-date__label {
+    background: var(--ui-material);
+    backdrop-filter: var(--ui-blur);
+    -webkit-backdrop-filter: var(--ui-blur);
+  }
+}
+
+/* ══ Groupe ══════════════════════════════════════════════════════════════ */
+.ui-message-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ui-message-group__name {
+  margin-bottom: 2px;
+  padding-inline-start: 14px;
+  color: var(--ui-fg-3);
+  font-size: 12px;
+  font-weight: 500;
+}
+.ui-message-group[data-avatar] .ui-message-group__name { padding-inline-start: calc(32px + 8px + 14px); }
+
+/* ══ Message ═════════════════════════════════════════════════════════════ */
+.ui-message {
+  --_bubble: var(--ui-card-2);
+  --_bubble-fg: var(--ui-fg);
+  --_avatar: 32px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-family: var(--ui-font-sans);
+}
+.ui-message[data-from="me"] {
+  --_bubble: var(--ui-pri);
+  --_bubble-fg: var(--ui-pri-fg);
+  align-items: flex-end;
+}
+.ui-message__row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.ui-message[data-from="me"] .ui-message__row { flex-direction: row-reverse; }
+
+.ui-message__avatar {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  width: var(--_avatar);
+}
+.ui-message__main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  max-width: min(75%, 34rem);
+}
+.ui-message[data-from="me"] .ui-message__main { align-items: flex-end; }
+
+/* Bulle : la queue (SVG) passe sous le texte, au-dessus du fond. */
+.ui-message__bubble {
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 8px 13px;
+  border-radius: var(--ui-r-xl);
+  background: var(--_bubble);
+  color: var(--_bubble-fg);
+  font-size: 15px;
+  line-height: 1.4;
+  letter-spacing: -0.008em;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+.ui-message__bubble :where(a) {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+/* Sur la bulle primaire, l'anneau primaire disparaîtrait : il prend la couleur du texte. */
+.ui-message__bubble :where(a):focus-visible {
+  border-radius: 2px;
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.ui-message[data-from="me"] .ui-message__bubble ::selection {
+  background: color-mix(in srgb, var(--ui-pri-fg) 32%, transparent);
+}
+
+.ui-message__tail {
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: -6px;
+  z-index: -1;
+  width: 20px;
+  height: 20px;
+  fill: var(--_bubble);
+  pointer-events: none;
+}
+.ui-message[data-from="me"] .ui-message__tail {
+  inset-inline-start: auto;
+  inset-inline-end: -6px;
+  transform: scaleX(-1);
+}
+/* De droite à gauche, les côtés s'échangent : la queue se retourne. */
+.ui-message:dir(rtl) .ui-message__tail { transform: scaleX(-1); }
+.ui-message[data-from="me"]:dir(rtl) .ui-message__tail { transform: none; }
+
+/*
+ * Message qui part : entrée en ressort ; la bulle reste pleine (une bulle
+ * estompée ferait passer son texte sous 4,5:1), « Envoi… » dit l'état.
+ */
+.ui-message[data-status="sending"] .ui-message__row {
+  animation: ui-message-in var(--ui-duration-slow) var(--ui-ease-spring);
+}
+
+/* ── Pièces jointes ───────────────────────────────────────────────── */
+.ui-message__attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 100%;
+}
+.ui-message[data-from="me"] .ui-message__attachments { justify-content: flex-end; }
+.ui-message__attachments > :where(img, video) {
+  display: block;
+  max-width: min(100%, 260px);
+  height: auto;
+  border-radius: var(--ui-r-lg);
+  background: var(--ui-card-2);
+}
+
+.ui-message-attachment {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 200px;
+  padding: 10px 14px 10px 10px;
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-r-lg);
+  background: var(--ui-panel);
+  color: var(--ui-fg);
+  text-decoration: none;
+  outline: none;
+  transition:
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+a.ui-message-attachment::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  a.ui-message-attachment:hover::before { opacity: var(--ui-state-hover); }
+}
+a.ui-message-attachment:active::before { opacity: var(--ui-state-press); }
+a.ui-message-attachment:focus-visible { border-color: var(--ui-pri); box-shadow: 0 0 0 3px var(--ui-ring); }
+.ui-message-attachment__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--ui-r-sm);
+  background: var(--ui-pri-container);
+  color: var(--ui-on-pri-container);
+}
+.ui-message-attachment__icon :where(svg) { width: 18px; height: 18px; }
+.ui-message-attachment__text { display: grid; min-width: 0; }
+.ui-message-attachment__name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ui-message-attachment__meta { color: var(--ui-fg-3); font-size: 12px; line-height: 1.35; }
+
+/* ── À côté de la bulle : alerte d'échec, heure au survol ─────────── */
+.ui-message__aside {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  align-self: center;
+}
+.ui-message[data-from="me"] .ui-message__aside { flex-direction: row-reverse; }
+.ui-message__time { font-variant-numeric: tabular-nums; }
+.ui-message__time-reveal {
+  color: var(--ui-fg-3);
+  font-size: 11.5px;
+  opacity: 0;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-message__row:hover .ui-message__time-reveal { opacity: 1; }
+}
+.ui-message:focus-within .ui-message__time-reveal,
+.ui-message-list__viewport:focus-visible .ui-message__time-reveal { opacity: 1; }
+
+.ui-message__alert { display: flex; color: var(--ui-err); }
+.ui-message__alert svg { width: 20px; height: 20px; }
+.ui-message__alert-mark { stroke: var(--ui-err-fg); }
+.ui-message__alert-dot { fill: var(--ui-err-fg); }
+
+/* ── Sous la bulle : heure affichée, statut, nouvel essai ─────────── */
+.ui-message__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  padding-inline: 6px;
+  color: var(--ui-fg-3);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.ui-message[data-from="them"][data-avatar] .ui-message__footer { padding-inline-start: calc(var(--_avatar) + 8px + 6px); }
+.ui-message__failure { display: inline-flex; align-items: center; gap: 6px; color: var(--ui-err); }
+.ui-message__retry {
+  position: relative;
+  padding: 0 4px;
+  border: 0;
+  border-radius: var(--ui-r-xs);
+  background: none;
+  color: var(--ui-pri);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+/* Cible tactile de 24 px au moins. */
+.ui-message__retry::after { content: ""; position: absolute; inset: -6px -4px; }
+@media (hover: hover) {
+  .ui-message__retry:hover { text-decoration: underline; text-underline-offset: 2px; }
+}
+.ui-message__retry:focus-visible { box-shadow: 0 0 0 1px var(--ui-pri), 0 0 0 4px var(--ui-ring); }
+
+@keyframes ui-message-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+}
+
+/* ══ Indicateur de saisie ════════════════════════════════════════════════ */
+.ui-typing__bubble {
+  display: flex;
+  align-items: center;
+  height: 37px;
+  padding: 0 14px;
+}
+.ui-typing .ui-message__row { animation: ui-message-in var(--ui-duration-slow) var(--ui-ease-spring); }
+.ui-typing__dots { display: flex; align-items: center; gap: 4px; }
+.ui-typing__dots > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ui-fg-3);
+  animation: ui-typing-dot calc(var(--ui-duration-slow) * 5) var(--ui-ease) infinite;
+}
+.ui-typing__dots > span:nth-child(2) { animation-delay: calc(var(--ui-duration-slow) * 0.6); }
+.ui-typing__dots > span:nth-child(3) { animation-delay: calc(var(--ui-duration-slow) * 1.2); }
+@keyframes ui-typing-dot {
+  0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* ══ Zone de saisie ══════════════════════════════════════════════════════ */
+.ui-composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  font-family: var(--ui-font-sans);
+}
+.ui-composer__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  min-height: 40px;
+}
+.ui-composer__field {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  gap: 4px;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 40px;
+  padding: 3px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-xl);
+  background: var(--ui-card-2);
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-composer__field:hover:not(:focus-within) { background: var(--ui-card-hover); }
+  .ui-composer[data-disabled] .ui-composer__field:hover { background: var(--ui-card-2); }
+}
+.ui-composer__field:has(.ui-composer__input:focus-visible) {
+  border-color: var(--ui-pri);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px var(--ui-ring);
+}
+.ui-composer__field:has(.ui-composer__input[aria-invalid="true"]) {
+  border-color: var(--ui-err);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-err) 18%, transparent);
+}
+.ui-composer[data-disabled] { opacity: 0.5; }
+.ui-composer[data-disabled] .ui-composer__field { cursor: not-allowed; }
+
+.ui-composer__input {
+  flex: 1;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 32px;
+  max-height: 160px;
+  margin: 0;
+  padding: 6px 6px 6px 13px;
+  padding-inline: 13px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--ui-fg);
+  font: inherit;
+  font-size: 15px;
+  line-height: 20px;
+  letter-spacing: -0.008em;
+  overflow-y: auto;
+  resize: none;
+  outline: none;
+  field-sizing: content;
+}
+.ui-composer__input::placeholder { color: var(--ui-fg-3); opacity: 1; }
+.ui-composer__input:disabled { cursor: not-allowed; }
+.ui-composer__send { flex-shrink: 0; }
+
+/* ══ Accessibilité système ═══════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .ui-message-list__jump,
+  .ui-typing .ui-message__row,
+  .ui-message[data-status="sending"] .ui-message__row { animation: none; }
+  /* Les points ne bougent plus : un dégradé fixe dit encore « en cours ». */
+  .ui-typing__dots > span { animation: none; opacity: 0.4; }
+  .ui-typing__dots > span:nth-child(2) { opacity: 0.65; }
+  .ui-typing__dots > span:nth-child(3) { opacity: 0.9; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .ui-message-list__jump:not([data-unread]),
+  .ui-message-date__label { background: var(--ui-panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+@media (forced-colors: active) {
+  .ui-message__bubble { border: 1px solid CanvasText; }
+  .ui-message__tail { display: none; }
+  .ui-message-list__jump, .ui-message-date__label, .ui-message-attachment { border-color: CanvasText; }
+  .ui-message-list__jump::before, a.ui-message-attachment::before { display: none; }
+  .ui-message-list__viewport:focus-visible,
+  .ui-message-list__jump:focus-visible,
+  .ui-message__retry:focus-visible,
+  a.ui-message-attachment:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+  .ui-composer__field { border-color: ButtonText; }
+  .ui-composer__field:focus-within { outline: 2px solid Highlight; outline-offset: 1px; }
+  .ui-typing__dots > span { background: CanvasText; }
+}

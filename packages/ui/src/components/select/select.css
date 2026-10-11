@@ -1,0 +1,63 @@
+/* Déclencheur : même remplissage tonal, focus et erreur qu'un Input. */
+.ui-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  margin: 0;
+  padding: 0 10px 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-ctl);
+  background: var(--ui-card-2);
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  text-align: start;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-select-trigger[data-density="sm"] { height: 32px; padding: 0 8px 0 11px; border-radius: var(--ui-r-sm); font-size: 13px; }
+.ui-select-trigger[data-placeholder] { color: var(--ui-fg-3); }
+@media (hover: hover) {
+  .ui-select-trigger:hover:not(:disabled, [data-state="open"]) { background: var(--ui-card-hover); }
+}
+.ui-select-trigger:focus-visible,
+.ui-select-trigger[data-state="open"] {
+  border-color: var(--ui-pri);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px var(--ui-ring);
+}
+.ui-select-trigger[aria-invalid="true"] {
+  border-color: var(--ui-err);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-err) 18%, transparent);
+}
+.ui-select-trigger:disabled { cursor: not-allowed; opacity: 0.5; }
+.ui-select-trigger__value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ui-select-trigger__icon { display: flex; color: var(--ui-fg-2); transition: transform var(--ui-duration-slow) var(--ui-ease-spring); }
+.ui-select-trigger__icon svg { width: 18px; height: 18px; }
+.ui-select-trigger[data-state="open"] .ui-select-trigger__icon { transform: rotate(180deg); }
+
+.ui-select-content {
+  min-width: max(200px, var(--radix-select-trigger-width));
+  max-height: min(360px, var(--radix-select-content-available-height));
+  overflow: hidden;
+}
+.ui-select-viewport { padding: 6px; }
+.ui-select-scroll { display: flex; align-items: center; justify-content: center; height: 24px; color: var(--ui-fg-3); cursor: default; }
+.ui-select-scroll svg { width: 16px; height: 16px; }
+
+@media (forced-colors: active) {
+  .ui-select-trigger { border-color: ButtonText; }
+}

@@ -1,0 +1,100 @@
+/* Palette de commandes. Les entrées réutilisent .ui-menu-item (popup.css). */
+.ui-command {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  border-radius: inherit;
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+}
+
+/* Champ : sans cadre, grand corps, filet dessous (Spotlight). */
+.ui-command__search {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--ui-line);
+  color: var(--ui-fg-2);
+}
+.ui-command__search svg { flex-shrink: 0; width: 20px; height: 20px; }
+.ui-command__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ui-fg);
+  font: inherit;
+  font-size: 17px;
+  letter-spacing: -0.012em;
+  outline: none;
+}
+.ui-command__input::placeholder { color: var(--ui-fg-3); }
+
+.ui-command__list {
+  max-height: min(400px, 60vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  scroll-padding: 6px;
+}
+.ui-command__empty { padding: 28px 16px; color: var(--ui-fg-3); font-size: 14px; text-align: center; }
+
+.ui-command__group [cmdk-group-heading] {
+  padding: 10px 10px 4px;
+  color: var(--ui-fg-3);
+  font-size: 12px;
+  font-weight: 500;
+}
+.ui-command__group[hidden] { display: none; }
+
+/* cmdk signale l'entrée active par data-selected="true". */
+.ui-command__item { cursor: pointer; }
+.ui-command__item[data-selected="true"] { background: color-mix(in srgb, currentColor var(--ui-state-hover), transparent); }
+/* cmdk pose aussi data-disabled="false" : on annule la règle de .ui-menu-item, qui ne teste que la présence. */
+.ui-command__item[data-disabled="false"] { opacity: 1; pointer-events: auto; }
+.ui-command__item[data-disabled="true"] { opacity: 0.45; pointer-events: none; }
+
+/* Dans une modale : en haut d'écran, matériau translucide, grand rayon. */
+.ui-command-dialog {
+  position: fixed;
+  top: max(12vh, 24px);
+  left: 50%;
+  z-index: 50;
+  box-sizing: border-box;
+  width: min(640px, calc(100vw - 24px));
+  border: 1px solid var(--ui-material-line);
+  border-radius: var(--ui-r-xl);
+  background: var(--ui-panel);
+  box-shadow: var(--ui-sh4);
+  transform: translateX(-50%);
+  outline: none;
+  animation: ui-command-in var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-command-dialog[data-state="closed"] { animation: ui-command-out 140ms var(--ui-ease) forwards; }
+@supports (backdrop-filter: blur(1px)) {
+  .ui-command-dialog {
+    background: var(--ui-material);
+    backdrop-filter: var(--ui-blur);
+    -webkit-backdrop-filter: var(--ui-blur);
+  }
+}
+/* Le voile est plus léger : la palette se superpose au travail en cours. */
+.ui-command-dialog__overlay { background: color-mix(in srgb, var(--ui-scrim) 60%, transparent); }
+
+@keyframes ui-command-in { from { opacity: 0; transform: translateX(-50%) scale(0.96); } }
+@keyframes ui-command-out { to { opacity: 0; transform: translateX(-50%) scale(0.98); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-command-dialog, .ui-command-dialog[data-state="closed"] { animation: ui-fade-in 1ms; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .ui-command-dialog { background: var(--ui-panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}

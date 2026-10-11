@@ -1,0 +1,22 @@
+.ui-field { display: grid; gap: 8px; min-width: 0; font-family: var(--ui-font-sans); }
+.ui-field[data-orientation="horizontal"] {
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  column-gap: 12px;
+  row-gap: 0;
+}
+.ui-field[data-orientation="horizontal"] .ui-field__control { display: flex; align-items: center; min-height: 20px; }
+.ui-field[data-orientation="horizontal"] .ui-field__text { display: grid; gap: 2px; padding-top: 1px; }
+/* À côté d'une case, le libellé se lit comme une phrase, pas comme un intitulé de champ. */
+.ui-field[data-orientation="horizontal"] .ui-field__label {
+  color: var(--ui-fg);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.ui-field__hint,
+.ui-field__error { margin: 0; font-size: 12.5px; line-height: 1.45; }
+.ui-field__hint { color: var(--ui-fg-3); }
+.ui-field__error { display: flex; align-items: flex-start; gap: 6px; color: var(--ui-err); font-weight: 500; }
+.ui-field__error svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1.5px; }

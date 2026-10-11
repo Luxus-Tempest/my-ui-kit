@@ -1,0 +1,81 @@
+/*
+ * État vide : pastille d'icône ronde, titre, description, rangée d'actions,
+ * le tout centré. `card` : carte tonale ; la pastille passe alors sur le panneau
+ * pour rester visible.
+ */
+.ui-empty-state {
+  --_pad-y: 48px;
+  --_pad-x: 24px;
+  --_icon-box: 56px;
+  --_icon: 26px;
+  --_icon-bg: var(--ui-card-2);
+  --_title: 16px;
+  --_desc: 14px;
+  --_gap: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--_gap);
+  box-sizing: border-box;
+  padding: var(--_pad-y) var(--_pad-x);
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  text-align: center;
+}
+.ui-empty-state--size-sm {
+  --_pad-y: 24px;
+  --_pad-x: 16px;
+  --_icon-box: 40px;
+  --_icon: 20px;
+  --_title: 14px;
+  --_desc: 13px;
+  --_gap: 12px;
+}
+
+.ui-empty-state--card {
+  --_icon-bg: var(--ui-panel);
+  border-radius: var(--ui-r-lg);
+  background: var(--ui-card-2);
+}
+
+.ui-empty-state__icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: var(--_icon-box);
+  height: var(--_icon-box);
+  border-radius: var(--ui-r-pill);
+  background: var(--_icon-bg);
+  color: var(--ui-fg-2);
+}
+.ui-empty-state__icon :where(svg) { width: var(--_icon); height: var(--_icon); }
+
+.ui-empty-state__text { display: grid; gap: 4px; max-width: 42ch; }
+.ui-empty-state__title {
+  margin: 0;
+  color: var(--ui-fg);
+  font-size: var(--_title);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+.ui-empty-state__description {
+  margin: 0;
+  color: var(--ui-fg-3);
+  font-size: var(--_desc);
+  line-height: 1.5;
+}
+
+.ui-empty-state__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+@media (forced-colors: active) {
+  .ui-empty-state--card { border: 1px solid CanvasText; }
+  .ui-empty-state__icon { border: 1px solid CanvasText; }
+}

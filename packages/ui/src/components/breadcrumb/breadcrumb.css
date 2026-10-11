@@ -1,0 +1,118 @@
+/*
+ * Fil d'Ariane, langage Drive : chaque niveau parent est une pilule avec
+ * couche d'état au survol ; l'élément courant reste en encre pleine.
+ * `lg` : chemin-titre 22 px / 400 de l'en-tête de Drive.
+ */
+.ui-breadcrumb {
+  --_h: 28px;
+  --_px: 8px;
+  --_font: 14px;
+  --_weight-page: 500;
+  --_sep: 16px;
+  font-family: var(--ui-font-sans);
+}
+.ui-breadcrumb--size-lg {
+  --_h: 40px;
+  --_px: 12px;
+  --_font: 22px;
+  --_weight-page: 400;
+  --_sep: 20px;
+  letter-spacing: -0.012em;
+}
+
+.ui-breadcrumb__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ui-fg-2);
+  font-size: var(--_font);
+  line-height: 1.2;
+}
+
+.ui-breadcrumb__item { display: inline-flex; align-items: center; min-width: 0; }
+
+/* Niveaux : même boîte pour le lien et la page, l'alignement ne saute pas. */
+.ui-breadcrumb__link,
+.ui-breadcrumb__page {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-height: var(--_h);
+  padding: 0 var(--_px);
+  border-radius: var(--ui-r-pill);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ui-breadcrumb__link :where(svg),
+.ui-breadcrumb__page :where(svg) { width: 1.15em; height: 1.15em; flex-shrink: 0; }
+
+.ui-breadcrumb__link {
+  position: relative;
+  isolation: isolate;
+  color: var(--ui-fg-2);
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+/* Couche d'état : currentColor sous le libellé. */
+.ui-breadcrumb__link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-breadcrumb__link:hover { color: var(--ui-fg); }
+  .ui-breadcrumb__link:hover::before { opacity: var(--ui-state-hover); }
+}
+.ui-breadcrumb__link:active::before { opacity: var(--ui-state-press); }
+.ui-breadcrumb__link:focus-visible {
+  color: var(--ui-fg);
+  box-shadow: inset 0 0 0 1px var(--ui-pri), 0 0 0 3px var(--ui-ring);
+}
+
+.ui-breadcrumb__page { color: var(--ui-fg); font-weight: var(--_weight-page); }
+
+.ui-breadcrumb__separator {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  color: var(--ui-fg-3);
+}
+.ui-breadcrumb__separator :where(svg) { width: var(--_sep); height: var(--_sep); }
+
+.ui-breadcrumb__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--_h);
+  height: var(--_h);
+  color: inherit;
+}
+.ui-breadcrumb__ellipsis :where(svg) { width: var(--_sep); height: var(--_sep); }
+
+@media (forced-colors: active) {
+  .ui-breadcrumb__link { color: LinkText; }
+  .ui-breadcrumb__link::before { display: none; }
+  .ui-breadcrumb__link:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+  .ui-breadcrumb__page { color: CanvasText; }
+}
+
+/* Sens de lecture : le séparateur pointe vers le niveau suivant. */
+[dir="rtl"] .ui-breadcrumb__separator svg { transform: scaleX(-1); }

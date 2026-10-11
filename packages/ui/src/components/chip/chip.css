@@ -1,0 +1,101 @@
+/* Puce : pilule de 32 px, filet discret au repos, conteneur de sélection quand active. */
+.ui-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.ui-chip {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 32px;
+  margin: 0;
+  padding: 0 16px;
+  border: 1px solid var(--ui-line-3);
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: var(--ui-fg-2);
+  font-family: var(--ui-font-sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-chip:has(.ui-chip__icon) { padding-inline-start: 10px; }
+.ui-chip::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-chip:hover:not(:disabled)::before { opacity: var(--ui-state-hover); }
+}
+.ui-chip[aria-expanded="true"]::before { opacity: var(--ui-state-hover); }
+.ui-chip:active:not(:disabled) { transform: scale(0.97); }
+.ui-chip:active:not(:disabled)::before { opacity: var(--ui-state-press); }
+.ui-chip:focus-visible { border-color: var(--ui-pri); box-shadow: 0 0 0 3px var(--ui-ring); }
+.ui-chip:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.ui-chip[data-selected] {
+  border-color: transparent;
+  background: var(--ui-sel);
+  color: var(--ui-on-pri-container);
+}
+
+.ui-chip__icon { display: flex; margin: -2px 0; animation: ui-chip-icon-in var(--ui-duration-slow) var(--ui-ease-spring); }
+.ui-chip__icon :where(svg) { width: 18px; height: 18px; }
+@keyframes ui-chip-icon-in { from { opacity: 0; transform: scale(0.6); } }
+
+/* Puce d'entrée : bouton de retrait collé à droite, dans la même pilule. */
+.ui-chip-group { position: relative; display: inline-flex; align-items: center; }
+.ui-chip[data-removable] { padding-inline-end: 36px; }
+.ui-chip__remove {
+  position: absolute;
+  inset-inline-end: 5px;
+  display: grid;
+  place-items: center;
+  /* 24 px : la cible minimale de WCAG 2.2 (2.5.8). */
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ui-fg-2);
+  cursor: pointer;
+  outline: none;
+}
+.ui-chip-group[data-selected] .ui-chip__remove { color: var(--ui-on-pri-container); }
+@media (hover: hover) {
+  .ui-chip__remove:hover:not(:disabled) { background: color-mix(in srgb, currentColor var(--ui-state-press), transparent); }
+}
+.ui-chip__remove:focus-visible { box-shadow: 0 0 0 2px var(--ui-pri); }
+.ui-chip__remove:disabled { opacity: 0.45; cursor: not-allowed; }
+.ui-chip__remove svg { width: 14px; height: 14px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-chip:active:not(:disabled) { transform: none; }
+  .ui-chip__icon { animation: none; }
+}
+@media (forced-colors: active) {
+  .ui-chip { border-color: ButtonText; }
+  .ui-chip::before { display: none; }
+  .ui-chip[aria-pressed="true"] { background: Highlight; color: HighlightText; forced-color-adjust: none; }
+}

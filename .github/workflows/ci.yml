@@ -1,0 +1,120 @@
+# Intégration continue :
+# 1. vérifier : types, tests (Vitest + axe), build (librairie, Storybook,
+#    application d'exemple Next.js), budget de poids, test de fumée de
+#    l'application d'exemple ;
+# 2. navigateur : chaque story dans Chromium, accessibilité (axe, contraste
+#    compris) en clair et en sombre, et régression visuelle en clair, en sombre
+#    et en RTL.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verifier:
+    name: Types, tests, build et poids
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      # Version de pnpm lue dans "packageManager" du package.json racine.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Installer les dépendances
+        run: pnpm install --frozen-lockfile
+
+      - name: Vérifier les types
+        run: pnpm lint
+
+      - name: Tests (Vitest, Testing Library, axe)
+        run: pnpm test
+
+      - name: Build (librairie, Storybook, application d'exemple)
+        run: pnpm build
+
+      - name: Budget de poids
+        run: pnpm size
+
+      # L'application d'exemple, buildée juste au-dessus : pages hydratées sans
+      # erreur, navigation, recherche, server action, thème.
+      - name: Installer Chromium
+        run: pnpm --filter example exec playwright install --with-deps chromium
+
+      - name: Application d'exemple (Playwright)
+        run: pnpm --filter example e2e
+
+      - name: Conserver le Storybook construit
+        uses: actions/upload-artifact@v4
+        with:
+          name: storybook-static
+          path: apps/docs/storybook-static
+          retention-days: 7
+
+  navigateur:
+    name: Accessibilité et régression visuelle
+    needs: verifier
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Installer les dépendances
+        run: pnpm install --frozen-lockfile
+
+      - name: Récupérer le Storybook construit
+        uses: actions/download-artifact@v4
+        with:
+          name: storybook-static
+          path: apps/docs/storybook-static
+
+      - name: Installer Chromium
+        run: pnpm --filter docs exec playwright install --with-deps chromium
+
+      # Les références visuelles sont celles du dernier passage sur main.
+      - name: Restaurer les références visuelles
+        uses: actions/cache/restore@v4
+        with:
+          path: apps/docs/tests/__screenshots__
+          key: visual-${{ runner.os }}-${{ github.sha }}
+          restore-keys: visual-${{ runner.os }}-
+
+      # Sur main, les captures deviennent les nouvelles références. Sur une pull
+      # request, elles sont comparées : un écart fait échouer le job, le rapport
+      # (images attendue, obtenue, différence) est joint ci-dessous.
+      - name: Tester chaque story
+        run: pnpm --filter docs exec playwright test ${{ github.ref == 'refs/heads/main' && '--update-snapshots=all' || '' }}
+
+      - name: Enregistrer les références (main)
+        if: github.ref == 'refs/heads/main' && success()
+        uses: actions/cache/save@v4
+        with:
+          path: apps/docs/tests/__screenshots__
+          key: visual-${{ runner.os }}-${{ github.sha }}
+
+      - name: Rapport Playwright
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/docs/playwright-report
+          retention-days: 7

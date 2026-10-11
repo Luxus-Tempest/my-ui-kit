@@ -1,0 +1,88 @@
+/*
+ * Groupe de saisie : la surface porte le remplissage, le filet et le halo ;
+ * le champ intérieur est nu. Les compléments se rangent avant ou après lui,
+ * ou au-dessus / au-dessous (le groupe passe alors en colonne).
+ */
+.ui-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-ctl);
+  background: var(--ui-card-2);
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-input-group:hover:not(:focus-within, :has(:disabled)) { background: var(--ui-card-hover); }
+}
+.ui-input-group:has(.ui-input-group__control:focus-visible) {
+  border-color: var(--ui-pri);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px var(--ui-ring);
+}
+.ui-input-group:has(.ui-input-group__control[aria-invalid="true"]) {
+  border-color: var(--ui-err);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-err) 18%, transparent);
+}
+.ui-input-group:has(.ui-input-group__control:disabled) { opacity: 0.5; cursor: not-allowed; }
+.ui-input-group:has(> [data-align^="block"]),
+.ui-input-group:has(> .ui-textarea) { flex-direction: column; align-items: stretch; }
+
+/* Champ intérieur : nu, il hérite de la surface. */
+.ui-input-group .ui-input-group__control,
+.ui-input-group .ui-input-group__control:hover,
+.ui-input-group .ui-input-group__control:focus-visible,
+.ui-input-group .ui-input-group__control[aria-invalid="true"],
+.ui-input-group .ui-input-group__control:read-only {
+  flex: 1;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  opacity: 1;
+}
+.ui-input-group .ui-input-group__control:not(.ui-textarea) { height: 38px; }
+.ui-input-group .ui-textarea.ui-input-group__control { resize: none; }
+.ui-input-group:has(> [data-align="inline-start"]) > .ui-input-group__control { padding-inline-start: 8px; }
+.ui-input-group:has(> [data-align="inline-end"]) > .ui-input-group__control { padding-inline-end: 8px; }
+
+/* ── Compléments ──────────────────────────────────────────────────── */
+.ui-input-group__addon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  color: var(--ui-fg-2);
+  font-size: 14px;
+  cursor: text;
+  user-select: none;
+}
+.ui-input-group__addon :where(svg) { width: 18px; height: 18px; flex-shrink: 0; }
+.ui-input-group__addon[data-align="inline-start"] { order: -1; padding-inline-start: 14px; }
+.ui-input-group__addon[data-align="inline-end"] { order: 1; padding-inline-end: 14px; }
+/* Un bouton en bord de groupe se cale à 4 px du bord. */
+.ui-input-group__addon[data-align="inline-start"]:has(> .ui-input-group__button:first-child) { padding-inline-start: 3px; }
+.ui-input-group__addon[data-align="inline-end"]:has(> .ui-input-group__button:last-child) { padding-inline-end: 3px; }
+.ui-input-group__addon[data-align="block-start"] { order: -1; padding: 10px 14px 0; }
+.ui-input-group__addon[data-align="block-end"] { order: 1; padding: 0 8px 8px 14px; }
+.ui-input-group__addon[data-align^="block"] { justify-content: flex-start; }
+
+.ui-input-group__text { display: inline-flex; align-items: center; gap: 6px; color: var(--ui-fg-3); font-size: 14px; white-space: nowrap; }
+.ui-input-group__addon :where(.ui-kbd) { background: var(--ui-panel); }
+.ui-input-group__button { flex-shrink: 0; }
+.ui-input-group__addon[data-align="block-end"] .ui-input-group__button:last-child { margin-inline-start: auto; }
+
+@media (forced-colors: active) {
+  .ui-input-group { border-color: ButtonText; }
+  .ui-input-group:focus-within { outline: 2px solid Highlight; outline-offset: 1px; }
+}

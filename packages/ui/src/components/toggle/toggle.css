@@ -1,0 +1,171 @@
+/*
+ * Toggle : reprend la géométrie et les états de .ui-button (ghost / outline,
+ * tailles, couche d'état, ressort, focus). Enfoncé (`aria-pressed="true"`),
+ * il prend le conteneur de sélection : la règle vit dans button.css et
+ * s'applique ici sans duplication. Seul l'ajustement propre à la bascule est ici.
+ */
+.ui-toggle[data-state="on"] {
+  font-weight: 500;
+}
+
+/*
+ * ToggleGroup : deux grammaires.
+ * - segmented : segmented control d'iOS (comme tabs.css), piste --ui-card-hover
+ *   en pilule, pastille --ui-panel surélevée sous l'élément actif.
+ * - outline : boutons pilule accolés (sélecteur de vue liste / grille de Drive),
+ *   actif en --ui-sel.
+ * Les éléments posent des variables (--_h, --_px…) ; les états sont écrits une fois.
+ */
+.ui-toggle-group {
+  box-sizing: border-box;
+  --_h: 36px;
+  --_px: 16px;
+  --_font: 14px;
+  --_icon: 18px;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  font-family: var(--ui-font-sans);
+}
+.ui-toggle-group[data-size="sm"] {
+  --_h: 32px;
+  --_px: 12px;
+  --_font: 13px;
+  --_icon: 16px;
+}
+
+.ui-toggle-group__item {
+  box-sizing: border-box;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: var(--_h);
+  margin: 0;
+  padding: 0 var(--_px);
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: var(--ui-fg-2);
+  font-family: inherit;
+  font-size: var(--_font);
+  font-weight: 500;
+  letter-spacing: -0.006em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+/* Couche d'état Material, sous le contenu. */
+.ui-toggle-group__item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+/* Cible tactile ≥ 24 px même en sm. */
+.ui-toggle-group__item::after {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
+}
+:where(.ui-toggle-group__item svg) {
+  width: var(--_icon);
+  height: var(--_icon);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+/* Icône seule : un carré arrondi au lieu d'une pilule étirée. */
+.ui-toggle-group__item:has(> svg:only-child) {
+  width: calc(var(--_h) + 8px);
+  padding: 0;
+}
+
+@media (hover: hover) {
+  .ui-toggle-group__item:hover:not(:disabled) { color: var(--ui-fg); }
+  .ui-toggle-group__item:hover:not(:disabled)::before { opacity: var(--ui-state-hover); }
+}
+.ui-toggle-group__item:active:not(:disabled)::before { opacity: var(--ui-state-press); }
+.ui-toggle-group__item:focus-visible { box-shadow: 0 0 0 3px var(--ui-ring); }
+.ui-toggle-group__item:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── segmented ─────────────────────────────────────────────────────── */
+.ui-toggle-group[data-variant="segmented"] {
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-card-hover);
+}
+/* La pastille tient dans la piste : 3 px de marge de chaque côté. */
+.ui-toggle-group[data-variant="segmented"] .ui-toggle-group__item {
+  height: calc(var(--_h) - 6px);
+  font-size: calc(var(--_font) - 1px);
+}
+.ui-toggle-group[data-variant="segmented"] .ui-toggle-group__item[data-state="on"] {
+  background: var(--ui-panel);
+  color: var(--ui-fg);
+  box-shadow: var(--ui-sh-raised);
+}
+[data-theme="dark"] .ui-toggle-group[data-variant="segmented"] .ui-toggle-group__item[data-state="on"],
+.dark .ui-toggle-group[data-variant="segmented"] .ui-toggle-group__item[data-state="on"] {
+  background: var(--ui-line-3);
+}
+/* La pastille active ne prend pas la couche d'état : elle est déjà la surface la plus claire. */
+.ui-toggle-group[data-variant="segmented"] .ui-toggle-group__item[data-state="on"]::before { display: none; }
+.ui-toggle-group[data-variant="segmented"] .ui-toggle-group__item:active:not(:disabled) { transform: scale(0.97); }
+.ui-toggle-group[data-variant="segmented"] .ui-toggle-group__item[data-state="on"]:focus-visible {
+  box-shadow: var(--ui-sh-raised), 0 0 0 3px var(--ui-ring);
+}
+
+/* ── outline ───────────────────────────────────────────────────────── */
+.ui-toggle-group[data-variant="outline"] .ui-toggle-group__item {
+  border-color: var(--ui-line-3);
+  border-radius: 0;
+  color: var(--ui-fg);
+}
+/* Éléments accolés : le filet commun n'est tracé qu'une fois. */
+.ui-toggle-group[data-variant="outline"] .ui-toggle-group__item + .ui-toggle-group__item { margin-inline-start: -1px; }
+.ui-toggle-group[data-variant="outline"] .ui-toggle-group__item:first-child {
+  border-start-start-radius: var(--ui-r-pill);
+  border-end-start-radius: var(--ui-r-pill);
+}
+.ui-toggle-group[data-variant="outline"] .ui-toggle-group__item:last-child {
+  border-start-end-radius: var(--ui-r-pill);
+  border-end-end-radius: var(--ui-r-pill);
+}
+.ui-toggle-group[data-variant="outline"] .ui-toggle-group__item[data-state="on"] {
+  background: var(--ui-sel);
+  color: var(--ui-on-pri-container);
+}
+/* Le focus passe au-dessus du voisin pour que le filet primaire reste entier. */
+.ui-toggle-group[data-variant="outline"] .ui-toggle-group__item:focus-visible {
+  z-index: 1;
+  border-color: var(--ui-pri);
+}
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ui-toggle-group__item:active:not(:disabled) { transform: none; }
+}
+@media (forced-colors: active) {
+  .ui-toggle-group__item { border-color: ButtonText; }
+  .ui-toggle-group__item::before { display: none; }
+  .ui-toggle-group__item:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+  .ui-toggle-group__item[data-state="on"] { background: Highlight; color: HighlightText; forced-color-adjust: none; }
+}

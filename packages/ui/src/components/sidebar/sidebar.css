@@ -1,0 +1,628 @@
+/*
+ * Barre latérale : la coquille d'application de Drive.
+ *
+ * - La barre (.ui-sidebar) est une colonne collante dans le flux ; sa largeur
+ *   s'anime en ressort. Son panneau (.ui-sidebar__panel) est posé en absolu :
+ *   en `offcanvas`, il garde sa largeur et glisse hors de l'écran ; en `icon`,
+ *   il se resserre avec la colonne jusqu'à ne laisser que des pastilles de 36 px.
+ * - Le contenu (.ui-sidebar-inset) devient, en variante `inset`, le panneau
+ *   blanc au grand rayon posé sur le fond d'application.
+ * - Sous 768 px, la barre bureau est masquée par CSS (aucun saut au rendu
+ *   serveur) et le composant rend une feuille modale.
+ *
+ * Largeurs : --ui-sidebar-width (256 px), --ui-sidebar-width-icon (60 px),
+ * --ui-sidebar-width-mobile (288 px). Position : --ui-sidebar-top (0) pour
+ * une barre posée sous un bandeau fixe.
+ */
+
+/* ── Coquille ─────────────────────────────────────────────────────────── */
+
+.ui-sidebar-wrapper {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  background: var(--ui-app);
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  /* Le panneau qui glisse hors de l'écran ne crée pas de défilement horizontal. */
+  overflow-x: clip;
+}
+
+/* ── Barre (grand écran) ──────────────────────────────────────────────── */
+
+.ui-sidebar {
+  --_w: var(--ui-sidebar-width, 256px);
+  --_w-icon: var(--ui-sidebar-width-icon, 60px);
+  --_top: var(--ui-sidebar-top, 0px);
+  --_gap: 0px;
+  --_surface: var(--ui-app);
+  position: sticky;
+  top: var(--_top);
+  z-index: 2;
+  flex-shrink: 0;
+  align-self: flex-start;
+  box-sizing: border-box;
+  width: var(--_w);
+  height: calc(100vh - var(--_top));
+  height: calc(100svh - var(--_top));
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  transition: width var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-sidebar[data-side="right"] { order: 1; }
+
+.ui-sidebar__panel {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+}
+.ui-sidebar > .ui-sidebar__panel {
+  position: absolute;
+  top: var(--_gap);
+  right: var(--_gap);
+  bottom: var(--_gap);
+  left: var(--_gap);
+  background: var(--_surface);
+  transition:
+    transform var(--ui-duration-slow) var(--ui-ease-spring),
+    visibility 0s;
+}
+
+/* Variantes */
+.ui-sidebar[data-variant="sidebar"] > .ui-sidebar__panel { box-shadow: inset -1px 0 0 var(--ui-line); }
+.ui-sidebar[data-variant="sidebar"][data-side="right"] > .ui-sidebar__panel { box-shadow: inset 1px 0 0 var(--ui-line); }
+.ui-sidebar[data-variant="floating"] { --_gap: 8px; --_surface: var(--ui-panel); }
+.ui-sidebar[data-variant="floating"] > .ui-sidebar__panel {
+  border-radius: var(--ui-r-xl);
+  box-shadow: 0 0 0 1px var(--ui-material-line), var(--ui-sh2);
+}
+
+/* Hors écran : le panneau garde sa largeur et glisse ; masqué (donc hors tabulation) à la fin. */
+.ui-sidebar[data-collapsible="offcanvas"] > .ui-sidebar__panel { width: calc(var(--_w) - 2 * var(--_gap)); }
+.ui-sidebar[data-collapsible="offcanvas"][data-side="left"] > .ui-sidebar__panel { right: auto; }
+.ui-sidebar[data-collapsible="offcanvas"][data-side="right"] > .ui-sidebar__panel { left: auto; }
+.ui-sidebar[data-state="collapsed"][data-collapsible="offcanvas"] { width: 0; }
+.ui-sidebar[data-state="collapsed"][data-collapsible="offcanvas"] > .ui-sidebar__panel {
+  visibility: hidden;
+  transition:
+    transform var(--ui-duration-slow) var(--ui-ease-spring),
+    visibility 0s linear var(--ui-duration-slow);
+}
+.ui-sidebar[data-state="collapsed"][data-collapsible="offcanvas"][data-side="left"] > .ui-sidebar__panel {
+  transform: translateX(calc(-100% - var(--_gap)));
+}
+.ui-sidebar[data-state="collapsed"][data-collapsible="offcanvas"][data-side="right"] > .ui-sidebar__panel {
+  transform: translateX(calc(100% + var(--_gap)));
+}
+
+/* Colonne d'icônes : 12 px de marge + pastille de 36 px + 12 px. */
+.ui-sidebar[data-state="collapsed"][data-collapsible="icon"] { width: calc(var(--_w-icon) + 2 * var(--_gap)); }
+
+/* Toujours ouverte : colonne simple, à la hauteur de son conteneur. */
+.ui-sidebar[data-collapsible="none"] { position: relative; top: auto; align-self: stretch; height: auto; }
+.ui-sidebar[data-collapsible="none"] > .ui-sidebar__panel { position: relative; inset: auto; height: 100%; }
+.ui-sidebar[data-collapsible="none"][data-variant="floating"] > .ui-sidebar__panel { margin: var(--_gap); height: calc(100% - 2 * var(--_gap)); }
+
+/* ── Feuille (petit écran) ────────────────────────────────────────────── */
+
+.ui-sheet.ui-sidebar-sheet[data-side] { --_w: var(--ui-sidebar-width-mobile, 288px); }
+.ui-sidebar-sheet > .ui-sidebar__panel { flex: 1; padding-top: 4px; }
+
+/* ── Zone principale ──────────────────────────────────────────────────── */
+
+.ui-sidebar-inset {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+  background: var(--ui-panel);
+  color: var(--ui-fg);
+}
+/* `floating` : la carte flotte au-dessus du fond d'application, le contenu y est posé aussi. */
+.ui-sidebar-wrapper:has(> .ui-sidebar[data-variant="floating"]) > .ui-sidebar-inset { background: transparent; }
+
+@media (min-width: 768px) {
+  /* `inset` : le panneau blanc au grand rayon de Drive, collé à la barre. */
+  .ui-sidebar-wrapper:has(> .ui-sidebar[data-variant="inset"]) > .ui-sidebar-inset {
+    margin: 8px;
+    border-radius: var(--ui-r-2xl);
+    overflow: clip;
+    transition: margin var(--ui-duration-slow) var(--ui-ease-spring);
+  }
+  .ui-sidebar-wrapper:has(> .ui-sidebar[data-variant="inset"][data-side="left"]:not([data-state="collapsed"][data-collapsible="offcanvas"])) > .ui-sidebar-inset {
+    margin-left: 0;
+  }
+  .ui-sidebar-wrapper:has(> .ui-sidebar[data-variant="inset"][data-side="right"]:not([data-state="collapsed"][data-collapsible="offcanvas"])) > .ui-sidebar-inset {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .ui-sidebar:not([data-collapsible="none"]) { display: none; }
+}
+
+/* ── Poignée ──────────────────────────────────────────────────────────── */
+
+.ui-sidebar-rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 3;
+  width: 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+  visibility: visible; /* reste attrapable quand le panneau est masqué hors écran */
+  -webkit-tap-highlight-color: transparent;
+}
+.ui-sidebar-rail::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 7px;
+  width: 2px;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  transition: background-color var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-sidebar-rail:hover::after { background: var(--ui-line-3); }
+}
+.ui-sidebar[data-side="left"] .ui-sidebar-rail { right: -8px; cursor: w-resize; }
+.ui-sidebar[data-side="right"] .ui-sidebar-rail { left: -8px; cursor: e-resize; }
+.ui-sidebar[data-side="left"][data-state="collapsed"] .ui-sidebar-rail { cursor: e-resize; }
+.ui-sidebar[data-side="right"][data-state="collapsed"] .ui-sidebar-rail { cursor: w-resize; }
+.ui-sidebar[data-collapsible="none"] .ui-sidebar-rail,
+.ui-sidebar-sheet .ui-sidebar-rail { display: none; }
+
+/* ── En-tête, contenu, pied ───────────────────────────────────────────── */
+
+/* L'en-tête aligne une entrée `lg` sur le centre d'un AppBar de 64 px posé dans le panneau `inset`. */
+.ui-sidebar-header,
+.ui-sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 8px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+.ui-sidebar-header { padding: 16px 12px 8px; }
+.ui-sidebar-footer { padding: 8px 12px 12px; }
+
+.ui-sidebar-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ui-line-3) transparent;
+}
+
+.ui-separator.ui-sidebar-separator { width: auto; margin: 8px 12px; }
+
+/* ── Groupes ──────────────────────────────────────────────────────────── */
+
+.ui-sidebar-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 8px 12px;
+}
+
+.ui-sidebar-group-label {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 32px;
+  margin: 0;
+  padding: 0 12px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: var(--ui-fg-3);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  outline: none;
+  transition:
+    margin var(--ui-duration-slow) var(--ui-ease-spring),
+    opacity var(--ui-duration) var(--ui-ease),
+    visibility 0s,
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-sidebar-group-label > :where(svg) { width: 16px; height: 16px; flex-shrink: 0; }
+/* Intitulé cliquable (CollapsibleTrigger asChild) : couche d'état et chevron qui pivote. */
+button.ui-sidebar-group-label { cursor: pointer; }
+button.ui-sidebar-group-label::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  button.ui-sidebar-group-label:hover::before { opacity: var(--ui-state-hover); }
+}
+button.ui-sidebar-group-label:active::before { opacity: var(--ui-state-press); }
+.ui-sidebar-group-label[aria-expanded] > svg:last-child { transition: transform var(--ui-duration-slow) var(--ui-ease-spring); }
+.ui-sidebar-group-label[aria-expanded="true"] > svg:last-child { transform: rotate(90deg); }
+
+.ui-sidebar-group-content { min-width: 0; font-size: 14px; }
+
+/* ── Boutons ronds : action de groupe et action d'entrée ──────────────── */
+
+.ui-sidebar-group-action,
+.ui-sidebar-menu-action {
+  position: absolute;
+  z-index: 1;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: var(--ui-fg-2);
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    opacity var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-sidebar-group-action::before,
+.ui-sidebar-menu-action::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+/* Cible tactile de 36 px autour du bouton de 28 px. */
+.ui-sidebar-group-action::after,
+.ui-sidebar-menu-action::after { content: ""; position: absolute; inset: -4px; }
+@media (hover: hover) {
+  .ui-sidebar-group-action:hover::before,
+  .ui-sidebar-menu-action:hover::before { opacity: var(--ui-state-hover); }
+}
+.ui-sidebar-group-action:active::before,
+.ui-sidebar-menu-action:active::before,
+.ui-sidebar-menu-action:is([aria-expanded="true"], [data-state="open"])::before { opacity: var(--ui-state-press); }
+.ui-sidebar-group-action:focus-visible,
+.ui-sidebar-menu-action:focus-visible { box-shadow: inset 0 0 0 1px var(--ui-pri), 0 0 0 3px var(--ui-ring); }
+.ui-sidebar-group-action :where(svg),
+.ui-sidebar-menu-action :where(svg) { width: 18px; height: 18px; pointer-events: none; }
+
+.ui-sidebar-group-action { top: 10px; right: 16px; }
+.ui-sidebar-group:has(> .ui-sidebar-group-action) > .ui-sidebar-group-label { padding-right: 40px; }
+
+/* ── Menu ─────────────────────────────────────────────────────────────── */
+
+.ui-sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ui-sidebar-menu-item { position: relative; min-width: 0; margin: 0; padding: 0; }
+
+.ui-sidebar-menu-button {
+  --_h: 36px;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--_h);
+  margin: 0;
+  padding: 0 12px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: var(--ui-fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.006em;
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease),
+    height var(--ui-duration-slow) var(--ui-ease-spring),
+    padding var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-sidebar-menu-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+/* Icônes en enfant direct (une tuile ou un avatar imbriqué garde ses propres réglages). */
+.ui-sidebar-menu-button > :where(svg) { width: 20px; height: 20px; flex-shrink: 0; color: var(--ui-fg-2); pointer-events: none; }
+/* Le libellé : le dernier <span>, tronqué. */
+.ui-sidebar-menu-button > span:last-of-type {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+/* Chevron en dernier enfant : discret, pivote quand l'entrée déplie un sous-menu. */
+.ui-sidebar-menu-button > svg:last-child:not(:first-child) {
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  color: var(--ui-fg-3);
+  transition: transform var(--ui-duration-slow) var(--ui-ease-spring), opacity var(--ui-duration) var(--ui-ease);
+}
+.ui-sidebar-menu-button[aria-expanded="true"]:not([aria-haspopup]) > svg:last-child:not(:first-child) { transform: rotate(90deg); }
+
+@media (hover: hover) {
+  .ui-sidebar-menu-button:hover:not(:disabled, [aria-disabled="true"])::before,
+  .ui-sidebar-menu-item:has(> .ui-sidebar-menu-action:hover) > .ui-sidebar-menu-button::before { opacity: var(--ui-state-hover); }
+}
+.ui-sidebar-menu-button:active:not(:disabled, [aria-disabled="true"])::before { opacity: var(--ui-state-press); }
+.ui-sidebar-menu-button[aria-haspopup][aria-expanded="true"]::before { opacity: var(--ui-state-hover); }
+.ui-sidebar-menu-button:focus-visible { box-shadow: inset 0 0 0 1px var(--ui-pri), 0 0 0 3px var(--ui-ring); }
+.ui-sidebar-menu-button:is(:disabled, [aria-disabled="true"]) { opacity: 0.45; pointer-events: none; }
+
+/* Page courante : pilule de sélection de Drive. */
+.ui-sidebar-menu-button[data-active] { background: var(--ui-sel); color: var(--ui-on-pri-container); font-weight: 600; }
+.ui-sidebar-menu-button[data-active] > :where(svg) { color: inherit; }
+/* Parent d'un sous-niveau courant : libellé appuyé. */
+.ui-sidebar-menu-item:has(.ui-sidebar-menu-sub-button[data-active]) > .ui-sidebar-menu-button:not([data-active]) { font-weight: 600; }
+
+/* Tailles */
+.ui-sidebar-menu-button[data-size="sm"] { --_h: 32px; font-size: 13px; }
+.ui-sidebar-menu-button[data-size="sm"] > :where(svg) { width: 18px; height: 18px; }
+.ui-sidebar-menu-button[data-size="lg"] { --_h: 48px; gap: 10px; padding-left: 8px; }
+/* Entrée sur deux lignes (espace de travail, compte) : titre appuyé, sous-titre discret. */
+.ui-sidebar-menu-button[data-size="lg"] > span:last-of-type { display: grid; gap: 1px; }
+.ui-sidebar-menu-button[data-size="lg"] > span:last-of-type > * { overflow: hidden; text-overflow: ellipsis; }
+.ui-sidebar-menu-button[data-size="lg"] > span:last-of-type > :first-child { font-weight: 600; }
+.ui-sidebar-menu-button[data-size="lg"] > span:last-of-type > :last-child:not(:first-child) {
+  color: var(--ui-fg-3);
+  font-size: 12px;
+  font-weight: 400;
+}
+.ui-sidebar-menu-button[data-size="lg"][data-active] > span:last-of-type > :last-child:not(:first-child) { color: inherit; }
+
+/* ── Compteur et action d'entrée ──────────────────────────────────────── */
+
+.ui-sidebar-menu-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--ui-r-pill);
+  color: var(--ui-fg-2);
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+.ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-active]) > .ui-sidebar-menu-badge { color: var(--ui-on-pri-container); font-weight: 600; }
+.ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-size="sm"]) > .ui-sidebar-menu-badge { top: 6px; }
+.ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-size="lg"]) > .ui-sidebar-menu-badge { top: 14px; }
+
+.ui-sidebar-menu-action { top: 4px; right: 4px; }
+.ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-size="sm"]) > .ui-sidebar-menu-action { top: 2px; }
+.ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-size="lg"]) > .ui-sidebar-menu-action { top: 10px; }
+.ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-active]) > .ui-sidebar-menu-action { color: var(--ui-on-pri-container); }
+
+/* Place réservée à droite du libellé. */
+.ui-sidebar-menu-item:is(:has(> .ui-sidebar-menu-badge), :has(> .ui-sidebar-menu-action)) > .ui-sidebar-menu-button { padding-right: 40px; }
+/* Compteur et action permanente : le compteur se range à gauche de l'action. */
+.ui-sidebar-menu-item:has(> .ui-sidebar-menu-action:not([data-show-on-hover])) > .ui-sidebar-menu-badge { right: 36px; }
+.ui-sidebar-menu-item:has(> .ui-sidebar-menu-badge):has(> .ui-sidebar-menu-action:not([data-show-on-hover])) > .ui-sidebar-menu-button { padding-right: 68px; }
+
+/* Action au survol (appareils qui survolent) : elle prend la place du compteur. */
+@media (hover: hover) {
+  .ui-sidebar-menu-action[data-show-on-hover] { opacity: 0; }
+  .ui-sidebar-menu-item:is(:hover, :focus-within) > .ui-sidebar-menu-action[data-show-on-hover],
+  .ui-sidebar-menu-action[data-show-on-hover]:is([aria-expanded="true"], [data-state="open"]) { opacity: 1; }
+  .ui-sidebar-menu-item:is(:hover, :focus-within):has(> .ui-sidebar-menu-action[data-show-on-hover]) > .ui-sidebar-menu-badge,
+  .ui-sidebar-menu-item:has(> .ui-sidebar-menu-action[data-show-on-hover]:is([aria-expanded="true"], [data-state="open"])) > .ui-sidebar-menu-badge { opacity: 0; }
+}
+
+/* ── Sous-menu ────────────────────────────────────────────────────────── */
+
+.ui-sidebar-menu-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  margin: 2px 0 4px 21px; /* le filet passe sous le centre de l'icône parente */
+  padding: 0 0 0 10px;
+  border-left: 1px solid var(--ui-line);
+  list-style: none;
+}
+.ui-sidebar-menu-sub-item { position: relative; min-width: 0; margin: 0; padding: 0; }
+
+.ui-sidebar-menu-sub-button {
+  --_h: 32px;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--_h);
+  margin: 0;
+  padding: 0 12px 0 12px;
+  overflow: hidden;
+  border-radius: var(--ui-r-pill);
+  color: var(--ui-fg-2);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.25;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-sidebar-menu-sub-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+.ui-sidebar-menu-sub-button > span:last-of-type { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ui-sidebar-menu-sub-button > :where(svg) { width: 16px; height: 16px; flex-shrink: 0; pointer-events: none; }
+@media (hover: hover) {
+  .ui-sidebar-menu-sub-button:hover { color: var(--ui-fg); }
+  .ui-sidebar-menu-sub-button:hover::before { opacity: var(--ui-state-hover); }
+}
+.ui-sidebar-menu-sub-button:active::before { opacity: var(--ui-state-press); }
+.ui-sidebar-menu-sub-button:focus-visible { box-shadow: inset 0 0 0 1px var(--ui-pri), 0 0 0 3px var(--ui-ring); }
+.ui-sidebar-menu-sub-button[aria-disabled="true"] { opacity: 0.45; pointer-events: none; }
+.ui-sidebar-menu-sub-button[data-active] { background: var(--ui-sel); color: var(--ui-on-pri-container); font-weight: 600; }
+.ui-sidebar-menu-sub-button[data-size="sm"] { --_h: 28px; font-size: 13px; }
+
+/* ── Mode icône (barre réduite) ───────────────────────────────────────── */
+
+.ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-content { scrollbar-width: none; }
+.ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-menu-button { --_h: 36px; padding: 0 8px; }
+.ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-menu-button[data-size="lg"] { padding: 0 2px; }
+.ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-menu-button > :not(:first-child) { opacity: 0; }
+.ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-group-label {
+  margin-top: -32px;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    margin var(--ui-duration-slow) var(--ui-ease-spring),
+    opacity var(--ui-duration) var(--ui-ease),
+    visibility 0s linear var(--ui-duration);
+}
+.ui-sidebar[data-state="collapsed"][data-collapsible="icon"] :is(.ui-sidebar-group-action, .ui-sidebar-menu-action, .ui-sidebar-menu-sub) {
+  display: none;
+}
+/* Le compteur devient une pastille sur l'icône. */
+.ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-menu-badge {
+  top: 6px;
+  right: auto;
+  left: 24px;
+  min-width: 0;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  overflow: hidden;
+  background: var(--ui-pri);
+  box-shadow: 0 0 0 2px var(--_surface);
+  color: transparent;
+  font-size: 0;
+}
+.ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-menu-badge > * { display: none; }
+.ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-menu-item:is(:has(> .ui-sidebar-menu-badge), :has(> .ui-sidebar-menu-action)) > .ui-sidebar-menu-button {
+  padding-right: 8px;
+}
+
+/* ── Accessibilité système ────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-sidebar,
+  .ui-sidebar > .ui-sidebar__panel,
+  .ui-sidebar-inset,
+  .ui-sidebar-group-label,
+  .ui-sidebar-menu-button,
+  .ui-sidebar-menu-button > *,
+  .ui-sidebar-group-label > svg { transition: none !important; }
+}
+@media (forced-colors: active) {
+  .ui-sidebar[data-variant="sidebar"][data-side="left"] > .ui-sidebar__panel { border-right: 1px solid CanvasText; }
+  .ui-sidebar[data-variant="sidebar"][data-side="right"] > .ui-sidebar__panel { border-left: 1px solid CanvasText; }
+  .ui-sidebar[data-variant="floating"] > .ui-sidebar__panel { border: 1px solid CanvasText; }
+  .ui-sidebar-wrapper:has(> .ui-sidebar[data-variant="inset"]) > .ui-sidebar-inset { border: 1px solid CanvasText; }
+  .ui-sidebar-menu-button::before,
+  .ui-sidebar-menu-sub-button::before,
+  .ui-sidebar-group-action::before,
+  .ui-sidebar-menu-action::before,
+  button.ui-sidebar-group-label::before { display: none; }
+  .ui-sidebar-menu-button[data-active],
+  .ui-sidebar-menu-sub-button[data-active] { outline: 2px solid Highlight; outline-offset: -2px; }
+  :is(.ui-sidebar-menu-button, .ui-sidebar-menu-sub-button, .ui-sidebar-group-action, .ui-sidebar-menu-action, .ui-sidebar-group-label):focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
+  }
+  .ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-menu-badge { background: Highlight; }
+}

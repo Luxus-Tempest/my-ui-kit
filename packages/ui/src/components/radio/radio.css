@@ -1,0 +1,60 @@
+.ui-radio-group { display: grid; gap: 12px; }
+.ui-radio-group[data-orientation="horizontal"] { display: flex; flex-wrap: wrap; gap: 10px 24px; }
+
+/* Même gabarit que la case à cocher : 18 px, bord 2 px ; cochée, un anneau
+   primaire autour d'un point (Material), qui apparaît en ressort (iOS). */
+.ui-radio {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  border: 2px solid var(--ui-outline);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-radio::after { content: ""; position: absolute; inset: -11px; }
+@media (hover: hover) {
+  :where(.ui-radio:hover:not(:disabled)) { box-shadow: 0 0 0 8px color-mix(in srgb, var(--ui-fg) 6%, transparent); }
+}
+.ui-radio:active:not(:disabled) { transform: scale(0.9); }
+.ui-radio[data-state="checked"] { border-color: var(--ui-pri); }
+.ui-radio:focus-visible { border-color: var(--ui-pri); box-shadow: 0 0 0 3px var(--ui-ring); }
+.ui-radio[aria-invalid="true"] { border-color: var(--ui-err); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-err) 18%, transparent); }
+.ui-radio:disabled { cursor: not-allowed; opacity: 0.45; }
+.ui-radio__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ui-pri);
+  animation: ui-radio-in var(--ui-duration-slow) var(--ui-ease-spring);
+}
+@keyframes ui-radio-in { from { transform: scale(0); } }
+
+.ui-radio-option { display: flex; align-items: flex-start; gap: 12px; font-family: var(--ui-font-sans); }
+.ui-radio-option .ui-radio { margin-top: 1px; }
+.ui-radio-option__text { display: grid; gap: 2px; }
+.ui-radio-option__label { color: var(--ui-fg); font-size: 14px; font-weight: 400; line-height: 1.4; cursor: pointer; }
+.ui-radio-option__description { color: var(--ui-fg-3); font-size: 13px; line-height: 1.45; }
+.ui-radio-option[data-disabled] { opacity: 0.45; }
+.ui-radio-option[data-disabled] .ui-radio-option__label { cursor: not-allowed; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-radio:active:not(:disabled) { transform: none; }
+  .ui-radio__dot { animation: none; }
+}
+@media (forced-colors: active) {
+  .ui-radio { border-color: ButtonText; }
+  .ui-radio__dot { background: Highlight; forced-color-adjust: none; }
+}

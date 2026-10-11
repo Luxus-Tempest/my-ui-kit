@@ -1,0 +1,28 @@
+.ui-alert-dialog[data-size="default"] { max-width: 440px; }
+.ui-alert-dialog[data-size="sm"] { max-width: 380px; }
+.ui-alert-dialog__header { padding-inline-end: 0; }
+.ui-alert-dialog__header:has(.ui-alert-dialog__media) {
+  grid-template-columns: 40px 1fr;
+  column-gap: 16px;
+  align-items: start;
+}
+.ui-alert-dialog__header:has(.ui-alert-dialog__media) > :not(.ui-alert-dialog__media) { grid-column: 2; }
+/* Pastille d'icône ronde, en conteneur tonal. */
+.ui-alert-dialog__media {
+  grid-row: span 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ui-card-2);
+  color: var(--ui-fg-2);
+}
+.ui-alert-dialog__media svg { width: 20px; height: 20px; }
+.ui-alert-dialog__media[data-tone="pri"] { background: var(--ui-pri-container); color: var(--ui-on-pri-container); }
+.ui-alert-dialog__media[data-tone="warn"] { box-shadow: inset 0 0 0 1px var(--ui-warn-line); background: var(--ui-warn-soft); color: var(--ui-warn); }
+.ui-alert-dialog__media[data-tone="err"] { box-shadow: inset 0 0 0 1px var(--ui-err-line); background: var(--ui-err-soft); color: var(--ui-err); }
+.ui-alert-dialog__title { font-size: 18px; }
+.ui-alert-dialog__description { margin: 0; color: var(--ui-fg-2); font-size: 14px; line-height: 1.55; }

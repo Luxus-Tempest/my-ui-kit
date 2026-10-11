@@ -1,0 +1,15 @@
+.ui-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ui-fg-2);
+  font-family: var(--ui-font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.003em;
+  user-select: none;
+}
+/* Désactivé : encre tertiaire, encore lisible (≥ 4,5:1) ; c'est le contrôle qui s'efface. */
+.ui-label[data-disabled] { color: var(--ui-fg-3); cursor: not-allowed; }
+.ui-label__required { margin-inline-start: -3px; color: var(--ui-err); }

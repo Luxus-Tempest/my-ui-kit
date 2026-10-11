@@ -1,0 +1,163 @@
+/*
+ * Liste de description. Trois mises en page (horizontale, verticale, grille)
+ * et deux surfaces : `plain`, posée sur le panneau, et `inset`, la carte
+ * groupée d'iOS aux filets décalés. Libellé en encre discrète, valeur en
+ * encre principale ; le bouton « Copier » est une pastille fantôme de 24 px
+ * dont le retour « Copié » s'affiche dans une infobulle inversée.
+ */
+.ui-dl {
+  --_px: 16px;
+  --_col-gap: 24px;
+  display: grid;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.ui-dl__item { position: relative; display: grid; min-width: 0; margin: 0; }
+.ui-dl__term { min-width: 0; margin: 0; color: var(--ui-fg-3); font-weight: 400; overflow-wrap: anywhere; }
+.ui-dl__details {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  color: var(--ui-fg);
+  overflow-wrap: anywhere;
+}
+.ui-dl__value { min-width: 0; }
+
+/* ── Horizontale : libellé à gauche, valeur à droite ───────────────── */
+.ui-dl[data-layout="horizontal"] .ui-dl__item {
+  grid-template-columns: minmax(0, var(--ui-dl-term-width, 40%)) minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 16px;
+  row-gap: 2px;
+  padding-block: 10px;
+}
+.ui-dl[data-layout="horizontal"] .ui-dl__details { grid-column: 2; justify-content: flex-end; text-align: end; }
+.ui-dl[data-layout="horizontal"][data-variant="plain"] .ui-dl__item + .ui-dl__item { box-shadow: inset 0 1px 0 var(--ui-line); }
+
+/* ── Verticale : libellé au-dessus (panneau « Détails » de Drive) ──── */
+.ui-dl[data-layout="vertical"] { gap: 16px; }
+.ui-dl:is([data-layout="vertical"], [data-layout="grid"]) .ui-dl__item { align-content: start; gap: 2px; }
+.ui-dl:is([data-layout="vertical"], [data-layout="grid"]) .ui-dl__term { font-size: 12.5px; font-weight: 500; line-height: 1.4; }
+
+/* ── Grille : colonnes de `--_cols` au plus, qui passent à la ligne ─── */
+.ui-dl[data-layout="grid"] {
+  --_cols: 2;
+  --_min: 160px;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(var(--_min), calc((100% - (var(--_cols) - 1) * var(--_col-gap)) / var(--_cols))), 1fr)
+  );
+  gap: 20px var(--_col-gap);
+}
+
+/* ── Inset : carte groupée d'iOS ───────────────────────────────────── */
+.ui-dl[data-variant="inset"] { border-radius: var(--ui-r-lg); background: var(--ui-card-2); }
+.ui-dl[data-variant="inset"]:is([data-layout="horizontal"], [data-layout="vertical"]) { gap: 0; }
+.ui-dl[data-variant="inset"]:is([data-layout="horizontal"], [data-layout="vertical"]) .ui-dl__item { padding: 12px var(--_px); }
+/* Filet décalé : commence au retrait du texte, comme la liste groupée. */
+.ui-dl[data-variant="inset"]:is([data-layout="horizontal"], [data-layout="vertical"]) .ui-dl__item + .ui-dl__item::before {
+  content: "";
+  position: absolute;
+  inset-block: 0 auto;
+  inset-inline: var(--_px) 0;
+  height: 1px;
+  background: var(--ui-line);
+  pointer-events: none;
+}
+.ui-dl[data-variant="inset"][data-layout="grid"] { padding: var(--_px) 20px; }
+
+/* ── Copier ────────────────────────────────────────────────────────── */
+.ui-dl__copy {
+  position: relative;
+  isolation: isolate;
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  margin-block: -2px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: var(--ui-fg-3);
+  font: inherit;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-dl__copy::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-dl__copy:hover { color: var(--ui-fg); }
+  .ui-dl__copy:hover::before { opacity: var(--ui-state-hover); }
+}
+.ui-dl__copy:active::before { opacity: var(--ui-state-press); }
+.ui-dl__copy:focus-visible { box-shadow: inset 0 0 0 1px var(--ui-pri), 0 0 0 3px var(--ui-ring); }
+.ui-dl__copy :where(svg) { width: 16px; height: 16px; }
+.ui-dl__copy[data-state="copied"] { color: var(--ui-ok); }
+
+/* Libellé du bouton : masqué au repos (il nomme le bouton), infobulle inversée après la copie. */
+.ui-dl__copy-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.ui-dl__copy[data-state="copied"] .ui-dl__copy-text {
+  bottom: calc(100% + 6px);
+  left: 50%;
+  z-index: 2;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  padding: 4px 8px;
+  border-radius: var(--ui-r-xs);
+  background: var(--ui-inverse);
+  color: var(--ui-inverse-fg);
+  font-family: var(--ui-font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  pointer-events: none;
+  transform: translateX(-50%);
+  animation: ui-dl-copied var(--ui-duration-slow) var(--ui-ease-spring);
+}
+@keyframes ui-dl-copied {
+  from { opacity: 0; transform: translate(-50%, 4px) scale(0.94); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-dl__copy[data-state="copied"] .ui-dl__copy-text { animation: none; }
+}
+@media (forced-colors: active) {
+  .ui-dl[data-variant="inset"] { border: 1px solid CanvasText; }
+  .ui-dl__item + .ui-dl__item::before { background: CanvasText; }
+  .ui-dl__copy::before { display: none; }
+  .ui-dl__copy:focus-visible { outline: 2px solid Highlight; outline-offset: 1px; }
+  .ui-dl__copy[data-state="copied"] .ui-dl__copy-text { border: 1px solid CanvasText; }
+}

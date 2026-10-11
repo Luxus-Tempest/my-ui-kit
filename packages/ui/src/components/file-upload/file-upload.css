@@ -1,0 +1,363 @@
+/*
+ * Import de fichiers, à la manière de Drive.
+ *
+ * Dropzone : puits tonal au filet pointillé (le code visuel universel d'une
+ * zone de dépôt, seule exception aux filets pleins). Survolée par des
+ * fichiers, elle prend le conteneur de sélection et la pastille se soulève
+ * en ressort ; si rien ne serait accepté, elle passe au ton d'erreur.
+ *
+ * Liste : lignes tonales (panneau d'import de Drive) ou pièces jointes
+ * compactes (messagerie). Pictogramme teinté par famille de fichier, pris
+ * dans la palette catégorielle (--ui-c*).
+ */
+
+/* ══ Dropzone ═══════════════════════════════════════════════════════════ */
+
+.ui-dropzone {
+  --_bg: var(--ui-card-2);
+  --_fg: var(--ui-fg);
+  --_fg-2: var(--ui-fg-2);
+  --_fg-3: var(--ui-fg-3);
+  --_border: var(--ui-line-3);
+  --_border-style: dashed;
+  --_ring: 0 0 #0000;
+  --_icon-bg: var(--ui-panel);
+  --_icon-fg: var(--ui-pri);
+  --_link: var(--ui-pri);
+
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 188px;
+  padding: 28px 24px;
+  border: 1.5px var(--_border-style) var(--_border);
+  border-radius: var(--ui-r-lg);
+  background: var(--_bg);
+  color: var(--_fg);
+  box-shadow: var(--_ring);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease);
+}
+
+/* Le vrai contrôle : masqué mais focalisable, il reçoit Tab, Entrée et Espace. */
+.ui-dropzone__input,
+.ui-dropzone__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ui-dropzone__icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--ui-r-pill);
+  background: var(--_icon-bg);
+  color: var(--_icon-fg);
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration-slow) var(--ui-ease-spring),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-dropzone__icon :where(svg) { width: 24px; height: 24px; }
+
+.ui-dropzone__text { display: grid; gap: 2px; min-width: 0; max-width: 46ch; }
+.ui-dropzone__title { color: var(--_fg); font-size: 15px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.35; }
+.ui-dropzone__browse { color: var(--_fg-2); font-size: 13.5px; }
+.ui-dropzone__link {
+  color: var(--_link);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--ui-duration) var(--ui-ease);
+}
+.ui-dropzone__hint { margin-top: 6px; color: var(--_fg-3); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+/* ── États ─────────────────────────────────────────────────────────── */
+
+@media (hover: hover) {
+  .ui-dropzone:hover:not([data-disabled], [data-drag]) { --_bg: var(--ui-card-hover); }
+  .ui-dropzone:hover:not([data-disabled], [data-drag], [data-invalid]) { --_border: var(--ui-outline); }
+  .ui-dropzone:hover:not([data-disabled]) .ui-dropzone__link { text-decoration-color: currentColor; }
+  .ui-dropzone--compact:hover:not([data-disabled]) .ui-dropzone__button::before { opacity: var(--ui-state-hover); }
+}
+
+/* Focus clavier sur le champ masqué : filet primaire plein + halo. */
+.ui-dropzone:has(.ui-dropzone__input:focus-visible) {
+  --_border: var(--ui-pri);
+  --_border-style: solid;
+  --_ring: 0 0 0 3px var(--ui-ring);
+}
+
+.ui-dropzone[data-invalid] { --_border: var(--ui-err); }
+.ui-dropzone[data-invalid]:has(.ui-dropzone__input:focus-visible) {
+  --_border: var(--ui-err);
+  --_ring: 0 0 0 3px color-mix(in srgb, var(--ui-err) 18%, transparent);
+}
+
+/* Survolée par des fichiers acceptables : conteneur de sélection de Drive. */
+.ui-dropzone[data-drag="accept"] {
+  --_bg: var(--ui-sel);
+  --_fg: var(--ui-on-pri-container);
+  --_fg-2: var(--ui-on-pri-container);
+  --_fg-3: var(--ui-on-pri-container);
+  --_border: var(--ui-pri);
+  --_icon-bg: var(--ui-pri);
+  --_icon-fg: var(--ui-pri-fg);
+  --_link: var(--ui-on-pri-container);
+}
+.ui-dropzone[data-drag="accept"] .ui-dropzone__icon { box-shadow: var(--ui-sh-pri), var(--ui-sh2); transform: translateY(-3px) scale(1.06); }
+
+/* Survolée par des fichiers qu'aucune règle n'accepte : ton d'erreur. */
+.ui-dropzone[data-drag="reject"] {
+  --_bg: var(--ui-err-soft);
+  --_fg: var(--ui-err);
+  --_fg-2: var(--ui-err);
+  --_fg-3: var(--ui-err);
+  --_border: var(--ui-err);
+  --_icon-fg: var(--ui-err);
+  --_link: var(--ui-err);
+  cursor: no-drop;
+}
+
+/* Pendant le glisser, « ou parcourez » n'a plus de sens : masqué sans décaler la zone. */
+.ui-dropzone[data-drag] .ui-dropzone__browse { visibility: hidden; }
+
+/*
+ * Désactivée : textes en encre tertiaire, lisibles (≥ 4,5:1), plutôt qu'une
+ * opacité qui les rendrait illisibles ; seuls l'icône et le cadre s'effacent.
+ */
+.ui-dropzone[data-disabled] {
+  --_fg: var(--ui-fg-3);
+  --_fg-2: var(--ui-fg-3);
+  --_border: var(--ui-line);
+  cursor: not-allowed;
+}
+.ui-dropzone[data-disabled] .ui-dropzone__link { color: inherit; }
+.ui-dropzone[data-disabled] .ui-dropzone__icon { opacity: 0.5; }
+.ui-dropzone[data-disabled] .ui-dropzone__button { --_fg: var(--ui-fg-3); --_border: var(--ui-line); }
+
+/* Enfants du dépôt : le dragleave ne doit pas clignoter en passant d'un enfant à l'autre. */
+.ui-dropzone[data-drag] > :not(.ui-dropzone__input) { pointer-events: none; }
+
+/* ── Compacte : une ligne, bouton à droite ─────────────────────────── */
+
+.ui-dropzone--compact {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 12px 10px 12px;
+  border-radius: var(--ui-r-md);
+  text-align: left;
+}
+.ui-dropzone--compact .ui-dropzone__icon { width: 40px; height: 40px; }
+.ui-dropzone--compact .ui-dropzone__icon :where(svg) { width: 20px; height: 20px; }
+.ui-dropzone--compact .ui-dropzone__text { flex: 1 1 160px; max-width: none; }
+.ui-dropzone--compact .ui-dropzone__title { font-size: 14px; }
+.ui-dropzone--compact .ui-dropzone__hint { margin-top: 0; }
+.ui-dropzone--compact[data-drag="accept"] .ui-dropzone__icon { transform: scale(1.08); }
+/* Faux bouton : le champ masqué porte le focus, la zone entière le clic. */
+.ui-dropzone__button { pointer-events: none; }
+.ui-dropzone[data-drag="accept"] .ui-dropzone__button { --_border: var(--ui-pri); --_fg: var(--ui-on-pri-container); }
+
+/* ══ Liste de fichiers ══════════════════════════════════════════════════ */
+
+.ui-file-upload-list {
+  display: grid;
+  gap: 8px;
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--ui-font-sans);
+}
+.ui-file-upload-list[data-variant="chip"] { display: flex; flex-wrap: wrap; }
+
+.ui-file-upload-item {
+  --_tint: var(--ui-fg-3);
+  --_bg: var(--ui-card-2);
+  --_media: 40px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 60px;
+  margin: 0;
+  padding: 10px 8px 10px 10px;
+  border-radius: var(--ui-r-md);
+  background: var(--_bg);
+  color: var(--ui-fg);
+  font-size: 14px;
+  line-height: 1.4;
+  list-style: none;
+  animation: ui-file-upload-in var(--ui-duration-slow) var(--ui-ease-spring);
+  transition: background-color var(--ui-duration) var(--ui-ease);
+}
+@keyframes ui-file-upload-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.98); }
+}
+
+/* Teinte par famille : palette catégorielle, dans l'ordre validé. */
+.ui-file-upload-item[data-kind="document"] { --_tint: var(--ui-c1); }
+.ui-file-upload-item[data-kind="audio"] { --_tint: var(--ui-c2); }
+.ui-file-upload-item[data-kind="code"] { --_tint: var(--ui-c3); }
+.ui-file-upload-item[data-kind="presentation"] { --_tint: var(--ui-c4); }
+.ui-file-upload-item[data-kind="video"] { --_tint: var(--ui-c5); }
+.ui-file-upload-item[data-kind="spreadsheet"] { --_tint: var(--ui-c6); }
+.ui-file-upload-item[data-kind="image"] { --_tint: var(--ui-c7); }
+.ui-file-upload-item[data-kind="pdf"] { --_tint: var(--ui-c8); }
+
+.ui-file-upload-item[data-status="error"] { --_bg: var(--ui-err-soft); }
+
+.ui-file-upload-item__media {
+  position: relative;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: var(--_media);
+  height: var(--_media);
+  overflow: hidden;
+  border-radius: var(--ui-r-sm);
+  background: color-mix(in srgb, var(--_tint) 14%, var(--ui-panel));
+  color: var(--_tint);
+}
+.ui-file-upload-item__media :where(svg) { width: 20px; height: 20px; }
+.ui-file-upload-item__media > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  -webkit-user-drag: none;
+}
+/* Filet intérieur discret : une miniature claire ne se fond pas dans la ligne. */
+.ui-file-upload-item__media:has(> img)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px var(--ui-material-line);
+}
+
+.ui-file-upload-item__body { display: grid; flex: 1; gap: 2px; min-width: 0; }
+
+/* Nom tronqué au milieu : le début s'ellipse, la fin et l'extension restent. */
+.ui-file-upload-item__name { display: flex; min-width: 0; color: var(--ui-fg); font-weight: 500; }
+.ui-file-upload-item__name-start,
+.ui-file-upload-item__name-end { white-space: pre; }
+.ui-file-upload-item__name-start { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ui-file-upload-item__name-end { flex-shrink: 0; }
+
+.ui-file-upload-item__meta { color: var(--ui-fg-3); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.ui-file-upload-item__error { color: var(--ui-err); font-size: 12.5px; font-weight: 500; }
+.ui-file-upload-item__progress { display: flex; align-items: center; gap: 10px; min-height: 18px; }
+.ui-file-upload-item__progress .ui-progress { flex: 1; }
+.ui-file-upload-item__percent {
+  min-width: 4ch;
+  color: var(--ui-fg-2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.ui-file-upload-item__actions { display: flex; flex-shrink: 0; align-items: center; gap: 2px; }
+.ui-file-upload-item__done {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  color: var(--ui-ok);
+  animation: ui-file-upload-done var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-file-upload-item__done svg { width: 20px; height: 20px; }
+.ui-file-upload-item__done-check { stroke: var(--ui-panel); }
+@keyframes ui-file-upload-done {
+  from { opacity: 0; transform: scale(0.5); }
+}
+.ui-file-upload-item__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ui-file-upload-item .ui-file-upload-item__retry { --_fg: var(--ui-pri); --_fg-hover: var(--ui-pri); }
+.ui-file-upload-item[data-status="error"] .ui-file-upload-item__remove { --_fg: var(--ui-err); --_fg-hover: var(--ui-err); }
+
+/* ── Pièce jointe compacte (messagerie) ────────────────────────────── */
+
+.ui-file-upload-item[data-variant="chip"] {
+  --_media: 36px;
+  gap: 10px;
+  width: 248px;
+  max-width: 100%;
+  min-height: 52px;
+  padding: 7px 6px 7px 8px;
+  font-size: 13px;
+}
+.ui-file-upload-item[data-variant="chip"] .ui-file-upload-item__media { border-radius: var(--ui-r-xs); }
+.ui-file-upload-item[data-variant="chip"] .ui-file-upload-item__media :where(svg) { width: 18px; height: 18px; }
+.ui-file-upload-item[data-variant="chip"] .ui-file-upload-item__body { gap: 1px; }
+.ui-file-upload-item[data-variant="chip"] .ui-file-upload-item__meta,
+.ui-file-upload-item[data-variant="chip"] .ui-file-upload-item__error {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ui-file-upload-item[data-variant="chip"] .ui-file-upload-item__progress { min-height: 16px; }
+.ui-file-upload-item[data-variant="chip"] .ui-file-upload-item__action {
+  --_h: 28px;
+  --_icon: 15px;
+}
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-dropzone[data-drag] .ui-dropzone__icon { transform: none; }
+  .ui-file-upload-item,
+  .ui-file-upload-item__done { animation: none; }
+}
+
+@media (forced-colors: active) {
+  .ui-dropzone { border-color: CanvasText; }
+  .ui-dropzone:has(.ui-dropzone__input:focus-visible) { outline: 2px solid Highlight; outline-offset: 2px; }
+  .ui-dropzone[data-drag] { border-color: Highlight; border-style: solid; }
+  .ui-dropzone__icon { border: 1px solid CanvasText; }
+  .ui-file-upload-item { border: 1px solid CanvasText; }
+  .ui-file-upload-item__media { border: 1px solid CanvasText; }
+}

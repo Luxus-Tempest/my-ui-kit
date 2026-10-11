@@ -1,0 +1,96 @@
+/*
+ * Feuille. Le voile est celui de Dialog (.ui-dialog__overlay).
+ * Latérale : flottante, détachée du bord de 8 px, rayon 20 px.
+ * Bas : pleine largeur, coins supérieurs de 28 px, poignée, 92 vh au plus.
+ */
+.ui-sheet {
+  --_w: 440px;
+  --_gap: 8px;
+  position: fixed;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  border: 1px solid var(--ui-material-line);
+  background: var(--ui-panel);
+  color: var(--ui-fg);
+  box-shadow: var(--ui-sh4);
+  font-family: var(--ui-font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  outline: none;
+  animation: var(--_in) var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-sheet[data-state="closed"] { animation: var(--_out) 200ms var(--ui-ease) forwards; }
+.ui-sheet[data-size="sm"] { --_w: 360px; }
+.ui-sheet[data-size="lg"] { --_w: 560px; }
+
+.ui-sheet:is([data-side="right"], [data-side="left"]) {
+  top: var(--_gap);
+  bottom: var(--_gap);
+  width: min(var(--_w), calc(100vw - 2 * var(--_gap)));
+  border-radius: var(--ui-r-xl);
+}
+.ui-sheet[data-side="right"] { right: var(--_gap); --_in: ui-sheet-in-right; --_out: ui-sheet-out-right; }
+.ui-sheet[data-side="left"] { left: var(--_gap); --_in: ui-sheet-in-left; --_out: ui-sheet-out-left; }
+
+.ui-sheet:is([data-side="bottom"], [data-side="top"]) { left: 0; right: 0; max-height: 92vh; }
+.ui-sheet[data-side="bottom"] {
+  bottom: 0;
+  border-bottom: 0;
+  border-radius: var(--ui-r-2xl) var(--ui-r-2xl) 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  --_in: ui-sheet-in-bottom;
+  --_out: ui-sheet-out-bottom;
+}
+.ui-sheet[data-side="top"] {
+  top: 0;
+  border-top: 0;
+  border-radius: 0 0 var(--ui-r-2xl) var(--ui-r-2xl);
+  --_in: ui-sheet-in-top;
+  --_out: ui-sheet-out-top;
+}
+/* Sur grand écran, la feuille du bas reste une colonne lisible, comme sur iPad. */
+@media (min-width: 720px) {
+  .ui-sheet:is([data-side="bottom"], [data-side="top"]) { left: calc(50% - 320px); right: auto; width: 640px; }
+}
+
+.ui-sheet__handle {
+  flex-shrink: 0;
+  width: 36px;
+  height: 5px;
+  margin: 8px auto -4px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-line-3);
+}
+
+.ui-sheet__header { display: grid; flex-shrink: 0; gap: 4px; padding: 20px 64px 12px 24px; }
+.ui-sheet__title { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.3; letter-spacing: -0.014em; }
+.ui-sheet__description { margin: 0; color: var(--ui-fg-2); font-size: 13.5px; }
+.ui-sheet__body { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 24px 24px; overscroll-behavior: contain; }
+.ui-sheet__footer {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap-reverse;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 24px 20px;
+}
+.ui-sheet__close { position: absolute; top: 16px; right: 16px; }
+.ui-sheet[data-side="bottom"] .ui-sheet__close { top: 18px; }
+
+@keyframes ui-sheet-in-right { from { transform: translateX(calc(100% + var(--_gap))); } }
+@keyframes ui-sheet-out-right { to { transform: translateX(calc(100% + var(--_gap))); } }
+@keyframes ui-sheet-in-left { from { transform: translateX(calc(-100% - var(--_gap))); } }
+@keyframes ui-sheet-out-left { to { transform: translateX(calc(-100% - var(--_gap))); } }
+@keyframes ui-sheet-in-bottom { from { transform: translateY(100%); } }
+@keyframes ui-sheet-out-bottom { to { transform: translateY(100%); } }
+@keyframes ui-sheet-in-top { from { transform: translateY(-100%); } }
+@keyframes ui-sheet-out-top { to { transform: translateY(-100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-sheet, .ui-sheet[data-state="closed"] { animation: ui-fade-in 1ms; }
+}
+@media (max-width: 480px) {
+  .ui-sheet__footer > * { flex: 1 1 auto; }
+}

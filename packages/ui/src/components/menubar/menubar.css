@@ -1,0 +1,85 @@
+/*
+ * Barre de menus : déclencheurs en pilule posés à plat (pas de surface au
+ * repos, comme la barre « Fichier Édition » de Docs). Couche d'état Material
+ * au survol, au focus clavier et tant que le menu est ouvert.
+ * Les menus reprennent .ui-popup / .ui-menu-item (popup.css, menu.css).
+ */
+.ui-menubar {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 40px;
+  padding: 4px;
+  font-family: var(--ui-font-sans);
+}
+
+.ui-menubar__trigger {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 32px;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: var(--ui-fg);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.006em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-menubar__trigger :where(svg) { width: 18px; height: 18px; flex-shrink: 0; color: var(--ui-fg-2); }
+/* Couche d'état : currentColor sous le libellé. */
+.ui-menubar__trigger::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+/* Cible tactile : 40 px de haut, comme la barre elle-même. */
+.ui-menubar__trigger::after {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
+}
+@media (hover: hover) {
+  .ui-menubar__trigger:hover:not([data-disabled])::before { opacity: var(--ui-state-hover); }
+}
+.ui-menubar__trigger[data-highlighted]::before,
+.ui-menubar__trigger[data-state="open"]::before { opacity: var(--ui-state-hover); }
+.ui-menubar__trigger:active:not([data-disabled])::before { opacity: var(--ui-state-press); }
+.ui-menubar__trigger:focus-visible { box-shadow: inset 0 0 0 1px var(--ui-pri), 0 0 0 3px var(--ui-ring); }
+.ui-menubar__trigger[data-disabled] { opacity: 0.45; }
+
+/* Menus : les variables Radix de Menubar remplacent celles de DropdownMenu
+   (sans déclencheur de référence, la largeur minimale est fixe).
+   Double classe pour l'emporter sur .ui-menu quel que soit l'ordre des @import. */
+.ui-menu.ui-menubar-content {
+  min-width: 220px;
+  max-height: var(--radix-menubar-content-available-height);
+}
+
+@media (forced-colors: active) {
+  .ui-menubar__trigger::before { display: none; }
+  .ui-menubar__trigger[data-state="open"],
+  .ui-menubar__trigger[data-highlighted] { outline: 1px solid CanvasText; }
+  .ui-menubar__trigger:focus-visible { outline: 2px solid Highlight; outline-offset: 0; }
+}

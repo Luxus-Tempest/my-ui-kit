@@ -1,0 +1,90 @@
+/* Barre de recherche : pilule tonale, surface claire et halo au focus. */
+.ui-search {
+  --_h: 40px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: var(--_h);
+  padding: 0 6px 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-card-hover);
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-search[data-size="lg"] { --_h: 48px; padding-inline-start: 18px; }
+
+@media (hover: hover) {
+  .ui-search:hover:not(:focus-within, [data-disabled]) { background: color-mix(in srgb, var(--ui-card-hover) 92%, var(--ui-fg)); }
+}
+/* Au focus, la barre devient un panneau surélevé, comme dans Drive. */
+.ui-search:focus-within { background: var(--ui-panel); box-shadow: var(--ui-sh2); }
+.ui-search:has(.ui-search__input:focus-visible) { border-color: var(--ui-pri); box-shadow: var(--ui-sh2), 0 0 0 3px var(--ui-ring); }
+.ui-search[data-disabled] { opacity: 0.5; }
+
+.ui-search__icon { display: flex; flex-shrink: 0; color: var(--ui-fg-2); pointer-events: none; }
+.ui-search__icon svg { width: 18px; height: 18px; }
+.ui-search[data-size="lg"] .ui-search__icon svg { width: 20px; height: 20px; }
+
+.ui-search__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 6px 0 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  letter-spacing: -0.006em;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.ui-search[data-size="lg"] .ui-search__input { padding-inline-start: 12px; font-size: 16px; }
+.ui-search__input::placeholder { color: var(--ui-fg-2); opacity: 1; }
+.ui-search__input::-webkit-search-cancel-button,
+.ui-search__input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+.ui-search__input:disabled { cursor: not-allowed; }
+
+.ui-search__clear {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ui-fg-2);
+  cursor: pointer;
+  outline: none;
+  animation: ui-search-clear-in var(--ui-duration-slow) var(--ui-ease-spring);
+}
+@media (hover: hover) {
+  .ui-search__clear:hover { background: color-mix(in srgb, currentColor var(--ui-state-hover), transparent); }
+}
+.ui-search__clear:focus-visible { box-shadow: 0 0 0 2px var(--ui-pri); }
+.ui-search__clear svg { width: 18px; height: 18px; }
+@keyframes ui-search-clear-in { from { opacity: 0; transform: scale(0.6); } }
+
+.ui-search__trailing { display: flex; flex-shrink: 0; align-items: center; gap: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-search__clear { animation: none; }
+}
+@media (forced-colors: active) {
+  .ui-search { border-color: ButtonText; }
+  .ui-search:focus-within { outline: 2px solid Highlight; outline-offset: 1px; }
+}

@@ -1,0 +1,160 @@
+/*
+ * Champ numérique « stepper » : même surface que .ui-input (remplissage tonal,
+ * 40 px, rayon --ui-r-ctl ; 32 px en sm), boutons − / + ronds intégrés à droite.
+ * Le focus est porté par le conteneur (:focus-within) : filet primaire + halo.
+ */
+.ui-number-input {
+  box-sizing: border-box;
+  --_h: 40px;
+  --_btn: 30px;
+  --_icon: 16px;
+  --_font: 14px;
+  --_radius: var(--ui-r-ctl);
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  height: var(--_h);
+  padding-inline-end: calc((var(--_h) - var(--_btn)) / 2 - 1px);
+  border: 1px solid transparent;
+  border-radius: var(--_radius);
+  background: var(--ui-card-2);
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+  font-size: var(--_font);
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-number-input[data-density="sm"] {
+  --_h: 32px;
+  --_btn: 24px;
+  --_icon: 14px;
+  --_font: 13px;
+  --_radius: var(--ui-r-sm);
+}
+
+@media (hover: hover) {
+  .ui-number-input:hover:not([data-disabled], [data-readonly], :focus-within) { background: var(--ui-card-hover); }
+}
+.ui-number-input:focus-within {
+  border-color: var(--ui-pri);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px var(--ui-ring);
+}
+.ui-number-input[data-invalid] {
+  border-color: var(--ui-err);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-err) 18%, transparent);
+}
+.ui-number-input[data-disabled] { opacity: 0.5; cursor: not-allowed; }
+/* Lecture seule : comme .ui-input, visiblement non modifiable. */
+.ui-number-input[data-readonly]:not([data-disabled]) {
+  border-color: var(--ui-line);
+  background: transparent;
+}
+.ui-number-input[data-readonly]:not([data-disabled]):focus-within {
+  border-color: var(--ui-line-2);
+}
+
+.ui-number-input__field {
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 4px 0 14px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.006em;
+  outline: none;
+}
+.ui-number-input[data-density="sm"] .ui-number-input__field { padding-inline-start: 11px; }
+.ui-number-input__field::placeholder { color: var(--ui-fg-3); opacity: 1; }
+.ui-number-input__field:disabled { cursor: not-allowed; }
+
+.ui-number-input__unit {
+  flex-shrink: 0;
+  padding: 0 8px 0 2px;
+  color: var(--ui-fg-3);
+  font-size: calc(var(--_font) - 1px);
+  font-weight: 500;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.ui-number-input__steppers {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+}
+/* Boutons ronds « ghost », couche d'état Material, pression en ressort. */
+.ui-number-input__stepper {
+  box-sizing: border-box;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--_btn);
+  height: var(--_btn);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: var(--ui-fg-2);
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--ui-duration) var(--ui-ease),
+    transform var(--ui-duration-slow) var(--ui-ease-spring);
+}
+.ui-number-input__stepper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+/* Cible tactile ≥ 24 px même en sm. */
+.ui-number-input__stepper::after {
+  content: "";
+  position: absolute;
+  inset: -4px -1px;
+}
+.ui-number-input__stepper svg {
+  width: var(--_icon);
+  height: var(--_icon);
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .ui-number-input__stepper:hover:not(:disabled) { color: var(--ui-fg); }
+  .ui-number-input__stepper:hover:not(:disabled)::before { opacity: var(--ui-state-hover); }
+}
+.ui-number-input__stepper:active:not(:disabled) { transform: scale(0.92); }
+.ui-number-input__stepper:active:not(:disabled)::before { opacity: var(--ui-state-press); }
+.ui-number-input__stepper:disabled { opacity: 0.38; cursor: default; }
+.ui-number-input[data-disabled] .ui-number-input__stepper:disabled { opacity: 1; cursor: not-allowed; }
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ui-number-input__stepper:active:not(:disabled) { transform: none; }
+}
+@media (forced-colors: active) {
+  .ui-number-input { border-color: ButtonText; }
+  .ui-number-input:focus-within { outline: 2px solid Highlight; outline-offset: 1px; }
+  .ui-number-input__stepper::before { display: none; }
+  .ui-number-input__stepper { color: ButtonText; }
+  .ui-number-input__stepper:disabled { color: GrayText; }
+}

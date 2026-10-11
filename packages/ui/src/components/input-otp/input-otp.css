@@ -1,0 +1,126 @@
+/*
+ * Code à usage unique : cases de 44 px au remplissage tonal (celui d'un Input),
+ * rayon de champ. La case où se trouve le curseur prend la surface claire, le
+ * filet primaire et le halo du focus ; vide, elle montre un curseur qui
+ * clignote. Chaque caractère apparaît en ressort. Le vrai <input> (invisible,
+ * posé par input-otp au-dessus des cases) reçoit clavier, collage et auto-remplissage.
+ */
+.ui-input-otp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--ui-font-sans);
+}
+.ui-input-otp:has(input:disabled) { opacity: 0.5; }
+.ui-input-otp__input:disabled { cursor: not-allowed; }
+
+.ui-input-otp__group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ui-input-otp__slot {
+  --_size: 44px;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--_size);
+  height: var(--_size);
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-ctl);
+  background: var(--ui-card-2);
+  color: var(--ui-fg);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  transition:
+    background-color var(--ui-duration) var(--ui-ease),
+    border-color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+
+@media (hover: hover) {
+  .ui-input-otp:hover .ui-input-otp__slot:not([data-active], [data-invalid], [data-disabled]) {
+    background: var(--ui-card-hover);
+  }
+}
+
+/* Case active : surface claire, filet primaire + halo 3 px. */
+.ui-input-otp__slot[data-active] {
+  z-index: 1;
+  border-color: var(--ui-pri);
+  background: var(--ui-panel);
+  box-shadow: 0 0 0 3px var(--ui-ring);
+}
+
+/* Invalide : toutes les cases passent au filet d'erreur, le halo suit le curseur. */
+.ui-input-otp__slot[data-invalid] {
+  border-color: var(--ui-err);
+  background: var(--ui-panel);
+}
+.ui-input-otp__slot[data-invalid][data-active] {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-err) 18%, transparent);
+}
+
+.ui-input-otp__char {
+  animation: ui-input-otp-pop var(--ui-duration-slow) var(--ui-ease-spring);
+}
+@keyframes ui-input-otp-pop {
+  from { opacity: 0; transform: translateY(3px) scale(0.6); }
+}
+
+.ui-input-otp__placeholder {
+  color: var(--ui-fg-3);
+  font-weight: 400;
+}
+
+/* Curseur : trait primaire, battement dérivé de la durée « lente » (≈ 1,1 s). */
+.ui-input-otp__caret {
+  position: absolute;
+  inset: 0;
+  width: 2px;
+  height: 45%;
+  margin: auto;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-pri);
+  pointer-events: none;
+  animation: ui-input-otp-caret calc(var(--ui-duration-slow) * 4) var(--ui-ease) infinite;
+}
+@keyframes ui-input-otp-caret {
+  0%, 70%, 100% { opacity: 1; }
+  20%, 50% { opacity: 0; }
+}
+
+/* Séparateur : un tiret court entre deux groupes (ou le contenu fourni). */
+.ui-input-otp__separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ui-fg-3);
+}
+.ui-input-otp__separator:empty::before {
+  content: "";
+  width: 10px;
+  height: 2px;
+  border-radius: var(--ui-r-pill);
+  background: currentColor;
+}
+
+/* ── Accessibilité système ─────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-input-otp__char,
+  .ui-input-otp__caret { animation: none; }
+}
+@media (forced-colors: active) {
+  .ui-input-otp__slot { border-color: CanvasText; }
+  .ui-input-otp__slot[data-active] { outline: 2px solid Highlight; outline-offset: 1px; }
+  .ui-input-otp__caret { background: CanvasText; }
+  .ui-input-otp__separator { color: CanvasText; }
+}
