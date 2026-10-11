@@ -96,6 +96,42 @@ Une cellule tient sur une ligne ; `meta.wrap` autorise le retour à la ligne (no
 Pour une mise en page sur mesure, `useDataTable` et les briques (`DataTableToolbar`, `DataTableView`, `DataTablePagination`…)
 s'assemblent librement.
 
+Au niveau d'un ERP :
+
+```tsx
+const columns: ColumnDef<Facture, any>[] = [
+  { accessorKey: "numero", header: "Facture", meta: { pin: "start", width: 132 } },
+  { accessorKey: "client", header: "Client", meta: { width: 220, minWidth: 160 } },
+  { accessorKey: "ht", header: "Montant HT", meta: { numeric: true, format: mad.format, aggregate: "sum" } },
+  { accessorKey: "ttc", header: "Montant TTC", meta: { numeric: true, format: mad.format, aggregate: "sum" } },
+  actionsColumn<Facture>((row) => <MenuItem>Ouvrir</MenuItem>),
+];
+
+<DataTable
+  aria-label="Facturation"
+  columns={columns}
+  data={factures}
+  getRowId={(f) => f.id}
+  enableRowSelection
+  enableColumnResizing
+  renderSubComponent={(row) => <LignesFacture facture={row.original} />}
+  maxHeight={560}
+  persistKey="facturation"
+/>
+```
+
+- **Colonnes figées** : `meta.pin: "start" | "end"`, menu de colonne (« Figer au début », « Figer à la fin »,
+  « Libérer »), état `columnPinning` contrôlable et mémorisé. Sélection, dépliage et actions se figent d'office.
+  Position collante en propriétés logiques (RTL), fond opaque, filet et ombre seulement quand du contenu passe dessous.
+- **Colonnes redimensionnables** : `enableColumnResizing` ; poignée au bord de l'en-tête (souris, doigt, et clavier :
+  `role="separator"`, flèches ± 16 px, Maj ± 64 px, Origine / Fin), double-clic pour la largeur par défaut,
+  bornes `meta.minWidth` / `meta.maxWidth`, largeurs dans l'état `columnSizing`.
+- **Lignes dépliables** : panneau de détail (`renderSubComponent`, `getRowCanExpand`) ou données hiérarchiques
+  (`getSubRows`), chevron dans une colonne dédiée (`expandColumn()`), état `expanded` ; compatible tri, sélection,
+  pagination et virtualisation.
+- **Totaux** : `meta.aggregate` (`sum`, `avg`, `min`, `max`, `count` ou fonction) sur toutes les lignes filtrées,
+  formatés par `meta.format`, dans un `<tfoot>` collé en bas avec `maxHeight` ; en pagination serveur, `aggregates`.
+
 ### Field : un champ complet en une ligne
 
 `Field` relie tout seul libellé, aide, erreur, obligatoire et désactivé au contrôle qu'il contient
@@ -233,9 +269,9 @@ et échoue au-delà de son budget, ou si ECharts ou TanStack apparaissent là o�
 | `Button` | 2,4 Ko | 5 Ko |
 | Formulaire (`Field`, `Input`, `Select`, `Checkbox`) | 34 Ko | 40 Ko |
 | `Dialog`, `Menu`, `toast` | 43 Ko | 50 Ko |
-| `DataTable` | 83 Ko | 95 Ko |
+| `DataTable` | 89 Ko | 95 Ko |
 | `LineChart` (ECharts compris) | 225 Ko | 245 Ko |
-| `styles.css` | 34 Ko | 40 Ko |
+| `styles.css` | 35 Ko | 40 Ko |
 
 `styles.dev.css` est la version lisible de la feuille, pour le débogage.
 

@@ -1,0 +1,13 @@
+---
+"@acme/ui": minor
+---
+
+DataTable au niveau d'un ERP : colonnes figées et redimensionnables, lignes dépliables, ligne de totaux.
+
+- Colonnes figées : `meta.pin: "start" | "end"`, entrées « Figer au début », « Figer à la fin » et « Libérer » du menu de colonne, état `columnPinning` (`initialState`, `state`, `onColumnPinningChange`, mémorisé avec `persistKey`), option `enableColumnPinning`. Les colonnes de sélection et de dépliage se figent au début, celle d'actions à la fin. Position collante en propriétés logiques (droite à gauche compris), décalages mesurés, fond opaque, filet et ombre douce seulement quand du contenu passe dessous ; le fondu de défilement s'efface du côté figé.
+- Colonnes redimensionnables : `enableColumnResizing` (hook et `DataTable`), poignée `DataTableColumnResizer` au bord de chaque en-tête : glisser à la souris ou au doigt (inversé de droite à gauche), séparateur focalisable au clavier (`aria-valuenow`, flèches ± 16 px, Maj+flèche ± 64 px, Origine / Fin), double-clic pour la largeur par défaut ; `meta.minWidth` / `meta.maxWidth` ; mise en page fixe ; état `columnSizing` mémorisé avec `persistKey`.
+- Lignes dépliables : panneau de détail (`renderSubComponent`, `getRowCanExpand`) dans une ligne pleine largeur reliée au chevron par `aria-controls`, ou données hiérarchiques (`getSubRows`, enfants en retrait dans la première colonne de données, recherche qui garde les parents) ; colonne `expandColumn()` (chevron par ligne, « Tout déplier » en en-tête), boutons `DataTableExpandButton` et `DataTableExpandAllButton` ; état `expanded` contrôlable ; flèches droite / gauche sur une ligne cliquable ; compatible tri, sélection, pagination (les enfants suivent leur parent) et virtualisation.
+- Ligne de totaux : `meta.aggregate` (`sum`, `avg`, `min`, `max`, `count` ou fonction) calculé sur toutes les lignes filtrées et formaté par `meta.format`, libellé « Total » ou `meta.footerLabel`, prop `showFooter`, `<tfoot>` collé en bas avec `maxHeight` ou `virtualized` ; en pagination serveur, prop `aggregates`. Utilitaire `getDataTableAggregate`.
+- Nouveaux libellés dans `DataTableLabels` : `pinStart`, `pinEnd`, `unpin`, `resizeColumn`, `columnWidth`, `expandRow`, `collapseRow`, `expandAll`, `collapseAll`, `total`.
+- Nouveaux types exportés : `ColumnPinningState`, `ColumnSizingState`, `ExpandedState`, `Header`, `DataTablePinPosition`, `DataTableAggregate`, `DataTableAggregateFn`, `ExpandColumnOptions`, `DataTableColumnResizerProps`.
+- `persistKey` mémorise désormais aussi les colonnes figées et les largeurs (`persistState` : `columnPinning`, `columnSizing`).

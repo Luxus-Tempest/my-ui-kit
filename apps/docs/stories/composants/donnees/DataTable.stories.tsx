@@ -13,9 +13,19 @@ import {
   DataTableSearch,
   DataTableView,
   DataTableViewOptions,
+  DescriptionDetails,
+  DescriptionItem,
+  DescriptionList,
+  DescriptionTerm,
   EmptyState,
   MenuItem,
   MenuSeparator,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   actionsColumn,
   createColumnHelper,
   dataTableFormatters,
@@ -26,12 +36,14 @@ import {
   type DataTableDensity,
   type DataTableFilterOption,
   type PaginationState,
+  type Row as TableRowModel,
   type SortingState,
 } from "@acme/ui";
 import {
   Copy,
   Download,
   Eye,
+  FileText,
   Plus,
   Receipt,
   RefreshCw,
@@ -153,7 +165,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Table de données de haut niveau, au-dessus de TanStack Table : `<DataTable columns={columns} data={data} />` suffit. Tri multi-colonnes (Maj+clic, `aria-sort`), recherche sans accents, filtres à facettes (`meta.filterOptions`), pagination, sélection avec actions groupées, colonnes masquables, densité, export CSV, états de chargement et vides, virtualisation (`virtualized`), mode serveur (`manual*` + `rowCount`), persistance (`persistKey`). Chaque fonction se coupe par une prop `enable*`. Pour une mise en page sur mesure, composer `useDataTable` avec `DataTableToolbar`, `DataTableView`, `DataTablePagination` et les autres briques.",
+          "Table de données de haut niveau, au-dessus de TanStack Table : `<DataTable columns={columns} data={data} />` suffit. Tri multi-colonnes (Maj+clic, `aria-sort`), recherche sans accents, filtres à facettes (`meta.filterOptions`), pagination, sélection avec actions groupées, colonnes masquables, figées (`meta.pin`, menu de colonne) et redimensionnables (`enableColumnResizing`), lignes dépliables (`renderSubComponent`, `getSubRows`), ligne de totaux (`meta.aggregate`), densité, export CSV, états de chargement et vides, virtualisation (`virtualized`), mode serveur (`manual*` + `rowCount` + `aggregates`), persistance (`persistKey`). Chaque fonction se coupe par une prop `enable*`. Pour une mise en page sur mesure, composer `useDataTable` avec `DataTableToolbar`, `DataTableView`, `DataTablePagination` et les autres briques.",
       },
     },
   },
@@ -703,4 +715,625 @@ function Relances() {
 export const Personnalisee: Story = {
   name: "Personnalisée",
   render: () => <Relances />,
+};
+
+/* ══ ERP : colonnes figées et redimensionnables, lignes dépliables, totaux ══ */
+
+const VILLES: Record<string, string> = {
+  "Atlas Négoce": "Casablanca",
+  "Bennani & Fils": "Fès",
+  "Café Zellige": "Marrakech",
+  "Électro Sud": "Agadir",
+  "Groupe Tazi": "Rabat",
+  "Imprimerie Ouarzazate": "Ouarzazate",
+  "Majorelle Design": "Marrakech",
+  "Sahara Logistique": "Laâyoune",
+};
+const COMMERCIAUX = ["Salma Idrissi", "Youssef Amrani", "Nadia Berrada", "Karim El Fassi"];
+const MODES = ["Virement", "Chèque", "Effet de commerce", "Espèces"];
+const PRESTATIONS = [
+  { designation: "Licence logicielle annuelle", prix: 4800 },
+  { designation: "Maintenance trimestrielle", prix: 1850 },
+  { designation: "Formation sur site (jour)", prix: 3200 },
+  { designation: "Développement spécifique (jour)", prix: 2900 },
+  { designation: "Hébergement cloud (mois)", prix: 640 },
+  { designation: "Assistance téléphonique (heure)", prix: 380 },
+  { designation: "Audit de sécurité", prix: 7500 },
+];
+
+interface LigneFacture {
+  designation: string;
+  quantite: number;
+  prix: number;
+}
+
+interface FactureErp extends Facture {
+  ville: string;
+  commercial: string;
+  mode: string;
+  ht: number;
+  tva: number;
+  ttc: number;
+  regle: number;
+  reste: number;
+  lignes: LigneFacture[];
+}
+
+const arrondi = (value: number) => Math.round(value * 100) / 100;
+
+/** Factures détaillées : lignes de prestation, HT, TVA à 20 %, TTC, part réglée selon le statut. */
+function makeFacturesErp(count: number, seed: number): FactureErp[] {
+  const random = seeded(seed * 31 + 7);
+  return makeFactures(count, seed).map((facture) => {
+    const lignes = Array.from({ length: 1 + Math.floor(random() * 3) }, () => {
+      const prestation = PRESTATIONS[Math.floor(random() * PRESTATIONS.length)];
+      return { designation: prestation.designation, quantite: 1 + Math.floor(random() * 6), prix: prestation.prix };
+    });
+    const ht = arrondi(lignes.reduce((sum, ligne) => sum + ligne.quantite * ligne.prix, 0));
+    const tva = arrondi(ht * 0.2);
+    const ttc = arrondi(ht + tva);
+    const regle =
+      facture.statut === "payee" ? ttc : facture.statut === "partielle" ? arrondi(ttc * (0.3 + random() * 0.4)) : 0;
+    return {
+      ...facture,
+      montant: ttc,
+      ville: VILLES[facture.client] ?? "Casablanca",
+      commercial: COMMERCIAUX[Math.floor(random() * COMMERCIAUX.length)],
+      mode: MODES[Math.floor(random() * MODES.length)],
+      ht,
+      tva,
+      ttc,
+      regle,
+      reste: arrondi(ttc - regle),
+      lignes,
+    };
+  });
+}
+
+const FACTURES_ERP = makeFacturesErp(132, 2026);
+const COMMERCIAL_OPTIONS: DataTableFilterOption[] = COMMERCIAUX.map((c) => ({ value: c, label: c }));
+const getErpId = (f: FactureErp) => f.id;
+const getErpLabel = (f: FactureErp) => f.numero;
+
+const erp = createColumnHelper<FactureErp>();
+
+const StatutBadge = ({ statut }: { statut: Statut }) => (
+  <Badge variant={STATUTS[statut].tone} dot>
+    {STATUTS[statut].label}
+  </Badge>
+);
+
+interface ErpColumnsOptions {
+  /** Numéro figé au début. */
+  pin?: boolean;
+  /** Totaux sur les montants. */
+  totals?: boolean;
+}
+
+/** Une douzaine de colonnes de facturation, largeurs de départ comprises. */
+function erpColumns({ pin = false, totals = false }: ErpColumnsOptions = {}): ColumnDef<FactureErp, any>[] {
+  const sum = totals ? ("sum" as const) : undefined;
+  return [
+    erp.accessor("numero", {
+      header: "Facture",
+      cell: ({ getValue }) => <span style={{ fontWeight: 500 }}>{getValue()}</span>,
+      meta: { width: 132, pin: pin ? "start" : undefined },
+    }),
+    erp.accessor("client", {
+      header: "Client",
+      cell: ({ row }) => <ClientCell facture={row.original} />,
+      meta: { width: 224, filterOptions: CLIENT_OPTIONS },
+    }),
+    erp.accessor("statut", {
+      header: "Statut",
+      cell: ({ getValue }) => <StatutBadge statut={getValue()} />,
+      meta: { width: 132, format: (value: Statut) => STATUTS[value].label, filterOptions: STATUT_OPTIONS },
+    }),
+    erp.accessor("emission", { header: "Émission", meta: { width: 128, format: formatDate } }),
+    erp.accessor("echeance", {
+      header: "Échéance",
+      cell: ({ row, getValue }) => (
+        <span style={{ color: row.original.statut === "en_retard" ? "var(--ui-err)" : "var(--ui-fg-2)" }}>
+          {formatDate(getValue())}
+        </span>
+      ),
+      meta: { width: 128, format: formatDate },
+    }),
+    erp.accessor("ville", { header: "Ville", meta: { width: 128 } }),
+    erp.accessor("commercial", { header: "Commercial", meta: { width: 160, filterOptions: COMMERCIAL_OPTIONS } }),
+    erp.accessor("mode", { header: "Règlement", meta: { width: 160 } }),
+    erp.accessor("ht", { header: "Montant HT", meta: { width: 148, numeric: true, format: formatMad, aggregate: sum } }),
+    erp.accessor("tva", { header: "TVA", meta: { width: 132, numeric: true, format: formatMad, aggregate: sum } }),
+    erp.accessor("ttc", { header: "Montant TTC", meta: { width: 152, numeric: true, format: formatMad, aggregate: sum } }),
+    erp.accessor("reste", { header: "Reste dû", meta: { width: 144, numeric: true, format: formatMad, aggregate: sum } }),
+  ];
+}
+
+const erpMenu = actionsColumn<FactureErp>((row) => (
+  <>
+    <MenuItem>
+      <Eye />
+      Ouvrir {row.original.numero}
+    </MenuItem>
+    <MenuItem>
+      <Download />
+      Télécharger le PDF
+    </MenuItem>
+    <MenuSeparator />
+    <MenuItem variant="danger">
+      <Trash2 />
+      Supprimer
+    </MenuItem>
+  </>
+));
+
+/** Titre et chapeau d'une partie de story. */
+const Section = ({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) => (
+  <section style={{ display: "grid", gap: 12, minWidth: 0 }}>
+    <div style={{ display: "grid", gap: 2 }}>
+      <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em" }}>{title}</div>
+      {description && <div style={{ color: "var(--ui-fg-3)", fontSize: 13 }}>{description}</div>}
+    </div>
+    {children}
+  </section>
+);
+
+/** Fait défiler la table d'emblée : colonnes figées et filets visibles dès l'ouverture de la story. */
+function useInitialScroll(offset: number) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const container = ref.current?.querySelector<HTMLElement>(".ui-table-container");
+    if (!container) return;
+    const rtl = getComputedStyle(container).direction === "rtl";
+    container.scrollLeft = rtl ? -offset : offset;
+  }, [offset]);
+  return ref;
+}
+
+/* ── Colonnes figées ───────────────────────────────────────────────── */
+
+function DemoColonnesFigees() {
+  const ref = useInitialScroll(360);
+  const columns = React.useMemo(() => [...erpColumns({ pin: true }), erpMenu], []);
+  return (
+    <div style={{ display: "grid", gap: 12, maxWidth: 880 }}>
+      <DataTable
+        ref={ref}
+        aria-label="Factures, colonnes figées"
+        columns={columns}
+        data={FACTURES_ERP}
+        getRowId={getErpId}
+        getRowLabel={getErpLabel}
+        enableRowSelection
+        initialState={{ pagination: { pageIndex: 0, pageSize: 8 } }}
+      />
+      <p style={{ margin: 0, color: "var(--ui-fg-3)", fontSize: 13 }}>
+        La case de sélection et le numéro restent au début, le menu « ⋯ » à la fin. Menu d'une colonne : « Figer au
+        début », « Figer à la fin », « Libérer ».
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Douze colonnes dans 880 px : la table défile horizontalement. `meta.pin:
+ * "start"` fige le numéro ; la case de sélection (au début) et le menu « ⋯ »
+ * (à la fin) se figent d'office. Les colonnes figées ont un fond opaque ; un
+ * filet et une ombre douce n'apparaissent que quand du contenu passe dessous.
+ * Le menu de chaque colonne fige au début, à la fin, ou libère ; l'état
+ * `columnPinning` est contrôlable et mémorisé avec `persistKey`. Décalages en
+ * propriétés logiques : tout s'inverse de droite à gauche.
+ */
+export const ColonnesFigees: Story = {
+  name: "Colonnes figées",
+  render: () => <DemoColonnesFigees />,
+};
+
+/* ── Colonnes redimensionnables ────────────────────────────────────── */
+
+function DemoColonnesRedimensionnables() {
+  const columns = React.useMemo(() => erpColumns().filter((c) => ["numero", "client", "statut", "echeance", "commercial", "ttc"].includes(c.id ?? (c as { accessorKey?: string }).accessorKey ?? "")), []);
+  return (
+    <div style={{ display: "grid", gap: 12, maxWidth: 1000 }}>
+      <DataTable
+        aria-label="Factures, colonnes redimensionnables"
+        columns={columns}
+        data={FACTURES_ERP}
+        getRowId={getErpId}
+        getRowLabel={getErpLabel}
+        enableColumnResizing
+        toolbar={false}
+        initialState={{ pagination: { pageIndex: 0, pageSize: 6 }, columnSizing: { client: 260 } }}
+      />
+      <p style={{ margin: 0, color: "var(--ui-fg-3)", fontSize: 13 }}>
+        Glissez le bord d'un en-tête, ou donnez le focus à la poignée (Tab) : flèches ± 16 px, Maj+flèche ± 64 px,
+        Origine et Fin pour les bornes. Double-clic : largeur par défaut.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * `enableColumnResizing` : une poignée au bord de fin de chaque en-tête. À la
+ * souris ou au doigt, on glisse (le sens s'inverse de droite à gauche) ; au
+ * clavier, c'est un séparateur focalisable (`role="separator"`,
+ * `aria-valuenow`) : flèches ± 16 px, Maj+flèche ± 64 px, Origine / Fin pour
+ * les bornes `meta.minWidth` / `meta.maxWidth`. Double-clic : largeur par
+ * défaut (`meta.width`). Mise en page fixe, texte coupé d'une ellipse ; les
+ * largeurs (`columnSizing`) se mémorisent avec `persistKey`.
+ */
+export const ColonnesRedimensionnables: Story = {
+  name: "Colonnes redimensionnables",
+  render: () => <DemoColonnesRedimensionnables />,
+};
+
+/* ── Lignes dépliables ─────────────────────────────────────────────── */
+
+function DetailFacture({ facture }: { facture: FactureErp }) {
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start" }}>
+      <div
+        style={{
+          flex: "1 1 420px",
+          minWidth: 0,
+          maxWidth: 640,
+          overflow: "hidden",
+          border: "1px solid var(--ui-line)",
+          borderRadius: "var(--ui-r-md)",
+          background: "var(--ui-panel)",
+        }}
+      >
+        <Table density="compact" aria-label={`Lignes de la facture ${facture.numero}`}>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Prestation</TableHead>
+              <TableHead numeric>Qté</TableHead>
+              <TableHead numeric>Prix unitaire</TableHead>
+              <TableHead numeric>Total HT</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {facture.lignes.map((ligne, index) => (
+              <TableRow key={index}>
+                <TableCell>{ligne.designation}</TableCell>
+                <TableCell numeric>{ligne.quantite}</TableCell>
+                <TableCell numeric>{formatMad(ligne.prix)}</TableCell>
+                <TableCell numeric>{formatMad(ligne.quantite * ligne.prix)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <DescriptionList layout="horizontal" style={{ flex: "0 1 300px", minWidth: 240 }}>
+        <DescriptionItem>
+          <DescriptionTerm>Commercial</DescriptionTerm>
+          <DescriptionDetails>{facture.commercial}</DescriptionDetails>
+        </DescriptionItem>
+        <DescriptionItem>
+          <DescriptionTerm>Règlement</DescriptionTerm>
+          <DescriptionDetails>{facture.mode}</DescriptionDetails>
+        </DescriptionItem>
+        <DescriptionItem>
+          <DescriptionTerm>Déjà réglé</DescriptionTerm>
+          <DescriptionDetails>{formatMad(facture.regle)}</DescriptionDetails>
+        </DescriptionItem>
+        <DescriptionItem>
+          <DescriptionTerm>Reste dû</DescriptionTerm>
+          <DescriptionDetails>{formatMad(facture.reste)}</DescriptionDetails>
+        </DescriptionItem>
+      </DescriptionList>
+    </div>
+  );
+}
+
+const renderDetailFacture = (row: TableRowModel<FactureErp>) => <DetailFacture facture={row.original} />;
+
+interface Compte {
+  code: string;
+  intitule: string;
+  debit: number;
+  credit: number;
+  sousComptes?: Compte[];
+}
+
+const compte = (code: string, intitule: string, debit: number, credit: number): Compte => ({ code, intitule, debit, credit });
+const groupe = (code: string, intitule: string, sousComptes: Compte[]): Compte => ({
+  code,
+  intitule,
+  debit: sousComptes.reduce((sum, c) => sum + c.debit, 0),
+  credit: sousComptes.reduce((sum, c) => sum + c.credit, 0),
+  sousComptes,
+});
+
+/** Balance des comptes de gestion (plan comptable marocain, classes 6 et 7). */
+const BALANCE: Compte[] = [
+  groupe("6", "Charges", [
+    groupe("61", "Charges d'exploitation", [
+      compte("611", "Achats revendus de marchandises", 1_284_500, 18_200),
+      compte("612", "Achats consommés de matières et fournitures", 642_300, 9_850),
+      compte("613", "Autres charges externes", 318_740, 0),
+      compte("616", "Impôts et taxes", 48_900, 0),
+      compte("617", "Charges de personnel", 915_600, 0),
+    ]),
+    groupe("63", "Charges financières", [
+      compte("631", "Charges d'intérêts", 74_200, 0),
+      compte("633", "Pertes de change", 12_480, 3_100),
+    ]),
+    groupe("67", "Impôts sur les résultats", [compte("670", "Impôts sur les résultats", 186_000, 0)]),
+  ]),
+  groupe("7", "Produits", [
+    groupe("71", "Produits d'exploitation", [
+      compte("711", "Ventes de marchandises", 21_400, 2_486_900),
+      compte("712", "Ventes de biens et services produits", 8_750, 1_142_300),
+      compte("718", "Autres produits d'exploitation", 0, 36_400),
+    ]),
+    groupe("73", "Produits financiers", [
+      compte("733", "Gains de change", 0, 9_870),
+      compte("738", "Intérêts et autres produits financiers", 0, 22_150),
+    ]),
+  ]),
+];
+
+const formatSolde = dataTableFormatters.currency("MAD", { signDisplay: "exceptZero" });
+const cpt = createColumnHelper<Compte>();
+const COMPTE_COLUMNS: ColumnDef<Compte, any>[] = [
+  cpt.accessor("code", {
+    header: "Compte",
+    cell: ({ row, getValue }) => (
+      <span style={{ fontWeight: row.depth === 0 ? 600 : row.subRows.length ? 500 : 400, fontVariantNumeric: "tabular-nums" }}>
+        {getValue()}
+      </span>
+    ),
+    meta: { width: 120 },
+  }),
+  cpt.accessor("intitule", {
+    header: "Intitulé",
+    cell: ({ row, getValue }) => <span style={{ fontWeight: row.depth === 0 ? 600 : row.subRows.length ? 500 : 400 }}>{getValue()}</span>,
+    meta: { footerLabel: "Total de la balance" },
+  }),
+  cpt.accessor("debit", { header: "Débit", meta: { numeric: true, format: formatMad, aggregate: "sum" } }),
+  cpt.accessor("credit", { header: "Crédit", meta: { numeric: true, format: formatMad, aggregate: "sum" } }),
+  cpt.accessor((c) => c.debit - c.credit, {
+    id: "solde",
+    header: "Solde",
+    meta: { numeric: true, format: formatSolde, aggregate: "sum" },
+  }),
+];
+
+function DemoLignesDepliables() {
+  const columns = React.useMemo(
+    () => erpColumns().filter((c) => ["numero", "client", "statut", "echeance", "ttc"].includes((c as { accessorKey?: string }).accessorKey ?? "")),
+    [],
+  );
+  return (
+    <div style={{ display: "grid", gap: 32, maxWidth: 1040 }}>
+      <Section
+        title="Panneau de détail"
+        description="renderSubComponent : lignes de la facture et règlement, sous la ligne dépliée."
+      >
+        <DataTable
+          aria-label="Factures avec détail"
+          columns={columns}
+          data={FACTURES_ERP}
+          getRowId={getErpId}
+          getRowLabel={getErpLabel}
+          enableRowSelection
+          renderSubComponent={renderDetailFacture}
+          toolbar={false}
+          initialState={{ pagination: { pageIndex: 0, pageSize: 5 }, expanded: { [FACTURES_ERP[0].id]: true } }}
+        />
+      </Section>
+      <Section
+        title="Données hiérarchiques"
+        description="getSubRows : balance des comptes de gestion, sous-comptes en retrait, totaux des classes."
+      >
+        <DataTable
+          aria-label="Balance des comptes"
+          columns={COMPTE_COLUMNS}
+          data={BALANCE}
+          getRowId={(c) => c.code}
+          getRowLabel={(c) => `${c.code} ${c.intitule}`}
+          getSubRows={(c) => c.sousComptes}
+          enablePagination={false}
+          toolbar={false}
+          defaultDensity="compact"
+          initialState={{ expanded: { "6": true, "61": true, "7": true } }}
+        />
+      </Section>
+    </div>
+  );
+}
+
+/**
+ * Deux façons de déplier une ligne, par le chevron d'une colonne dédiée
+ * (`expandColumn()`, ajoutée d'office et figée au début) : `aria-expanded`,
+ * « Afficher le détail de F-2026-0001 », Flèche droite / gauche sur une ligne
+ * cliquable. **Panneau de détail** (`renderSubComponent`, `getRowCanExpand`) :
+ * une ligne pleine largeur, reliée au chevron par `aria-controls`, qui reste
+ * dans la partie visible quand la table défile. **Données hiérarchiques**
+ * (`getSubRows`) : les lignes enfants suivent leur parent, en retrait dans la
+ * première colonne de données. L'état `expanded` est contrôlable ; tri,
+ * sélection, pagination (les enfants restent sur la page du parent) et
+ * virtualisation suivent.
+ */
+export const LignesDepliables: Story = {
+  name: "Lignes dépliables",
+  render: () => <DemoLignesDepliables />,
+};
+
+/* ── Totaux ────────────────────────────────────────────────────────── */
+
+const BASE_TOTAUX = makeFacturesErp(487, 7);
+const TOTAUX_SERVEUR = {
+  // Un nœud quelconque, ou un nombre (formaté par `meta.format` de la colonne).
+  client: `${BASE_TOTAUX.length} factures`,
+  ht: BASE_TOTAUX.reduce((sum, f) => sum + f.ht, 0),
+  tva: BASE_TOTAUX.reduce((sum, f) => sum + f.tva, 0),
+  ttc: BASE_TOTAUX.reduce((sum, f) => sum + f.ttc, 0),
+  reste: BASE_TOTAUX.reduce((sum, f) => sum + f.reste, 0),
+};
+
+function totauxColumns(): ColumnDef<FactureErp, any>[] {
+  const keep = ["numero", "client", "statut", "ht", "tva", "ttc", "reste"];
+  return erpColumns({ totals: true })
+    .filter((c) => keep.includes((c as { accessorKey?: string }).accessorKey ?? ""))
+    .map((c) => ({
+      ...c,
+      meta: {
+        ...c.meta,
+        // Mise en page automatique : les colonnes prennent la largeur de leur contenu.
+        width: undefined,
+        ...((c as { accessorKey?: string }).accessorKey === "client" && {
+          // Agrégat libre : nombre de clients distincts parmi les lignes filtrées.
+          aggregate: (values: unknown[]) => {
+            const count = new Set(values).size;
+            return `${count} client${count > 1 ? "s" : ""}`;
+          },
+        }),
+      },
+    }));
+}
+
+function TotauxServeur() {
+  const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 5 });
+  const start = pagination.pageIndex * pagination.pageSize;
+  // Les `meta.aggregate` restent déclarés : en pagination serveur, ils cèdent la place à `aggregates`.
+  const columns = React.useMemo(() => totauxColumns(), []);
+  return (
+    <DataTable
+      aria-label="Factures, totaux calculés par le serveur"
+      columns={columns}
+      data={BASE_TOTAUX.slice(start, start + pagination.pageSize)}
+      rowCount={BASE_TOTAUX.length}
+      getRowId={getErpId}
+      manualPagination
+      state={{ pagination }}
+      onPaginationChange={setPagination}
+      aggregates={TOTAUX_SERVEUR}
+      toolbar={false}
+      pageSizeOptions={[5, 10, 20]}
+    />
+  );
+}
+
+function DemoTotaux() {
+  const columns = React.useMemo(() => totauxColumns(), []);
+  return (
+    <div style={{ display: "grid", gap: 32, maxWidth: 1120 }}>
+      <Section
+        title="Calculés sur les lignes filtrées"
+        description="Factures en retard ou partielles : la ligne de totaux porte sur toutes les pages, pas seulement la page affichée."
+      >
+        <DataTable
+          aria-label="Factures à recouvrer, totaux"
+          columns={columns}
+          data={FACTURES_ERP}
+          getRowId={getErpId}
+          getRowLabel={getErpLabel}
+          enableColumnVisibility={false}
+          enableDensity={false}
+          initialState={{
+            pagination: { pageIndex: 0, pageSize: 5 },
+            columnFilters: [{ id: "statut", value: ["en_retard", "partielle"] }],
+          }}
+        />
+      </Section>
+      <Section
+        title="Fournis par le serveur"
+        description="Pagination serveur : le client ne voit qu'une page, les totaux arrivent avec la réponse (aggregates)."
+      >
+        <TotauxServeur />
+      </Section>
+    </div>
+  );
+}
+
+/**
+ * `meta.aggregate` sur une colonne : `sum`, `avg`, `min`, `max`, `count` ou
+ * une fonction `(valeurs, lignes) => nœud`. Le calcul porte sur **toutes les
+ * lignes filtrées** (pas seulement la page) et passe par `meta.format`. La
+ * ligne « Total » (`<tfoot>`, libellé `meta.footerLabel` possible) apparaît
+ * d'office ; `showFooter` la force ou la retire. Avec un en-tête figé
+ * (`maxHeight`, `virtualized`), elle colle au bas de la zone défilante. En
+ * pagination serveur, le client ne voit qu'une page : les totaux arrivent par
+ * la prop `aggregates`.
+ */
+export const Totaux: Story = {
+  name: "Totaux",
+  render: () => <DemoTotaux />,
+};
+
+/* ── ERP complète ──────────────────────────────────────────────────── */
+
+/* La plus récente : en tête du tri par émission décroissante, son détail est ouvert. */
+const PLUS_RECENTE = FACTURES_ERP.reduce((a, b) => (b.emission > a.emission ? b : a));
+
+function FacturationErp() {
+  const [data, setData] = React.useState(FACTURES_ERP);
+  const columns = React.useMemo(() => [...erpColumns({ totals: true }), erpMenu], []);
+  return (
+    <div style={{ display: "grid", gap: 12, maxWidth: 1120 }}>
+      <DataTable
+        aria-label="Facturation"
+        columns={columns}
+        data={data}
+        getRowId={getErpId}
+        getRowLabel={getErpLabel}
+        enableRowSelection
+        enableColumnResizing
+        enableExport
+        exportFilename="facturation"
+        renderSubComponent={renderDetailFacture}
+        maxHeight={560}
+        defaultDensity="compact"
+        initialState={{
+          sorting: [{ id: "emission", desc: true }],
+          pagination: { pageIndex: 0, pageSize: 20 },
+          // Numéro figé au début, montant TTC à la fin : l'état `columnPinning` plutôt que `meta.pin`.
+          columnPinning: { left: ["numero"], right: ["ttc"] },
+          expanded: { [PLUS_RECENTE.id]: true },
+        }}
+        toolbarActions={
+          <Button size="sm">
+            <Plus />
+            Nouvelle facture
+          </Button>
+        }
+        bulkActions={({ selectedRows, table, clear }) => (
+          <>
+            <Button size="sm" variant="ghost" onClick={() => exportCsv(table, "facturation-selection", { rows: "selected" })}>
+              <FileText />
+              Exporter
+            </Button>
+            <Button
+              size="sm"
+              variant="danger"
+              onClick={() => {
+                const ids = new Set(selectedRows.map((r) => r.id));
+                setData((rows) => rows.filter((f) => !ids.has(f.id)));
+                clear();
+              }}
+            >
+              <Trash2 />
+              Supprimer
+            </Button>
+          </>
+        )}
+      />
+    </div>
+  );
+}
+
+/**
+ * Tout ensemble, comme dans un ERP : douze colonnes de facturation, numéro,
+ * sélection et chevron figés au début, montant TTC et menu « ⋯ » figés à la
+ * fin (état `columnPinning`) ; colonnes
+ * redimensionnables ; panneau de détail (lignes de prestation, règlement) ;
+ * totaux HT, TVA, TTC et reste dû sur toutes les lignes filtrées ; en-tête et
+ * totaux collés en haut et en bas d'une zone de 560 px ; facettes, actions
+ * groupées, export CSV, densité compacte.
+ */
+export const ErpComplete: Story = {
+  name: "ERP complète",
+  render: () => <FacturationErp />,
 };
