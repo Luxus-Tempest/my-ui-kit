@@ -122,7 +122,7 @@ export function resolveUpdater<T>(updater: Updater<T>, previous: T): T {
 
 /* ── Persistance (localStorage, toujours sous try/catch) ───────────── */
 
-export interface PersistedDataTableState extends Partial<Omit<DataTableState, "pagination" | "rowSelection">> {
+export interface PersistedDataTableState extends Partial<Omit<DataTableState, "pagination" | "rowSelection" | "expanded">> {
   pageSize?: number;
   density?: DataTableDensity;
 }
@@ -135,6 +135,8 @@ export const DEFAULT_PERSISTED_KEYS: DataTablePersistedKey[] = [
   "columnVisibility",
   "pageSize",
   "density",
+  "columnPinning",
+  "columnSizing",
 ];
 
 export function readPersisted(key: string | undefined): PersistedDataTableState {
@@ -160,6 +162,12 @@ export function writePersisted(key: string | undefined, partial: PersistedDataTa
     /* Stockage plein, interdit ou indisponible (navigation privée) : on ignore. */
   }
 }
+
+/* ── Largeurs ──────────────────────────────────────────────────────── */
+
+/** Bornes de largeur par défaut d'une colonne redimensionnable (px). */
+export const DEFAULT_MIN_COLUMN_WIDTH = 48;
+export const DEFAULT_MAX_COLUMN_WIDTH = 960;
 
 /* ── Événements ────────────────────────────────────────────────────── */
 

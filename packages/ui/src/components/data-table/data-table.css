@@ -151,6 +151,8 @@
 }
 
 /* ── En-têtes ──────────────────────────────────────────────────────── */
+/* Largeur indicative `meta.width` (mise en page automatique), posée par DataTableView. */
+.ui-data-table__view .ui-table__head { width: var(--_w, auto); }
 .ui-data-table__column-header {
   display: inline-flex;
   align-items: center;
@@ -246,24 +248,25 @@
 .ui-data-table__view .ui-table__cell.ui-data-table__state-cell { white-space: normal; }
 .ui-data-table__spacer > td { padding: 0; border: 0; }
 
-/* Lignes cliquables : focalisables, filet primaire et halo à l'intérieur de la ligne. */
+/* Lignes cliquables : focalisables, filet primaire et halo à l'intérieur de la ligne.
+   `--_pin-shadow` garde le filet d'une colonne figée sous le halo. */
 .ui-data-table__row[data-clickable] { cursor: pointer; outline: none; }
 .ui-data-table__row[data-clickable]:focus-visible {
   outline: 1px solid var(--ui-pri);
   outline-offset: -4px;
 }
 .ui-data-table__row[data-clickable]:focus-visible > .ui-table__cell {
-  box-shadow: inset 0 3px 0 var(--ui-ring), inset 0 -3px 0 var(--ui-ring);
+  box-shadow: inset 0 3px 0 var(--ui-ring), inset 0 -3px 0 var(--ui-ring), var(--_pin-shadow, 0 0 transparent);
 }
 .ui-data-table__row[data-clickable]:focus-visible > .ui-table__cell:first-child {
-  box-shadow: inset 3px 0 0 var(--ui-ring), inset 0 3px 0 var(--ui-ring), inset 0 -3px 0 var(--ui-ring);
+  box-shadow: inset 3px 0 0 var(--ui-ring), inset 0 3px 0 var(--ui-ring), inset 0 -3px 0 var(--ui-ring), var(--_pin-shadow, 0 0 transparent);
 }
 .ui-data-table__row[data-clickable]:focus-visible > .ui-table__cell:last-child,
 .ui-data-table__row[data-clickable]:focus-visible:dir(rtl) > .ui-table__cell:first-child {
-  box-shadow: inset -3px 0 0 var(--ui-ring), inset 0 3px 0 var(--ui-ring), inset 0 -3px 0 var(--ui-ring);
+  box-shadow: inset -3px 0 0 var(--ui-ring), inset 0 3px 0 var(--ui-ring), inset 0 -3px 0 var(--ui-ring), var(--_pin-shadow, 0 0 transparent);
 }
 .ui-data-table__row[data-clickable]:focus-visible:dir(rtl) > .ui-table__cell:last-child {
-  box-shadow: inset 3px 0 0 var(--ui-ring), inset 0 3px 0 var(--ui-ring), inset 0 -3px 0 var(--ui-ring);
+  box-shadow: inset 3px 0 0 var(--ui-ring), inset 0 3px 0 var(--ui-ring), inset 0 -3px 0 var(--ui-ring), var(--_pin-shadow, 0 0 transparent);
 }
 
 /* États (vide, aucun résultat) et squelettes : pas de survol, pas de hauteur de ligne. */
@@ -278,6 +281,227 @@
   height: 12px;
   max-width: 100%;
   vertical-align: middle;
+}
+
+/* ── Colonnes figées ───────────────────────────────────────────────── */
+/*
+ * Une colonne figée porte `data-pin="start|end"` et son décalage mesuré
+ * `--_pin-offset`. Elle ne colle à son bord que quand la table défile
+ * horizontalement (`data-overflow-*`, posés par Table) : sans défilement, rien
+ * ne change. Fond opaque pour masquer ce qui passe dessous ; le survol et la
+ * sélection (plus spécifiques) l'emportent. La dernière colonne figée d'un bord
+ * (`data-pin-edge`) porte un filet et une ombre douce, seulement quand du
+ * contenu est caché de ce côté. Le fondu de Table s'efface du côté figé.
+ */
+.ui-data-table__view {
+  --_pin-dir: 1;
+  --_pin-shade: color-mix(in srgb, var(--ui-fg) 12%, transparent);
+}
+.ui-data-table__view:dir(rtl) { --_pin-dir: -1; }
+/* Sélecteurs à combinateurs enfants : une table posée dans un panneau de détail n'hérite de rien. */
+.ui-data-table__view[data-pin-start] > .ui-table-container[data-overflow-start] { --_fade-start: 0px; }
+.ui-data-table__view[data-pin-end] > .ui-table-container[data-overflow-end] { --_fade-end: 0px; }
+
+.ui-data-table__view > .ui-table-container:is([data-overflow-start], [data-overflow-end]) > .ui-table > * > tr > [data-pin] {
+  position: sticky;
+  z-index: 1;
+}
+.ui-data-table__view > .ui-table-container:is([data-overflow-start], [data-overflow-end]) > .ui-table > * > tr > [data-pin="start"] {
+  inset-inline-start: var(--_pin-offset, 0px);
+}
+.ui-data-table__view > .ui-table-container:is([data-overflow-start], [data-overflow-end]) > .ui-table > * > tr > [data-pin="end"] {
+  inset-inline-end: var(--_pin-offset, 0px);
+}
+:where(.ui-data-table__view > .ui-table-container:is([data-overflow-start], [data-overflow-end]) > .ui-table > .ui-table__body > tr) > .ui-table__cell[data-pin] {
+  background-color: var(--ui-panel);
+}
+/* En-tête et pied collants passent au-dessus des cellules figées du corps ; leurs colonnes figées, au-dessus de tout. */
+.ui-data-table__view > .ui-table-container[data-sticky]:is([data-overflow-start], [data-overflow-end]) > .ui-table > thead > tr > .ui-table__head { z-index: 2; }
+.ui-data-table__view > .ui-table-container:is([data-overflow-start], [data-overflow-end]) > .ui-table > thead > tr > .ui-table__head[data-pin],
+.ui-data-table__view > .ui-table-container[data-sticky]:is([data-overflow-start], [data-overflow-end]) > .ui-table > tfoot > tr > .ui-table__cell[data-pin] { z-index: 3; }
+
+.ui-data-table__view > .ui-table-container[data-overflow-start] > .ui-table > * > tr > [data-pin="start"][data-pin-edge] {
+  --_pin-shadow: inset calc(var(--_pin-dir) * -1px) 0 0 var(--ui-line), calc(var(--_pin-dir) * 6px) 0 10px -6px var(--_pin-shade);
+}
+.ui-data-table__view > .ui-table-container[data-overflow-end] > .ui-table > * > tr > [data-pin="end"][data-pin-edge] {
+  --_pin-shadow: inset calc(var(--_pin-dir) * 1px) 0 0 var(--ui-line), calc(var(--_pin-dir) * -6px) 0 10px -6px var(--_pin-shade);
+}
+:where(.ui-data-table__view > .ui-table-container > .ui-table > * > tr > [data-pin-edge]) { box-shadow: var(--_pin-shadow, none); }
+
+/* ── Colonnes redimensionnables ────────────────────────────────────── */
+/*
+ * Mise en page fixe : les largeurs viennent du `<colgroup>` (tailles TanStack)
+ * et la table remplit au moins son conteneur. Une cellule trop étroite coupe
+ * son texte d'une ellipse ; les colonnes utilitaires gardent leurs halos et le
+ * panneau de détail reste collant (pas de `overflow` sur sa cellule).
+ */
+.ui-data-table__view[data-resizable] > .ui-table-container > .ui-table { table-layout: fixed; min-width: 100%; }
+.ui-data-table__view[data-resizable] > .ui-table-container > .ui-table > * > tr > .ui-table__cell { overflow: hidden; text-overflow: ellipsis; }
+.ui-data-table__view[data-resizable] > .ui-table-container > .ui-table > * > tr > .ui-table__cell:is(
+    .ui-data-table__select-cell,
+    .ui-data-table__expand-cell,
+    .ui-data-table__actions-cell,
+    .ui-data-table__detail-cell,
+    .ui-data-table__state-cell,
+    [data-pin-edge]
+  ) { overflow: visible; }
+.ui-data-table__view[data-resizable] > .ui-table-container > .ui-table > thead .ui-data-table__column-header { display: flex; }
+.ui-data-table__view[data-resizable] > .ui-table-container > .ui-table > thead .ui-data-table__column-header > .ui-table__sort { min-width: 0; }
+.ui-data-table__view[data-resizable] > .ui-table-container > .ui-table > thead .ui-table__sort-icon { flex-shrink: 0; }
+/* Largeur comptée : l'intitulé garde la place. La flèche de tri (hors colonne triée) et le
+   chevron de menu ne la prennent qu'au survol de l'en-tête, au focus ou menu ouvert. */
+.ui-data-table__view[data-resizable] > .ui-table-container > .ui-table > thead .ui-table__sort:not([data-direction], :focus-visible) .ui-table__sort-icon { display: none; }
+@media (hover: hover) {
+  .ui-data-table__view[data-resizable] > .ui-table-container > .ui-table > thead .ui-table__sort:hover .ui-table__sort-icon { display: block; }
+  .ui-data-table__view[data-resizable] > .ui-table-container > .ui-table > thead .ui-table__head:not(:hover) .ui-data-table__column-menu:not(:focus-visible, [aria-expanded="true"]) { width: 0; }
+}
+/* La poignée se place dans l'en-tête ; une position collante (en-tête figé, colonne figée) l'emporte. */
+:where(.ui-data-table__view[data-resizable] > .ui-table-container > .ui-table > thead > tr > .ui-table__head[data-resizable]) { position: relative; }
+.ui-data-table__view:has(.ui-data-table__resizer[data-resizing]) { cursor: col-resize; user-select: none; }
+
+/*
+ * Poignée : zone de saisie de 24 px au bord de fin de l'en-tête. Au repos,
+ * un filet discret sépare les en-têtes (plus marqué au survol de la ligne
+ * d'en-tête) ; la barre primaire de 3 px marque le survol de la poignée, le
+ * glissement et le focus clavier (avec le halo).
+ */
+.ui-data-table__resizer {
+  position: absolute;
+  z-index: 1;
+  inset-block: 0;
+  inset-inline-end: 0;
+  width: 24px;
+  cursor: col-resize;
+  outline: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ui-data-table__resizer::before,
+.ui-data-table__resizer::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-data-table__resizer::before {
+  inset-block: 25%;
+  width: 1px;
+  background: var(--ui-line-2);
+}
+.ui-data-table__resizer::after {
+  inset-block: 6px;
+  width: 3px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-pri);
+  opacity: 0;
+}
+@media (hover: hover) {
+  .ui-table__header:hover .ui-data-table__resizer::before { background: var(--ui-line-3); }
+  .ui-data-table__resizer:hover::after {
+    opacity: 1;
+    transition-delay: var(--ui-duration);
+  }
+}
+.ui-data-table__resizer:is([data-resizing], :focus-visible)::after { opacity: 1; transition-delay: 0s; }
+.ui-data-table__resizer:focus-visible::after { box-shadow: 0 0 0 3px var(--ui-ring); }
+
+/* ── Lignes dépliables ─────────────────────────────────────────────── */
+/* Chevron : pilule de 28 px à couche d'état, qui pivote en ressort vers le bas une fois ouvert. */
+.ui-data-table__expand {
+  position: relative;
+  isolation: isolate;
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-block: -4px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ui-r-pill);
+  background: transparent;
+  color: var(--ui-fg-2);
+  vertical-align: middle;
+  cursor: pointer;
+  outline: none;
+  transition:
+    color var(--ui-duration) var(--ui-ease),
+    box-shadow var(--ui-duration) var(--ui-ease);
+}
+.ui-data-table__expand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--ui-duration) var(--ui-ease);
+}
+@media (hover: hover) {
+  .ui-data-table__expand:hover:not(:disabled) { color: var(--ui-fg); }
+  .ui-data-table__expand:hover:not(:disabled)::before { opacity: var(--ui-state-hover); }
+}
+.ui-data-table__expand:active:not(:disabled)::before { opacity: var(--ui-state-press); }
+.ui-data-table__expand:focus-visible { box-shadow: 0 0 0 3px var(--ui-ring), inset 0 0 0 1px var(--ui-pri); }
+.ui-data-table__expand:disabled { opacity: 0.45; cursor: default; }
+.ui-data-table__expand svg { width: 16px; height: 16px; }
+.ui-data-table__expand-icon { transition: transform var(--ui-duration-slow) var(--ui-ease-spring); }
+.ui-data-table__expand[aria-expanded="true"] .ui-data-table__expand-icon { transform: rotate(90deg); }
+.ui-data-table__expand:dir(rtl):not([aria-expanded="true"]) .ui-data-table__expand-icon { transform: scaleX(-1); }
+.ui-table__row[data-state="selected"] .ui-data-table__expand { color: inherit; }
+.ui-table__cell.ui-data-table__expand-cell,
+.ui-table__head.ui-data-table__expand-cell { padding-inline-end: 0; }
+/* Case de sélection puis chevron : les deux contrôles se rapprochent. */
+.ui-data-table__view :is(.ui-table__head, .ui-table__cell).ui-data-table__select-cell:has(+ .ui-data-table__expand-cell) {
+  width: 18px;
+  padding-inline-end: 4px;
+}
+.ui-data-table__view .ui-data-table__select-cell + :is(.ui-table__head, .ui-table__cell).ui-data-table__expand-cell { padding-inline-start: 4px; }
+
+/* Lignes enfants : retrait dans la première colonne de données. */
+.ui-data-table__view { --_indent: 24px; }
+.ui-data-table__view .ui-table__cell[data-indent] { padding-inline-start: calc(var(--_px) + var(--_depth, 0) * var(--_indent)); }
+.ui-data-table__view .ui-table__cell[data-indent]:first-child { padding-inline-start: calc(var(--_edge) + var(--_depth, 0) * var(--_indent)); }
+
+/*
+ * Panneau de détail : une bande tonale pleine largeur sous sa ligne (qui perd
+ * son filet), contenu aligné sur la première colonne de données. Le panneau
+ * reste dans la partie visible quand la table défile horizontalement.
+ */
+.ui-data-table__row[data-expanded] > .ui-table__cell { border-bottom-color: transparent; }
+.ui-table__cell.ui-data-table__detail-cell {
+  height: auto;
+  padding: 0;
+  background: var(--ui-card-2);
+  white-space: normal;
+}
+.ui-data-table__detail {
+  position: sticky;
+  inset-inline-start: 0;
+  box-sizing: border-box;
+  width: var(--_detail-width, 100%);
+  max-width: 100%;
+  padding-block: 12px 16px;
+  padding-inline: var(--_edge);
+}
+.ui-data-table__detail[data-indented] { padding-inline-start: calc(var(--_detail-indent) + var(--_px)); }
+@media (hover: hover) {
+  .ui-data-table__view .ui-table__body .ui-data-table__detail-row:hover > .ui-table__cell { background: var(--ui-card-2); }
+}
+
+/* ── Ligne de totaux ───────────────────────────────────────────────── */
+.ui-data-table__footer-row > .ui-table__cell { height: var(--_row-h); white-space: nowrap; }
+.ui-table__cell.ui-data-table__footer-label { text-align: start; }
+/* En-tête figé (hauteur maximale, virtualisation) : le pied colle en bas, sous un filet. */
+.ui-table-container[data-sticky] > .ui-table > tfoot > .ui-data-table__footer-row > .ui-table__cell {
+  position: sticky;
+  inset-block-end: 0;
+  z-index: 2;
+  box-shadow: inset 0 1px 0 var(--ui-line), var(--_pin-shadow, 0 0 transparent);
 }
 
 /* ── Pied : lignes par page, plage, pages ──────────────────────────── */
@@ -366,6 +590,9 @@
 @media (prefers-reduced-motion: reduce) {
   .ui-data-table__selection { animation: none; }
   .ui-data-table__progress::before { width: 100%; opacity: 0.6; animation: none; }
+  .ui-data-table__expand-icon,
+  .ui-data-table__resizer::before,
+  .ui-data-table__resizer::after { transition: none; }
 }
 @media (forced-colors: active) {
   .ui-data-table[data-variant="card"] .ui-data-table__surface,
@@ -381,4 +608,14 @@
   .ui-data-table__hidden-count { border: 1px solid CanvasText; }
   .ui-data-table-facet__box { border-color: ButtonText; }
   .ui-data-table-facet__box[data-state="checked"] { background: Highlight; color: HighlightText; forced-color-adjust: none; }
+  /* Les ombres disparaissent en contraste élevé : filets pleins pour les bords figés. */
+  .ui-data-table__view .ui-table-container[data-overflow-start] [data-pin="start"][data-pin-edge] { border-inline-end: 1px solid CanvasText; }
+  .ui-data-table__view .ui-table-container[data-overflow-end] [data-pin="end"][data-pin-edge] { border-inline-start: 1px solid CanvasText; }
+  .ui-data-table__resizer::before { background: CanvasText; }
+  .ui-data-table__resizer::after { background: Highlight; forced-color-adjust: none; }
+  .ui-data-table__resizer:focus-visible { outline: 2px solid Highlight; outline-offset: -2px; }
+  .ui-data-table__expand::before { display: none; }
+  .ui-data-table__expand:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+  .ui-table__cell.ui-data-table__detail-cell { border-block: 1px solid CanvasText; }
+  .ui-table-container[data-sticky] > .ui-table > tfoot > .ui-data-table__footer-row > .ui-table__cell { border-block-start: 1px solid CanvasText; }
 }

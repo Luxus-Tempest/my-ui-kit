@@ -210,6 +210,10 @@ export type {
   ColumnDef,
   ColumnFiltersState,
   ColumnHelper,
+  ColumnPinningState,
+  ColumnSizingState,
+  ExpandedState,
+  Header,
   HeaderContext,
   OnChangeFn,
   PaginationState,
@@ -240,25 +244,34 @@ export { DataTableViewOptions } from "./components/data-table/DataTableViewOptio
 export type { DataTableViewOptionsProps } from "./components/data-table/DataTableViewOptions";
 export { DataTablePagination } from "./components/data-table/DataTablePagination";
 export type { DataTablePaginationProps } from "./components/data-table/DataTablePagination";
+export { DataTableColumnResizer } from "./components/data-table/DataTableColumnResizer";
+export type { DataTableColumnResizerProps } from "./components/data-table/DataTableColumnResizer";
 export {
   selectColumn,
+  expandColumn,
   actionsColumn,
   dataTableFormatters,
   DataTableRowActions,
   DataTableRowCheckbox,
   DataTableSelectAllCheckbox,
+  DataTableExpandButton,
+  DataTableExpandAllButton,
   DataTableDefaultCell,
 } from "./components/data-table/columns";
-export type { SelectColumnOptions, ActionsColumnOptions } from "./components/data-table/columns";
+export type { SelectColumnOptions, ExpandColumnOptions, ActionsColumnOptions } from "./components/data-table/columns";
 export { DataTableProvider, defaultDataTableLabels, useDataTableLabels } from "./components/data-table/context";
 export { exportCsv, toCsv } from "./components/data-table/export";
 export type { DataTableCsvOptions } from "./components/data-table/export";
+export { getDataTableAggregate } from "./components/data-table/aggregate";
 export { facetFilterFn } from "./components/data-table/utils";
 export type {
+  DataTableAggregate,
+  DataTableAggregateFn,
   DataTableDensity,
   DataTableFilterOption,
   DataTableLabels,
   DataTablePersistedKey,
+  DataTablePinPosition,
   DataTableState,
 } from "./components/data-table/types";
 

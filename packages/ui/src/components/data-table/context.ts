@@ -34,6 +34,16 @@ export const defaultDataTableLabels: DataTableLabels = {
   sortDescending: "Trier par ordre décroissant",
   clearSorting: "Retirer le tri",
   hideColumn: "Masquer la colonne",
+  pinStart: "Figer au début",
+  pinEnd: "Figer à la fin",
+  unpin: "Libérer",
+  resizeColumn: (title) => `Redimensionner la colonne ${title}`,
+  columnWidth: (width) => `${n(Math.round(width))} pixels`,
+  expandRow: (rowLabel) => `Afficher le détail de ${rowLabel}`,
+  collapseRow: (rowLabel) => `Masquer le détail de ${rowLabel}`,
+  expandAll: "Tout déplier",
+  collapseAll: "Tout replier",
+  total: "Total",
   facetPrefix: "Filtre : ",
   facetSearch: (title) => `Filtrer : ${title.toLocaleLowerCase("fr-FR")}`,
   facetEmpty: "Aucune option",
@@ -93,6 +103,18 @@ export function useDataTableLabels(overrides?: Partial<DataTableLabels>): DataTa
     [context, overrides],
   );
 }
+
+/**
+ * Contexte posé par `DataTableView` autour de ses lignes : le bouton de
+ * dépliage y lit l'identifiant de la ligne de détail qu'il contrôle
+ * (`aria-controls`). Interne : pas de libellés ici.
+ */
+export interface DataTableViewContextValue {
+  /** Identifiant DOM de la ligne de détail affichée sous `row`, s'il y en a une. */
+  getDetailId: (row: Row<any>) => string | undefined;
+}
+
+export const DataTableViewContext = React.createContext<DataTableViewContextValue | null>(null);
 
 /** Libellé d'une ligne pour les noms accessibles. */
 export function useRowLabel(row: Row<any>): string {
