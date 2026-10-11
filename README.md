@@ -179,6 +179,25 @@ import "@acme/ui/styles.css";
 
 `overrides` surcharge n'importe quel token : la clé `"r-ctl"` correspond à `--ui-r-ctl`.
 
+### Couleur de marque
+
+Une seule couleur suffit : `createBrandTokens("#7c3aed")` calcule la famille primaire (bouton plein, conteneur
+tonal, sélection, liens, focus) pour le clair **et** le sombre, en OKLCH. La teinte est gardée ; luminosité et
+saturation s'ajustent pour garantir les contrastes (texte sur le primaire et liens ≥ 4,5:1, texte sur le conteneur
+≥ 7:1) : une marque jaune vif donne un bouton ambré lisible.
+
+```tsx
+import { createBrandCss, createBrandTokens } from "@acme/ui";
+
+// Feuille de style, avec ou sans ThemeProvider (next-themes…), après @acme/ui/styles.css :
+<style>{createBrandCss("#7c3aed")}</style>
+
+// Ou les valeurs, pour ThemeProvider overrides selon le mode :
+const { light, dark } = createBrandTokens("#7c3aed");
+```
+
+Page *Fondations › Couleur de marque* : essayer une couleur et lire les contrastes obtenus.
+
 ### Next.js (App Router) et composants serveur
 
 Les composants s'importent directement dans un composant serveur, tant que leurs props sont sérialisables
