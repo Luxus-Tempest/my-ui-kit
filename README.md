@@ -227,12 +227,15 @@ saturation s'ajustent pour garantir les contrastes (texte sur le primaire et lie
 ≥ 7:1) : une marque jaune vif donne un bouton ambré lisible.
 
 ```tsx
-import { createBrandCss, createBrandTokens } from "@acme/ui";
+import { ThemeProvider, createBrandCss, createBrandTokens } from "@acme/ui";
 
-// Feuille de style, avec ou sans ThemeProvider (next-themes…), après @acme/ui/styles.css :
+// Avec ThemeProvider : la famille suit le mode clair ou sombre.
+<ThemeProvider brand="#7c3aed">…</ThemeProvider>
+
+// Sans ThemeProvider (next-themes…) : une feuille de style après @acme/ui/styles.css.
 <style>{createBrandCss("#7c3aed")}</style>
 
-// Ou les valeurs, pour ThemeProvider overrides selon le mode :
+// Ou les valeurs elles-mêmes : { light, dark }.
 const { light, dark } = createBrandTokens("#7c3aed");
 ```
 

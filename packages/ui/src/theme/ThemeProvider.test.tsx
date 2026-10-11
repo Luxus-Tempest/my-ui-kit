@@ -100,3 +100,45 @@ describe("ThemeProvider : densité", () => {
     expect(html()).not.toHaveAttribute("data-ui-density");
   });
 });
+
+describe("ThemeProvider : couleur de marque", () => {
+  const pri = (el: Element | null) => (el as HTMLElement | null)?.style.getPropertyValue("--ui-pri");
+
+  it("calcule la famille primaire pour le mode courant ; overrides l'emporte", () => {
+    const { rerender } = render(
+      <ThemeProvider brand="#7c3aed" scope="local">
+        <span data-testid="enfant" />
+      </ThemeProvider>,
+    );
+    const root = conteneur(screen.getByTestId("enfant"));
+    expect(pri(root)).toBe("#7c3aed");
+    expect((root as HTMLElement).style.getPropertyValue("--ui-pri-container")).toMatch(/^#[0-9a-f]{6}$/);
+
+    rerender(
+      <ThemeProvider brand="#7c3aed" mode="dark" scope="local">
+        <span data-testid="enfant" />
+      </ThemeProvider>,
+    );
+    // En sombre, le primaire s'éclaircit.
+    expect(pri(conteneur(screen.getByTestId("enfant")))).not.toBe("#7c3aed");
+
+    rerender(
+      <ThemeProvider brand="#7c3aed" overrides={{ pri: "#e11d48" }} scope="local">
+        <span data-testid="enfant" />
+      </ThemeProvider>,
+    );
+    expect(pri(conteneur(screen.getByTestId("enfant")))).toBe("#e11d48");
+  });
+
+  it("couleur illisible : signalée en console, la marque par défaut reste", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    render(
+      <ThemeProvider brand="pas-une-couleur" scope="local">
+        <span data-testid="enfant" />
+      </ThemeProvider>,
+    );
+    expect(pri(conteneur(screen.getByTestId("enfant")))).toBe("");
+    expect(error).toHaveBeenCalledWith(expect.stringMatching(/Couleur de marque illisible/));
+    error.mockRestore();
+  });
+});

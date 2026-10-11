@@ -16,6 +16,22 @@ const preview: Preview = {
       description: "Thème",
       toolbar: { title: "Thème", icon: "mirror", items: ["light", "dark"], dynamicTitle: true },
     },
+    brand: {
+      description: "Couleur de marque (ThemeProvider brand)",
+      toolbar: {
+        title: "Marque",
+        icon: "paintbrush",
+        items: [
+          { value: "defaut", title: "Bleu (défaut)" },
+          { value: "#7c3aed", title: "Violet" },
+          { value: "#0d9488", title: "Sarcelle" },
+          { value: "#16a34a", title: "Vert" },
+          { value: "#fbbc04", title: "Ambre" },
+          { value: "#dc2626", title: "Rouge" },
+        ],
+        dynamicTitle: true,
+      },
+    },
     lang: {
       description: "Langue de l'interface",
       toolbar: {
@@ -55,7 +71,7 @@ const preview: Preview = {
       },
     },
   },
-  initialGlobals: { theme: "light", dir: "ltr", lang: "fr", density: "default" },
+  initialGlobals: { theme: "light", dir: "ltr", lang: "fr", density: "default", brand: "defaut" },
   parameters: {
     // Le décorateur gère marges et fond : le cadre Storybook reste nu.
     layout: "fullscreen",
@@ -100,7 +116,7 @@ const preview: Preview = {
       // L'arabe se lit de droite à gauche, quel que soit le réglage « Sens ».
       const dir = ctx.globals.lang === "ar" ? "rtl" : ctx.globals.dir;
       return (
-        <ThemeProvider key={`${ctx.globals.theme}-${dir}`} defaultMode={ctx.globals.theme} dir={dir} density={ctx.globals.density}>
+        <ThemeProvider key={`${ctx.globals.theme}-${dir}`} defaultMode={ctx.globals.theme} dir={dir} density={ctx.globals.density} brand={ctx.globals.brand === "defaut" ? undefined : ctx.globals.brand}>
           <LocaleProvider locale={langue.locale} messages={langue.messages}>
             <div style={{ padding, minHeight: docs ? undefined : "100vh", boxSizing: "border-box", background: "var(--ui-app)" }}>
               <Story />

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { DirectionProvider, type Direction } from "./DirectionProvider";
+import { createBrandTokens, type BrandTokens } from "./brand";
 
 export type ThemeMode = "light" | "dark";
 /** Surcharge de jetons : { pri: "#e11d48" } → --ui-pri */
@@ -27,6 +28,13 @@ export interface ThemeProviderProps {
   /** Mode contrôlé : à utiliser avec `onModeChange`. */
   mode?: ThemeMode;
   onModeChange?: (mode: ThemeMode) => void;
+  /**
+   * Couleur de marque (`#7c3aed`, `rgb(…)`) : la famille primaire (bouton
+   * plein, conteneur tonal, sélection, liens, focus) est calculée pour le mode
+   * courant, contrastes garantis (voir `createBrandTokens`). `overrides`
+   * l'emporte sur elle.
+   */
+  brand?: string;
   overrides?: ThemeOverrides;
   /**
    * `global` (défaut) : le thème est aussi posé sur `<html>`, pour que les
@@ -56,6 +64,7 @@ export function ThemeProvider({
   defaultMode = "light",
   mode: modeProp,
   onModeChange,
+  brand,
   overrides,
   scope = "global",
   dir,
@@ -71,13 +80,25 @@ export function ThemeProvider({
     [modeProp, onModeChange],
   );
 
+  const brandTokens = React.useMemo<{ light: BrandTokens; dark: BrandTokens } | null>(() => {
+    if (!brand) return null;
+    try {
+      return createBrandTokens(brand);
+    } catch (error) {
+      // Une couleur illisible ne doit pas casser l'application : on garde la marque par défaut.
+      console.error(`[ThemeProvider] ${(error as Error).message}`);
+      return null;
+    }
+  }, [brand]);
+
   const vars = React.useMemo(() => {
     const out: Record<string, string> = {};
+    for (const [key, value] of Object.entries(brandTokens?.[mode] ?? {})) out[`--ui-${key}`] = value;
     for (const [key, value] of Object.entries(overrides ?? {})) {
       if (value != null) out[`--ui-${key}`] = value;
     }
     return out;
-  }, [overrides]);
+  }, [brandTokens, mode, overrides]);
 
   React.useEffect(() => {
     if (scope !== "global" || typeof document === "undefined") return;
