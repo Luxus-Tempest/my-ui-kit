@@ -9,6 +9,8 @@ export { ThemeProvider, useTheme } from "./theme/ThemeProvider";
 export type { ThemeMode, ThemeOverrides, ThemeProviderProps } from "./theme/ThemeProvider";
 export { DirectionProvider, useDirection } from "./theme/DirectionProvider";
 export type { Direction, DirectionProviderProps } from "./theme/DirectionProvider";
+export { createBrandTokens, createBrandCss, brandStyle, contrastRatio } from "./theme/brand";
+export type { BrandTokens, BrandCssOptions } from "./theme/brand";
 
 /* ══ Langue ═════════════════════════════════════════════════════════════ */
 export { LocaleProvider, useLocale, useMessages, getLocaleDirection } from "./i18n/LocaleProvider";

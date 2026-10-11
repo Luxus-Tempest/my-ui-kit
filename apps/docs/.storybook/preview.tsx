@@ -54,7 +54,7 @@ const preview: Preview = {
           "Introduction",
           ["Bienvenue", "Aperçu", "Statut des composants"],
           "Fondations",
-          ["Langage Drive × iOS", "Couleurs", "Typographie", "Espacement et mise en page", "Rayons, élévation et mouvement", "Langue"],
+          ["Langage Drive × iOS", "Couleurs", "Typographie", "Espacement et mise en page", "Rayons, élévation et mouvement", "Couleur de marque", "Langue"],
           "Composants",
           [
             "Actions",
