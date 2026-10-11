@@ -22,7 +22,7 @@ permissions:
 jobs:
   verifier:
     name: Types, tests, build et poids
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -68,7 +68,7 @@ jobs:
   navigateur:
     name: Accessibilité et régression visuelle
     needs: verifier
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4

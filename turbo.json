@@ -6,6 +6,6 @@
     "test": { "dependsOn": ["^build"] },
     "typecheck": {},
     "size": { "dependsOn": ["build"] },
-    "e2e": { "dependsOn": ["build"], "cache": false, "passThroughEnv": ["PLAYWRIGHT_*", "CI", "STORIES", "VISUAL"] }
+    "e2e": { "dependsOn": ["build"], "cache": false, "passThroughEnv": ["PLAYWRIGHT_*", "PW_PORT", "CI", "STORIES", "VISUAL"] }
   }
 }
