@@ -11,13 +11,14 @@ import {
 import { fr } from "react-day-picker/locale";
 import { cn } from "../../utils/cn";
 import { Button } from "../button/Button";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 export type { DateRange, Matcher } from "react-day-picker";
 
 /**
  * Props du calendrier : toutes celles de DayPicker v9 (`mode`, `selected`,
  * `onSelect`, `disabled`, `numberOfMonths`, `startMonth`, `endMonth`…).
- * La locale est française et la semaine commence le lundi par défaut.
+ * La locale vient du `LocaleProvider` (française par défaut, semaine au lundi).
  */
 export type CalendarProps = DayPickerProps;
 
@@ -106,7 +107,16 @@ function CalendarRoot({ rootRef, ...props }: RootProps) {
   return <div ref={setRef} data-slot="calendar" {...props} />;
 }
 
-const capitalize = (text: string) => text.charAt(0).toLocaleUpperCase("fr-FR") + text.slice(1);
+const capitalize = (text: string, locale: string) => text.charAt(0).toLocaleUpperCase(locale) + text.slice(1);
+
+export interface CalendarLabels {
+  /**
+   * Locale de react-day-picker (`react-day-picker/locale`, celles de date-fns) :
+   * noms des mois et des jours, libellés de navigation, premier jour de la semaine.
+   */
+  locale: NonNullable<DayPickerProps["locale"]>;
+}
+export const CALENDAR_LABELS: CalendarLabels = { locale: fr };
 
 /**
  * Calendrier : grille mensuelle de DayPicker v9 au langage Drive × iOS.
@@ -125,20 +135,23 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(function
     props;
   // Sens de lecture : celui de DirectionProvider / ThemeProvider dir, sauf `dir` explicite.
   const dir = useDirection(props.dir as "ltr" | "rtl" | undefined);
+  const uiLocale = useLocale();
+  const calendarLabels = useMessages("calendar", CALENDAR_LABELS);
 
   return (
     <CalendarRefContext.Provider value={ref}>
       <DayPicker
         {...props}
         dir={dir}
-        locale={locale ?? fr}
-        weekStartsOn={weekStartsOn ?? 1}
+        locale={locale ?? calendarLabels.locale}
+        // Premier jour de la semaine : celui de la locale (lundi en français), sauf `weekStartsOn`.
+        weekStartsOn={weekStartsOn}
         numberOfMonths={numberOfMonths}
         showOutsideDays={showOutsideDays ?? (numberOfMonths ?? 1) === 1}
         className={cn(className)}
         classNames={{ ...calendarClassNames, ...classNames }}
         formatters={{
-          formatCaption: (month, options, dateLib) => capitalize(defaultFormatCaption(month, options, dateLib)),
+          formatCaption: (month, options, dateLib) => capitalize(defaultFormatCaption(month, options, dateLib), uiLocale),
           ...formatters,
         }}
         components={{

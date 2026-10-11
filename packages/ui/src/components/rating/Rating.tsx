@@ -3,6 +3,7 @@ import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { useDirection } from "@radix-ui/react-direction";
 import { cn } from "../../utils/cn";
 import { useFieldControl } from "../field/Field";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 /** Étoile au trait (coins arrondis) : remplie par CSS pour la partie pleine. */
 const StarIcon = () => (
@@ -11,12 +12,19 @@ const StarIcon = () => (
   </svg>
 );
 
-const numberFormat = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
-
-/** « 1 étoile sur 5 », « 3,5 étoiles sur 5 » (singulier en dessous de 2, comme le veut l'usage). */
-function defaultGetLabelText(value: number, max: number) {
-  return `${numberFormat.format(value)} ${Math.abs(value) < 2 ? "étoile" : "étoiles"} sur ${max}`;
+export interface RatingLabels {
+  /** Nom du groupe sans libellé. « Note ». */
+  label: string;
+  /**
+   * Valeur lue, la note déjà mise en forme dans la locale : « 1 étoile sur 5 »,
+   * « 3,5 étoiles sur 5 » (singulier en dessous de 2, comme le veut l'usage).
+   */
+  valueText: (value: number, formatted: string, max: number) => string;
 }
+export const RATING_LABELS: RatingLabels = {
+  label: "Note",
+  valueText: (value, formatted, max) => `${formatted} ${Math.abs(value) < 2 ? "étoile" : "étoiles"} sur ${max}`,
+};
 
 /** Ramène une valeur décimale sur la grille de la précision, sans dérive flottante. */
 function snap(value: number, precision: number, mode: "floor" | "ceil") {
@@ -92,13 +100,18 @@ export const Rating = React.forwardRef<HTMLDivElement, RatingProps>(function Rat
     size = "default",
     icon,
     emptyIcon,
-    getLabelText = defaultGetLabelText,
+    getLabelText: getLabelTextProp,
     allowClear = true,
     className,
     dir,
     onPointerLeave,
     ...rest
   } = props;
+  const ratingLabels = useMessages("rating", RATING_LABELS);
+  const locale = useLocale();
+  const getLabelText =
+    getLabelTextProp ??
+    ((v: number, m: number) => ratingLabels.valueText(v, new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(v), m));
   const max = Math.max(1, Math.round(maxProp));
   const {
     name,
@@ -279,7 +292,7 @@ export const Rating = React.forwardRef<HTMLDivElement, RatingProps>(function Rat
       form={form}
       required={required}
       disabled={disabled}
-      aria-label={ariaLabel ?? (ariaLabelledBy ? undefined : "Note")}
+      aria-label={ariaLabel ?? (ariaLabelledBy ? undefined : ratingLabels.label)}
       aria-labelledby={ariaLabelledBy}
       {...domProps}
       onPointerLeave={(event) => {

@@ -4,6 +4,7 @@ import { useDirection } from "@radix-ui/react-direction";
 import { cn } from "../../utils/cn";
 import { space, type Space } from "../../utils/space";
 import { Button, type ButtonProps } from "../button/Button";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 /* ── Types ───────────────────────────────────────────────────────────── */
 
@@ -35,7 +36,7 @@ export interface CarouselLabels {
   status?: (position: number, count: number) => string;
 }
 
-const DEFAULT_LABELS: Required<CarouselLabels> = {
+export const CAROUSEL_LABELS: Required<CarouselLabels> = {
   carousel: "carrousel",
   slide: "diapositive",
   slidePosition: (position, count) => `${position} sur ${count}`,
@@ -144,7 +145,8 @@ export const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(function
     plugins,
   );
   const reducedMotion = usePrefersReducedMotion();
-  const labels = React.useMemo(() => ({ ...DEFAULT_LABELS, ...labelsProp }), [labelsProp]);
+  const catalog = useMessages("carousel", CAROUSEL_LABELS);
+  const labels = React.useMemo(() => ({ ...catalog, ...labelsProp }), [catalog, labelsProp]);
 
   const [snapState, setSnapState] = React.useState({
     canScrollPrev: false,

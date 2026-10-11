@@ -2,6 +2,7 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../utils/cn";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 /**
  * Fil d'Ariane, à la manière de Drive : chaque niveau est une pilule avec
@@ -26,6 +27,14 @@ export const breadcrumbVariants = cva("ui-breadcrumb", {
 
 export type BreadcrumbSize = NonNullable<VariantProps<typeof breadcrumbVariants>["size"]>;
 
+export interface BreadcrumbLabels {
+  /** Nom du repère de navigation. « Fil d'Ariane ». */
+  label: string;
+  /** Niveaux repliés (`BreadcrumbEllipsis`). « Plus de niveaux ». */
+  more: string;
+}
+export const BREADCRUMB_LABELS: BreadcrumbLabels = { label: "Fil d'Ariane", more: "Plus de niveaux" };
+
 export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
   size?: BreadcrumbSize;
   /** Nom accessible du repère de navigation. Par défaut « Fil d'Ariane ». */
@@ -33,9 +42,11 @@ export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 export const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(function Breadcrumb(
-  { className, size, label = "Fil d'Ariane", ...props },
+  { className, size, label: labelProp, ...props },
   ref,
 ) {
+  const labelLabels = useMessages("breadcrumb", BREADCRUMB_LABELS);
+  const label = labelProp ?? labelLabels.label;
   return (
     <nav
       ref={ref}
@@ -132,7 +143,9 @@ export interface BreadcrumbEllipsisProps extends React.HTMLAttributes<HTMLSpanEl
  * poser dans un bouton qui ouvre un `Menu` (le libellé masqué nomme le bouton).
  */
 export const BreadcrumbEllipsis = React.forwardRef<HTMLSpanElement, BreadcrumbEllipsisProps>(
-  function BreadcrumbEllipsis({ className, label = "Plus de niveaux", ...props }, ref) {
+  function BreadcrumbEllipsis({ className, label: labelProp, ...props }, ref) {
+    const labelLabels = useMessages("breadcrumb", BREADCRUMB_LABELS);
+    const label = labelProp ?? labelLabels.more;
     return (
       <span ref={ref} data-slot="breadcrumb-ellipsis" className={cn("ui-breadcrumb__ellipsis", className)} {...props}>
         <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">

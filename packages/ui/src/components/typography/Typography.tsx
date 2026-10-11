@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cn } from "../../utils/cn";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 export type TextSize = 10 | 11 | 11.5 | 12 | 12.5 | 13 | 14 | 15 | 16;
 export type TextWeight = "regular" | "medium" | "semibold" | "bold" | "extrabold";
@@ -87,6 +88,12 @@ export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(functi
   );
 });
 
+export interface LinkLabels {
+  /** Mention lue après un lien `external`. « nouvel onglet ». */
+  newTab: string;
+}
+export const LINK_LABELS: LinkLabels = { newTab: "nouvel onglet" };
+
 export interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   /** Rend l'enfant (le `Link` de Next.js, de React Router…) avec le style du lien. */
   asChild?: boolean;
@@ -102,6 +109,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(function Link
   ref,
 ) {
   const Comp = asChild ? Slot : "a";
+  const { newTab } = useMessages("link", LINK_LABELS);
   const externalProps = external
     ? { target: target ?? "_blank", rel: rel ?? "noopener noreferrer" }
     : { target, rel };
@@ -117,7 +125,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(function Link
               <svg className="ui-link__external" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                 <path d="M4.5 2.5h5v5M9.5 2.5 3 9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <span className="ui-sr-only"> (nouvel onglet)</span>
+              <span className="ui-sr-only"> ({newTab})</span>
             </>
           )}
         </>

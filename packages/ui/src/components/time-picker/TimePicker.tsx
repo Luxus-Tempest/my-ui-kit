@@ -3,6 +3,7 @@ import { cn } from "../../utils/cn";
 import { DatePicker, type DatePickerProps } from "../date-picker/DatePicker";
 import { useFieldContext, useFieldControl } from "../field/Field";
 import { Popover, PopoverAnchor, PopoverContent } from "../popover/Popover";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 const ClockIcon = () => (
   <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -27,6 +28,26 @@ const DAY_MINUTES = 24 * 60;
  * « 14h30 », « 14 h 30 », « 14.30 », « 1430 », « 930 » (9:30), « 14h », « 9 ».
  * Renvoie `null` si la saisie est illisible ou hors de 00:00–23:59.
  */
+export interface TimePickerLabels {
+  /** Liste des créneaux. « Heures proposées ». */
+  list: string;
+  /** Texte d'attente du champ. « hh:mm ». */
+  placeholder: string;
+  /** Nom du champ d'heure sans libellé. « Heure ». */
+  time: string;
+  /** Nom du champ de date d'un DateTimePicker. « Date ». */
+  date: string;
+  /** Nom du groupe DateTimePicker sans libellé. « Date et heure ». */
+  dateTime: string;
+}
+export const TIME_PICKER_LABELS: TimePickerLabels = {
+  list: "Heures proposées",
+  placeholder: "hh:mm",
+  time: "Heure",
+  date: "Date",
+  dateTime: "Date et heure",
+};
+
 export function parseTime(input: string): string | null {
   const text = input.trim().toLowerCase().replace(/\s+/g, "");
   if (!text) return null;
@@ -163,8 +184,8 @@ export const TimePicker = React.forwardRef<HTMLInputElement, TimePickerProps>(fu
     onOpenChange,
     containerClassName,
     contentClassName,
-    listLabel = "Heures proposées",
-    placeholder = "hh:mm",
+    listLabel: listLabelProp,
+    placeholder: placeholderProp,
     className,
     name,
     form,
@@ -173,6 +194,9 @@ export const TimePicker = React.forwardRef<HTMLInputElement, TimePickerProps>(fu
     onClick,
     ...rest
   } = props;
+  const timeLabels = useMessages("timePicker", TIME_PICKER_LABELS);
+  const listLabel = listLabelProp ?? timeLabels.list;
+  const placeholder = placeholderProp ?? timeLabels.placeholder;
   const field = useFieldContext();
   const inputProps = useFieldControl(rest);
   const named = Boolean(inputProps["aria-label"] || inputProps["aria-labelledby"] || field);
@@ -354,7 +378,7 @@ export const TimePicker = React.forwardRef<HTMLInputElement, TimePickerProps>(fu
             aria-expanded={open}
             aria-controls={open ? listId : undefined}
             aria-activedescendant={activeId}
-            aria-label={named ? undefined : "Heure"}
+            aria-label={named ? undefined : timeLabels.time}
             autoComplete="off"
             spellCheck={false}
             data-slot="time-picker-input"
@@ -494,14 +518,17 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
     clearable,
     datePlaceholder,
     timePlaceholder,
-    dateLabel = "Date",
-    timeLabel = "Heure",
+    dateLabel: dateLabelProp,
+    timeLabel: timeLabelProp,
     className,
     id,
     "aria-label": ariaLabel,
     "aria-labelledby": ariaLabelledBy,
     ...rest
   } = props;
+  const dateTimeLabels = useMessages("timePicker", TIME_PICKER_LABELS);
+  const dateLabel = dateLabelProp ?? dateTimeLabels.date;
+  const timeLabel = timeLabelProp ?? dateTimeLabels.time;
   const field = useFieldContext();
   const autoId = React.useId();
   const groupId = id ?? field?.controlId ?? `date-heure-${autoId}`;
@@ -551,7 +578,7 @@ export const DateTimePicker = React.forwardRef<HTMLDivElement, DateTimePickerPro
       data-slot="date-time-picker"
       data-density={density}
       aria-labelledby={prefix}
-      aria-label={prefix ? undefined : (ariaLabel ?? "Date et heure")}
+      aria-label={prefix ? undefined : (ariaLabel ?? dateTimeLabels.dateTime)}
       className={cn("ui-date-time-picker", className)}
       {...rest}
     >

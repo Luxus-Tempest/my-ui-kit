@@ -117,5 +117,5 @@ export function getInitials(name: string): string {
   if (words.length === 0) return "";
   const first = words[0]!.charAt(0);
   const last = words.length > 1 ? words[words.length - 1]!.charAt(0) : "";
-  return (first + last).toLocaleUpperCase("fr");
+  return (first + last).toLocaleUpperCase();
 }

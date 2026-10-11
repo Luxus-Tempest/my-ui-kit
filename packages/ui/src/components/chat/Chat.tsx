@@ -3,6 +3,7 @@ import { cn } from "../../utils/cn";
 import { Button } from "../button/Button";
 import { useFieldContext, useFieldControl } from "../field/Field";
 import { Spinner } from "../spinner/Spinner";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 /* ══ Types et libellés ═══════════════════════════════════════════════════ */
 
@@ -40,6 +41,35 @@ export interface MessageListLabels {
 const LIST_LABELS: MessageListLabels = {
   newMessages: "Nouveaux messages",
   scrollToBottom: "Revenir aux derniers messages",
+};
+
+/** Tous les textes de la messagerie : ceux de `Message`, de `MessageList`, et le reste. */
+export interface ChatLabels extends MessageLabels, MessageListLabels {
+  /** Nom du fil sans `aria-label`. « Conversation ». */
+  conversation: string;
+  /** Séparateur de date. « Aujourd'hui ». */
+  today: string;
+  /** Séparateur de date. « Hier ». */
+  yesterday: string;
+  /** Indicateur de saisie. « Inès est en train d'écrire », ou sans nom « En train d'écrire ». */
+  typing: (name?: string) => string;
+  /** Bouton d'envoi de `ChatComposer`. « Envoyer ». */
+  send: string;
+  /** Texte d'attente de `ChatComposer`. « Écrire un message… ». */
+  placeholder: string;
+  /** Nom du champ de `ChatComposer` sans libellé. « Message ». */
+  composer: string;
+}
+export const CHAT_LABELS: ChatLabels = {
+  ...MESSAGE_LABELS,
+  ...LIST_LABELS,
+  conversation: "Conversation",
+  today: "Aujourd'hui",
+  yesterday: "Hier",
+  typing: (name) => (name ? `${name} est en train d'écrire` : "En train d'écrire"),
+  send: "Envoyer",
+  placeholder: "Écrire un message…",
+  composer: "Message",
 };
 
 /* ══ Pictogrammes (SVG en ligne) ═════════════════════════════════════════ */
@@ -81,31 +111,42 @@ function isValidDate(date: Date) {
 function startOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
-function capitalize(text: string) {
-  return text.charAt(0).toLocaleUpperCase("fr") + text.slice(1);
+function capitalize(text: string, locale: string) {
+  return text.charAt(0).toLocaleUpperCase(locale) + text.slice(1);
 }
-const TIME_FORMAT = new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" });
-const WEEKDAY_FORMAT = new Intl.DateTimeFormat("fr-FR", { weekday: "long" });
-const DAY_FORMAT = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" });
-const FULL_FORMAT = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+
+export interface FormatMessageDateOptions {
+  /** Locale des jours et des mois. `fr-FR` par défaut. */
+  locale?: string;
+  /** « Aujourd'hui » par défaut. */
+  today?: string;
+  /** « Hier » par défaut. */
+  yesterday?: string;
+}
 
 /**
  * Date d'un séparateur de conversation : « Aujourd'hui », « Hier », le jour de la
  * semaine dans les six derniers jours (« Mardi »), puis « Mardi 7 octobre » dans
  * l'année et « 7 octobre 2025 » au-delà.
  */
-export function formatMessageDate(value: Date | string | number, now: Date = new Date()): string {
+export function formatMessageDate(
+  value: Date | string | number,
+  now: Date = new Date(),
+  { locale = "fr-FR", today = CHAT_LABELS.today, yesterday = CHAT_LABELS.yesterday }: FormatMessageDateOptions = {},
+): string {
   const date = toDate(value);
   if (!isValidDate(date)) return "";
   const days = Math.round((startOfDay(now).getTime() - startOfDay(date).getTime()) / 86_400_000);
-  if (days === 0) return "Aujourd'hui";
-  if (days === 1) return "Hier";
-  if (days > 1 && days < 7) return capitalize(WEEKDAY_FORMAT.format(date));
-  if (date.getFullYear() === now.getFullYear()) return capitalize(DAY_FORMAT.format(date));
-  return FULL_FORMAT.format(date);
+  if (days === 0) return today;
+  if (days === 1) return yesterday;
+  if (days > 1 && days < 7) return capitalize(new Intl.DateTimeFormat(locale, { weekday: "long" }).format(date), locale);
+  if (date.getFullYear() === now.getFullYear()) {
+    return capitalize(new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long" }).format(date), locale);
+  }
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(date);
 }
 
-function renderTime(value: Date | string | number) {
+function renderTime(value: Date | string | number, locale: string) {
   if (typeof value === "string" && Number.isNaN(Date.parse(value))) {
     return <time className="ui-message__time">{value}</time>;
   }
@@ -113,7 +154,7 @@ function renderTime(value: Date | string | number) {
   if (!isValidDate(date)) return null;
   return (
     <time className="ui-message__time" dateTime={date.toISOString()}>
-      {TIME_FORMAT.format(date)}
+      {new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(date)}
     </time>
   );
 }
@@ -189,7 +230,8 @@ export const MessageList = React.forwardRef<HTMLDivElement, MessageListProps>(fu
   },
   ref,
 ) {
-  const labels = { ...LIST_LABELS, ...labelsProp };
+  const chat = useMessages("chat", CHAT_LABELS);
+  const labels = { ...chat, ...labelsProp };
   const viewport = React.useRef<HTMLDivElement | null>(null);
   const content = React.useRef<HTMLDivElement | null>(null);
   const jumpRef = React.useRef<HTMLButtonElement | null>(null);
@@ -339,7 +381,7 @@ export const MessageList = React.forwardRef<HTMLDivElement, MessageListProps>(fu
           role="log"
           aria-live="polite"
           aria-relevant="additions"
-          aria-label={ariaLabelledBy ? undefined : (ariaLabel ?? "Conversation")}
+          aria-label={ariaLabelledBy ? undefined : (ariaLabel ?? chat.conversation)}
           aria-labelledby={ariaLabelledBy}
           aria-busy={loadingHistory || undefined}
           tabIndex={0}
@@ -471,7 +513,8 @@ export const Message = React.forwardRef<HTMLDivElement, MessageProps>(function M
   },
   ref,
 ) {
-  const labels = { ...MESSAGE_LABELS, ...labelsProp };
+  const labels = { ...useMessages("chat", CHAT_LABELS), ...labelsProp };
+  const locale = useLocale();
   const group = React.useContext(MessageGroupContext);
   const position = React.useContext(MessagePositionContext);
   const from = fromProp ?? group?.from ?? "them";
@@ -481,7 +524,7 @@ export const Message = React.forwardRef<HTMLDivElement, MessageProps>(function M
   const isLast = position === "single" || position === "last";
   const failed = from === "me" && status === "failed";
   const hasBubble = children != null && children !== false && children !== "";
-  const timeNode = time != null ? renderTime(time) : null;
+  const timeNode = time != null ? renderTime(time, locale) : null;
 
   const statusText =
     from !== "me" || !status
@@ -624,6 +667,8 @@ export interface MessageDateSeparatorProps extends React.HTMLAttributes<HTMLDivE
  */
 export const MessageDateSeparator = React.forwardRef<HTMLDivElement, MessageDateSeparatorProps>(
   function MessageDateSeparator({ className, date, now, children, ...props }, ref) {
+    const locale = useLocale();
+    const { today, yesterday } = useMessages("chat", CHAT_LABELS);
     const value = toDate(date);
     const valid = isValidDate(value);
     const iso = valid
@@ -632,7 +677,7 @@ export const MessageDateSeparator = React.forwardRef<HTMLDivElement, MessageDate
     return (
       <div ref={ref} data-slot="message-date-separator" className={cn("ui-message-date", className)} {...props}>
         <time dateTime={iso} className="ui-message-date__label">
-          {children ?? formatMessageDate(value, now)}
+          {children ?? formatMessageDate(value, now, { locale, today, yesterday })}
         </time>
       </div>
     );
@@ -660,7 +705,8 @@ export const TypingIndicator = React.forwardRef<HTMLDivElement, TypingIndicatorP
   ref,
 ) {
   const inList = React.useContext(MessageListContext);
-  const text = label ?? (name ? `${name} est en train d'écrire` : "En train d'écrire");
+  const { typing } = useMessages("chat", CHAT_LABELS);
+  const text = label ?? typing(name);
   const hasAvatar = avatar != null && avatar !== false;
   return (
     <div
@@ -738,8 +784,8 @@ export const ChatComposer = React.forwardRef<HTMLTextAreaElement, ChatComposerPr
     sending = false,
     actions,
     sendOnEnter = true,
-    sendLabel = "Envoyer",
-    placeholder = "Écrire un message…",
+    sendLabel: sendLabelProp,
+    placeholder: placeholderProp,
     disabled: disabledProp,
     readOnly,
     onChange,
@@ -748,6 +794,9 @@ export const ChatComposer = React.forwardRef<HTMLTextAreaElement, ChatComposerPr
   },
   forwardedRef,
 ) {
+  const chat = useMessages("chat", CHAT_LABELS);
+  const sendLabel = sendLabelProp ?? chat.send;
+  const placeholder = placeholderProp ?? chat.placeholder;
   const textareaRef = React.useRef<HTMLTextAreaElement | null>(null);
   React.useImperativeHandle(forwardedRef, () => textareaRef.current as HTMLTextAreaElement);
   const field = useFieldContext();
@@ -820,7 +869,7 @@ export const ChatComposer = React.forwardRef<HTMLTextAreaElement, ChatComposerPr
           rows={1}
           enterKeyHint="send"
           placeholder={placeholder}
-          aria-label={rest["aria-label"] ?? (labelled ? undefined : "Message")}
+          aria-label={rest["aria-label"] ?? (labelled ? undefined : chat.composer)}
           className={cn("ui-composer__input", className)}
           value={value}
           disabled={disabled}

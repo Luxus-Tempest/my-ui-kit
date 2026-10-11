@@ -3,6 +3,7 @@ import type { Row, Table } from "@tanstack/react-table";
 import { cn } from "../../utils/cn";
 import type { PaginationVariant } from "../pagination/Pagination";
 import { DataTableContext, defaultDataTableLabels, type DataTableContextValue } from "./context";
+import { useMessages } from "../../i18n/LocaleProvider";
 import { DataTablePagination } from "./DataTablePagination";
 import { DataTableToolbar, type DataTableBulkActions } from "./DataTableToolbar";
 import { DataTableView, type DataTableRowEvent } from "./DataTableView";
@@ -231,7 +232,8 @@ function DataTableInner<TData>(props: DataTableProps<TData>, ref: React.Forwarde
   }, [table]);
 
   /* ── Libellés et contexte des briques ── */
-  const labels = React.useMemo(() => ({ ...defaultDataTableLabels, ...labelsProp }), [labelsProp]);
+  const baseLabels = useMessages("dataTable", defaultDataTableLabels);
+  const labels = React.useMemo(() => ({ ...baseLabels, ...labelsProp }), [baseLabels, labelsProp]);
   const context = React.useMemo<DataTableContextValue>(
     () => ({ labels, getRowLabel: getRowLabel ? (row: Row<any>) => getRowLabel(row.original as TData) : undefined }),
     [labels, getRowLabel],

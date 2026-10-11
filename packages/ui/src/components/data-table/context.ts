@@ -1,6 +1,7 @@
 import * as React from "react";
 import type { Row } from "@tanstack/react-table";
 import type { DataTableLabels } from "./types";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 const plural = (count: number, one: string, many: string) => (count > 1 ? many : one);
 const n = (value: number) => value.toLocaleString("fr-FR");
@@ -75,28 +76,32 @@ export function DataTableProvider({
   children?: React.ReactNode;
 }) {
   const parent = React.useContext(DataTableContext);
+  // Défauts français, remplacés par le catalogue du LocaleProvider s'il y en a un.
+  const base = useMessages("dataTable", defaultDataTableLabels);
   const value = React.useMemo<DataTableContextValue>(
     () => ({
-      labels: { ...(parent?.labels ?? defaultDataTableLabels), ...labels },
+      labels: { ...(parent?.labels ?? base), ...labels },
       getRowLabel: getRowLabel ?? parent?.getRowLabel,
     }),
-    [parent, labels, getRowLabel],
+    [parent, base, labels, getRowLabel],
   );
   return React.createElement(DataTableContext.Provider, { value }, children);
 }
 
-/** Libellés effectifs : défauts, puis contexte, puis surcharge locale. */
+/** Libellés effectifs : défauts (et catalogue de langue), puis contexte, puis surcharge locale. */
 export function useDataTableLabels(overrides?: Partial<DataTableLabels>): DataTableLabels {
   const context = React.useContext(DataTableContext);
+  const base = useMessages("dataTable", defaultDataTableLabels);
   return React.useMemo(
-    () => (overrides ? { ...(context?.labels ?? defaultDataTableLabels), ...overrides } : (context?.labels ?? defaultDataTableLabels)),
-    [context, overrides],
+    () => (overrides ? { ...(context?.labels ?? base), ...overrides } : (context?.labels ?? base)),
+    [context, base, overrides],
   );
 }
 
 /** Libellé d'une ligne pour les noms accessibles. */
 export function useRowLabel(row: Row<any>): string {
   const context = React.useContext(DataTableContext);
-  const labels = context?.labels ?? defaultDataTableLabels;
+  const base = useMessages("dataTable", defaultDataTableLabels);
+  const labels = context?.labels ?? base;
   return context?.getRowLabel?.(row) ?? labels.rowFallback(row.index);
 }

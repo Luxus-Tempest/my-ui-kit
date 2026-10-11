@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../../utils/cn";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 const SearchIcon = () => (
   <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -12,6 +13,12 @@ const ClearIcon = () => (
     <path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
   </svg>
 );
+
+export interface SearchBarLabels {
+  /** Bouton qui vide le champ. « Effacer la recherche ». */
+  clear: string;
+}
+export const SEARCH_BAR_LABELS: SearchBarLabels = { clear: "Effacer la recherche" };
 
 export interface SearchBarProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size" | "value" | "defaultValue" | "type"> {
@@ -48,12 +55,14 @@ export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(func
     onChange,
     onKeyDown,
     trailing,
-    clearLabel = "Effacer la recherche",
+    clearLabel: clearLabelProp,
     disabled,
     ...props
   },
   forwardedRef,
 ) {
+  const clearLabelLabels = useMessages("searchBar", SEARCH_BAR_LABELS);
+  const clearLabel = clearLabelProp ?? clearLabelLabels.clear;
   const inputRef = React.useRef<HTMLInputElement>(null);
   React.useImperativeHandle(forwardedRef, () => inputRef.current as HTMLInputElement);
   const [inner, setInner] = React.useState(defaultValue);

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cn } from "../../utils/cn";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 export type BottomNavigationPosition = "fixed" | "sticky" | "static";
 
@@ -43,12 +44,14 @@ export const BottomNavigation = React.forwardRef<HTMLElement, BottomNavigationPr
     defaultValue,
     onValueChange,
     position = "fixed",
-    label = "Navigation principale",
+    label: labelProp,
     children,
     ...props
   },
   ref,
 ) {
+  const labelLabels = useMessages("bottomNavigation", BOTTOM_NAVIGATION_LABELS);
+  const label = labelProp ?? labelLabels.label;
   const [inner, setInner] = React.useState(defaultValue);
   const value = valueProp ?? inner;
   const select = React.useCallback(
@@ -104,7 +107,24 @@ export interface BottomNavigationItemProps
 
 const BADGE_MAX = 99;
 
-function renderBadge(badge: React.ReactNode, badgeLabel: string | undefined) {
+export interface BottomNavigationLabels {
+  /** Nom de la barre. « Navigation principale ». */
+  label: string;
+  /** Badge en pastille seule. « Nouveau ». */
+  badgeNew: string;
+  /** Badge chiffré. « 3 nouveaux ». */
+  badgeCount: (count: number) => string;
+  /** Au-delà de 99. « plus de 99 nouveaux ». */
+  badgeOverflow: (max: number) => string;
+}
+export const BOTTOM_NAVIGATION_LABELS: BottomNavigationLabels = {
+  label: "Navigation principale",
+  badgeNew: "Nouveau",
+  badgeCount: (count) => `${count} nouveau${count > 1 ? "x" : ""}`,
+  badgeOverflow: (max) => `plus de ${max} nouveaux`,
+};
+
+function renderBadge(badge: React.ReactNode, badgeLabel: string | undefined, labels: BottomNavigationLabels) {
   if (badge == null || badge === false || badge === 0) return null;
   if (typeof badge === "number" || badge === true) {
     const dot = badge === true;
@@ -112,7 +132,7 @@ function renderBadge(badge: React.ReactNode, badgeLabel: string | undefined) {
     const text = count > BADGE_MAX ? `${BADGE_MAX}+` : String(count);
     const spoken =
       badgeLabel ??
-      (dot ? "Nouveau" : count > BADGE_MAX ? `plus de ${BADGE_MAX} nouveaux` : `${count} nouveau${count > 1 ? "x" : ""}`);
+      (dot ? labels.badgeNew : count > BADGE_MAX ? labels.badgeOverflow(BADGE_MAX) : labels.badgeCount(count));
     return (
       <>
         <span className="ui-bottom-nav__badge" data-dot={dot || undefined} aria-hidden="true">
@@ -146,6 +166,7 @@ export const BottomNavigationItem = React.forwardRef<HTMLButtonElement, BottomNa
     ref,
   ) {
     const context = React.useContext(BottomNavigationContext);
+    const labels = useMessages("bottomNavigation", BOTTOM_NAVIGATION_LABELS);
     const active = isActive ?? (value !== undefined && context?.value === value);
 
     const layout = (text: React.ReactNode) => (
@@ -154,7 +175,7 @@ export const BottomNavigationItem = React.forwardRef<HTMLButtonElement, BottomNa
           {icon}
         </span>
         <span className="ui-bottom-nav__label">{text}</span>
-        {renderBadge(badge, badgeLabel)}
+        {renderBadge(badge, badgeLabel, labels)}
       </>
     );
 

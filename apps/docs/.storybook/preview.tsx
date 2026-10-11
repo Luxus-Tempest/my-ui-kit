@@ -1,13 +1,33 @@
 import type { Preview } from "@storybook/react";
-import { ThemeProvider } from "@acme/ui";
+import { LocaleProvider, ThemeProvider, localeAr, localeEn, type UiMessagesInput } from "@acme/ui";
 import "@acme/ui/styles.css";
 import { brandTheme } from "./theme";
+
+/** Langues de la barre d'outils : locale Intl et catalogue (le français est intégré aux composants). */
+const LANGUES: Record<string, { locale: string; messages?: UiMessagesInput }> = {
+  fr: { locale: "fr-FR" },
+  en: { locale: "en-US", messages: localeEn },
+  ar: { locale: "ar-MA", messages: localeAr },
+};
 
 const preview: Preview = {
   globalTypes: {
     theme: {
       description: "Thème",
       toolbar: { title: "Thème", icon: "mirror", items: ["light", "dark"], dynamicTitle: true },
+    },
+    lang: {
+      description: "Langue de l'interface",
+      toolbar: {
+        title: "Langue",
+        icon: "globe",
+        items: [
+          { value: "fr", title: "Français" },
+          { value: "en", title: "English" },
+          { value: "ar", title: "العربية (droite à gauche)" },
+        ],
+        dynamicTitle: true,
+      },
     },
     dir: {
       description: "Sens de lecture",
@@ -22,7 +42,7 @@ const preview: Preview = {
       },
     },
   },
-  initialGlobals: { theme: "light", dir: "ltr" },
+  initialGlobals: { theme: "light", dir: "ltr", lang: "fr" },
   parameters: {
     // Le décorateur gère marges et fond : le cadre Storybook reste nu.
     layout: "fullscreen",
@@ -34,7 +54,7 @@ const preview: Preview = {
           "Introduction",
           ["Bienvenue", "Aperçu", "Statut des composants"],
           "Fondations",
-          ["Langage Drive × iOS", "Couleurs", "Typographie", "Espacement et mise en page", "Rayons, élévation et mouvement"],
+          ["Langage Drive × iOS", "Couleurs", "Typographie", "Espacement et mise en page", "Rayons, élévation et mouvement", "Langue"],
           "Composants",
           [
             "Actions",
@@ -62,11 +82,16 @@ const preview: Preview = {
     (Story, ctx) => {
       const docs = ctx.viewMode === "docs";
       const padding = (ctx.parameters.padding as number | undefined) ?? (docs ? 20 : 24);
+      const langue = LANGUES[ctx.globals.lang as string] ?? LANGUES.fr!;
+      // L'arabe se lit de droite à gauche, quel que soit le réglage « Sens ».
+      const dir = ctx.globals.lang === "ar" ? "rtl" : ctx.globals.dir;
       return (
-        <ThemeProvider key={`${ctx.globals.theme}-${ctx.globals.dir}`} defaultMode={ctx.globals.theme} dir={ctx.globals.dir}>
-          <div style={{ padding, minHeight: docs ? undefined : "100vh", boxSizing: "border-box", background: "var(--ui-app)" }}>
-            <Story />
-          </div>
+        <ThemeProvider key={`${ctx.globals.theme}-${dir}`} defaultMode={ctx.globals.theme} dir={dir}>
+          <LocaleProvider locale={langue.locale} messages={langue.messages}>
+            <div style={{ padding, minHeight: docs ? undefined : "100vh", boxSizing: "border-box", background: "var(--ui-app)" }}>
+              <Story />
+            </div>
+          </LocaleProvider>
         </ThemeProvider>
       );
     },

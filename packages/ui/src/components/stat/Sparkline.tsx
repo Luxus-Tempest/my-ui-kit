@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../../utils/cn";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 /**
  * Micro-graphique de tendance, en SVG pur (sans ECharts) : trait de 2 px
@@ -37,7 +38,19 @@ export interface SparklineProps extends Omit<React.HTMLAttributes<HTMLSpanElemen
   format?: (value: number) => string;
 }
 
-const defaultFormat = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 });
+export interface SparklineLabels {
+  /** Texte de remplacement sans données. « Tendance : aucune donnée ». */
+  empty: string;
+  /** Texte de remplacement. « Tendance : de 12 à 18 sur 6 mois ». */
+  trend: (from: string, to: string, count: number, period: string) => string;
+  /** Unité de période par défaut, au pluriel. « périodes ». */
+  period: string;
+}
+export const SPARKLINE_LABELS: SparklineLabels = {
+  empty: "Tendance : aucune donnée",
+  trend: (from, to, count, period) => `Tendance : de ${from} à ${to} sur ${count} ${period}`,
+  period: "périodes",
+};
 const FALLBACK_WIDTH = 120;
 /** Réserve autour du tracé : rayon du point final (4) + anneau (2). */
 const INSET = 6;
@@ -112,14 +125,18 @@ export const Sparkline = React.forwardRef<HTMLSpanElement, SparklineProps>(funct
     color,
     includeZero = false,
     label,
-    period = "périodes",
-    format = defaultFormat.format,
+    period: periodProp,
+    format: formatProp,
     className,
     style,
     ...props
   },
   forwardedRef,
 ) {
+  const sparkLabels = useMessages("sparkline", SPARKLINE_LABELS);
+  const locale = useLocale();
+  const period = periodProp ?? sparkLabels.period;
+  const format = formatProp ?? new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format;
   const ref = React.useRef<HTMLSpanElement>(null);
   React.useImperativeHandle(forwardedRef, () => ref.current as HTMLSpanElement);
 
@@ -147,9 +164,7 @@ export const Sparkline = React.forwardRef<HTMLSpanElement, SparklineProps>(funct
 
   const text =
     label ??
-    (n === 0
-      ? "Tendance : aucune donnée"
-      : `Tendance : de ${format(values[0]!)} à ${format(values[n - 1]!)} sur ${n} ${period}`);
+    (n === 0 ? sparkLabels.empty : sparkLabels.trend(format(values[0]!), format(values[n - 1]!), n, period));
 
   let drawing: React.ReactNode = null;
   if (n > 0 && variant === "bars") {

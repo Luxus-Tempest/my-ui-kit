@@ -1,5 +1,12 @@
 import * as React from "react";
 import { cn } from "../../utils/cn";
+import { useMessages } from "../../i18n/LocaleProvider";
+
+export interface SpinnerLabels {
+  /** Annonce par défaut. « Chargement ». */
+  label: string;
+}
+export const SPINNER_LABELS: SpinnerLabels = { label: "Chargement" };
 
 export interface SpinnerProps extends React.SVGAttributes<SVGSVGElement> {
   /** 12 / 14 / 16 / 20 / 24 px. Hérite de la couleur du texte. */
@@ -10,9 +17,12 @@ export interface SpinnerProps extends React.SVGAttributes<SVGSVGElement> {
 
 /** Indicateur d'attente circulaire, pour une attente dont on ignore la durée. */
 export const Spinner = React.forwardRef<SVGSVGElement, SpinnerProps>(function Spinner(
-  { size = 16, label = "Chargement", className, ...props },
+  { size = 16, label: labelProp, className, ...props },
   ref,
 ) {
+  // `label=""` : décoratif, masqué aux lecteurs d'écran.
+  const labelLabels = useMessages("spinner", SPINNER_LABELS);
+  const label = labelProp ?? labelLabels.label;
   return (
     <svg
       ref={ref}

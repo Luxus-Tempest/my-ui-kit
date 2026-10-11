@@ -36,6 +36,11 @@ Puis, dans le même changement :
   un module par composant et `sideEffects` ne couvre que le CSS, un effet de bord au chargement l'embarquerait partout.
 - Libellés, commentaires, messages et documentation **en français**. Les libellés internes
   (« Fermer », « Effacer ») sont surchargeables par une prop.
+- **Langue** : tout texte vu ou lu par l'utilisateur part d'une constante `XXX_LABELS` (valeurs françaises) lue
+  avec `useMessages("espace", XXX_LABELS)`, puis surchargée par la prop. Nouvel espace de noms : l'ajouter à
+  `src/i18n/messages.ts` et le traduire dans `locales/en.tsx` et `locales/ar.tsx` (le typage l'exige).
+  Aucune locale codée en dur : `useLocale()` pour `Intl` et `toLocale*`. Les avertissements de développement
+  (`console.warn`) restent en français, ils ne s'affichent pas à l'utilisateur.
 
 ### Règles de style (langage Drive × iOS)
 

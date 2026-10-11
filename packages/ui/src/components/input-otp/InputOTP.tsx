@@ -9,8 +9,15 @@ import {
 } from "input-otp";
 import { cn } from "../../utils/cn";
 import { useFieldContext, useFieldControl } from "../field/Field";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 /** Motifs prêts à l'emploi pour `pattern` (chiffres, lettres, les deux). */
+export interface InputOTPLabels {
+  /** Nom du champ sans libellé. « Code de vérification ». */
+  label: string;
+}
+export const INPUT_OTP_LABELS: InputOTPLabels = { label: "Code de vérification" };
+
 export { REGEXP_ONLY_DIGITS, REGEXP_ONLY_CHARS, REGEXP_ONLY_DIGITS_AND_CHARS };
 
 /** État partagé avec les cases : invalide, désactivé. */
@@ -72,11 +79,12 @@ export const InputOTP = React.forwardRef<HTMLInputElement, InputOTPProps>(functi
     ? { render: (renderProps: RenderProps) => wrap(render(renderProps)) }
     : { children: wrap(children) };
 
+  const otpLabel = useMessages("inputOtp", INPUT_OTP_LABELS).label;
   return (
     <OTPInput
       ref={ref}
       data-slot="input-otp"
-      aria-label={named ? undefined : "Code de vérification"}
+      aria-label={named ? undefined : otpLabel}
       pattern={pattern}
       // Pavé numérique quand seuls les chiffres sont admis, clavier complet sinon.
       inputMode={inputMode ?? (pattern === REGEXP_ONLY_DIGITS ? "numeric" : "text")}

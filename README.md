@@ -239,13 +239,40 @@ et échoue au-delà de son budget, ou si ECharts ou TanStack apparaissent là o�
 
 `styles.dev.css` est la version lisible de la feuille, pour le débogage.
 
+### Langue (français, anglais, arabe…)
+
+Les composants parlent français sans configuration. `LocaleProvider` change la langue de toute l'interface :
+la **locale** `Intl` (dates, nombres compacts, pluriels, listes « A, B ou C », premier jour de la semaine) et le
+**catalogue** de libellés (boutons, annonces aux lecteurs d'écran, erreurs de dépôt de fichiers…).
+
+```tsx
+import { LocaleProvider, ThemeProvider, getLocaleDirection, localeEn, localeAr } from "@acme/ui";
+
+<LocaleProvider locale="en-US" messages={localeEn}>…</LocaleProvider>
+
+// Arabe : catalogue et sens de lecture.
+<ThemeProvider dir={getLocaleDirection("ar-MA")}>
+  <LocaleProvider locale="ar-MA" messages={localeAr}>…</LocaleProvider>
+</ThemeProvider>
+```
+
+- Catalogues fournis : `localeEn` (en-US) et `localeAr` (ar-MA, pluriels arabes via `Intl.PluralRules` ; à faire
+  relire par un locuteur natif). Une autre langue : un objet `UiMessages` complet, le typage signale toute clé oubliée.
+- Un catalogue partiel (`UiMessagesInput`) ne remplace que ce qu'il précise ; les providers s'emboîtent ; la prop
+  `labels` d'un composant (ou `clearLabel`, `placeholder`…) l'emporte toujours.
+- Dans vos propres composants : `useLocale()` pour `Intl`, `useMessages(espace, défauts)` pour les libellés.
+- Utilitaires hors React : `formatDate(date, locale)`, `formatFileSize(octets, { locale, units })`,
+  `formatMessageDate(date, now, { locale, today, yesterday })`, `createDateRangePresets(libellés)`.
+- Les textes de l'application (en-têtes de colonnes, formateurs de cellules `dataTableFormatters.date(options, locale)`)
+  restent à sa charge. Bascule « Langue » dans la barre d'outils de Storybook ; page *Fondations › Langue*.
+
 ### Droite à gauche (arabe, hébreu)
 
 ```tsx
 <ThemeProvider dir="rtl">…</ThemeProvider>
 ```
 
-`dir` est posé sur le conteneur et sur `<html>`, et transmis aux primitives Radix (`DirectionProvider`) : menus,
+`getLocaleDirection(locale)` donne le sens d'une locale. `dir` est posé sur le conteneur et sur `<html>`, et transmis aux primitives Radix (`DirectionProvider`) : menus,
 curseurs, onglets et calendrier suivent le sens de lecture. Le CSS n'emploie que des propriétés logiques
 (`margin-inline-start`, `inset-inline-end`…) ; flèches et chevrons se retournent d'eux-mêmes.
 Bascule « Sens » dans la barre d'outils de Storybook.

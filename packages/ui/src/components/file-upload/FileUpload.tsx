@@ -4,10 +4,13 @@ import { cn } from "../../utils/cn";
 import { useFieldContext, useFieldControl } from "../field/Field";
 import { Button, buttonVariants } from "../button/Button";
 import { Progress } from "../progress/Progress";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 /* ══ Utilitaires ═════════════════════════════════════════════════════════ */
 
-const SIZE_UNITS = ["o", "Ko", "Mo", "Go", "To"] as const;
+/** Unités d'octets, de l'octet au téraoctet. */
+export type FileSizeUnits = readonly [string, string, string, string, string];
+const SIZE_UNITS: FileSizeUnits = ["o", "Ko", "Mo", "Go", "To"];
 
 export interface FormatFileSizeOptions {
   /**
@@ -17,6 +20,10 @@ export interface FormatFileSizeOptions {
   base?: 1000 | 1024;
   /** Décimales au plus (1 par défaut). Les octets restent entiers. */
   maximumFractionDigits?: number;
+  /** Locale du nombre (`fr-FR` par défaut : virgule décimale). */
+  locale?: string;
+  /** Unités, de l'octet au téraoctet. Françaises par défaut : o, Ko, Mo, Go, To. */
+  units?: FileSizeUnits;
 }
 
 /**
@@ -27,22 +34,22 @@ export interface FormatFileSizeOptions {
  * @example formatFileSize(1_258_291) // "1,2 Mo"
  */
 export function formatFileSize(bytes: number, options: FormatFileSizeOptions = {}): string {
-  const { base = 1024, maximumFractionDigits = 1 } = options;
+  const { base = 1024, maximumFractionDigits = 1, locale = "fr-FR", units = SIZE_UNITS } = options;
   let value = Number.isFinite(bytes) && bytes > 0 ? bytes : 0;
   let unit = 0;
-  while (value >= base && unit < SIZE_UNITS.length - 1) {
+  while (value >= base && unit < units.length - 1) {
     value /= base;
     unit += 1;
   }
   // 1 023,97 Ko s'arrondirait en « 1 024 Ko » : on passe alors à l'unité suivante.
   const digits = unit === 0 ? 0 : maximumFractionDigits;
   const factor = 10 ** digits;
-  if (unit < SIZE_UNITS.length - 1 && Math.round(value * factor) / factor >= base) {
+  if (unit < units.length - 1 && Math.round(value * factor) / factor >= base) {
     value /= base;
     unit += 1;
   }
-  const number = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: unit === 0 ? 0 : maximumFractionDigits }).format(value);
-  return `${number} ${SIZE_UNITS[unit]}`;
+  const number = new Intl.NumberFormat(locale, { maximumFractionDigits: unit === 0 ? 0 : maximumFractionDigits }).format(value);
+  return `${number}\u00a0${units[unit]}`;
 }
 
 /** Famille d'un fichier : choisit son pictogramme et sa teinte. */
@@ -114,10 +121,6 @@ export function isFileAccepted(file: { name?: string; type?: string }, accept?: 
 }
 
 const ACCEPT_LABELS: Record<string, string> = {
-  "image/*": "Images",
-  "video/*": "Vidéos",
-  "audio/*": "Audio",
-  "text/*": "Texte",
   "application/pdf": "PDF",
   "image/jpeg": "JPG",
   "image/svg+xml": "SVG",
@@ -129,10 +132,11 @@ const ACCEPT_LABELS: Record<string, string> = {
 };
 
 /** « PNG, JPG ou PDF » d'après `accept` ; vide si tout est accepté. */
-function describeAccept(tokens: string[]): string {
+function describeAccept(tokens: string[], kinds: FileUploadLabels["kinds"], locale: string): string {
+  const families: Record<string, string> = { "image/*": kinds.images, "video/*": kinds.videos, "audio/*": kinds.audio, "text/*": kinds.text };
   const labels: string[] = [];
   for (const token of tokens) {
-    let label = ACCEPT_LABELS[token];
+    let label = families[token] ?? ACCEPT_LABELS[token];
     if (!label && token.startsWith(".")) label = token.slice(1).toUpperCase();
     if (!label && token.includes("/")) {
       const subtype = token.split("/")[1] ?? "";
@@ -142,7 +146,8 @@ function describeAccept(tokens: string[]): string {
     if (label && !labels.includes(label)) labels.push(label);
   }
   if (labels.length <= 1) return labels[0] ?? "";
-  return `${labels.slice(0, -1).join(", ")} ou ${labels[labels.length - 1]}`;
+  // « PNG, JPG ou PDF », « PNG, JPG, or PDF »… : la conjonction de la langue.
+  return new Intl.ListFormat(locale, { type: "disjunction" }).format(labels);
 }
 
 /* ══ Pictogrammes (SVG en ligne) ═════════════════════════════════════════ */
@@ -320,10 +325,24 @@ const DROPZONE_LABELS = {
   rejected: (count: number) => `${count} ${plural(count, "fichier refusé", "fichiers refusés")}`,
 } satisfies Required<DropzoneLabels>;
 
-const COMPACT_LABELS: Partial<Record<keyof DropzoneLabels, React.ReactNode>> = {
-  title: "Glissez vos fichiers ici",
-  browse: "Parcourir",
-};
+/**
+ * Tous les textes du dépôt de fichiers (Dropzone, FileUploadItem), pour le
+ * catalogue de langue (`LocaleProvider`).
+ */
+export interface FileUploadLabels extends Required<DropzoneLabels>, Required<FileUploadItemLabels> {
+  /** Titre de la variante compacte. « Glissez vos fichiers ici ». */
+  compactTitle: React.ReactNode;
+  /** Bouton de la variante compacte. « Parcourir ». */
+  compactBrowse: React.ReactNode;
+  /** Unités de taille, de l'octet au téraoctet. */
+  sizeUnits: FileSizeUnits;
+  /** Familles de fichiers dans la description de `accept`. */
+  kinds: { images: string; videos: string; audio: string; text: string };
+  /** Contrainte de taille sous la zone. « 10 Mo max. ». */
+  maxSizeHint: (size: string) => string;
+  /** Contrainte de nombre sous la zone. « 5 fichiers max. ». */
+  maxFilesHint: (count: number) => string;
+}
 
 export const dropzoneVariants = cva("ui-dropzone", {
   variants: {
@@ -452,11 +471,16 @@ export const Dropzone = React.forwardRef<HTMLDivElement, DropzoneProps>(function
   const isInvalid = control["aria-invalid"] === true || control["aria-invalid"] === "true";
   const isCompact = variant === "compact";
 
+  const messages = useMessages("fileUpload", FILE_UPLOAD_LABELS);
+  const locale = useLocale();
+  const size = (bytes: number) => formatFileSize(bytes, { locale, units: messages.sizeUnits });
   const labels = {
-    ...DROPZONE_LABELS,
-    ...(isCompact ? COMPACT_LABELS : null),
+    ...messages,
+    // Refus de taille par défaut : dans la langue et les unités courantes.
+    ...(messages.tooLarge === DROPZONE_LABELS.tooLarge ? { tooLarge: (max: number) => `Fichier trop volumineux (max. ${size(max)})` } : null),
+    ...(isCompact ? { title: messages.compactTitle, browse: messages.compactBrowse } : null),
     ...labelsProp,
-  } as typeof DROPZONE_LABELS;
+  } as FileUploadLabels;
 
   const tokens = React.useMemo(() => normalizeAccept(accept), [accept]);
   const titleId = React.useId();
@@ -469,9 +493,9 @@ export const Dropzone = React.forwardRef<HTMLDivElement, DropzoneProps>(function
   const limit = multiple ? maxFiles : 1;
 
   const autoHint = [
-    describeAccept(tokens),
-    maxSize != null ? `${formatFileSize(maxSize)} max.` : "",
-    multiple && maxFiles != null && maxFiles > 0 ? `${maxFiles} ${plural(maxFiles, "fichier", "fichiers")} max.` : "",
+    describeAccept(tokens, labels.kinds, locale),
+    maxSize != null ? labels.maxSizeHint(size(maxSize)) : "",
+    multiple && maxFiles != null && maxFiles > 0 ? labels.maxFilesHint(maxFiles) : "",
   ]
     .filter(Boolean)
     .join(" · ");
@@ -722,6 +746,17 @@ const ITEM_LABELS: Required<FileUploadItemLabels> = {
   error: "Échec de l'envoi",
 };
 
+export const FILE_UPLOAD_LABELS: FileUploadLabels = {
+  ...DROPZONE_LABELS,
+  ...ITEM_LABELS,
+  compactTitle: "Glissez vos fichiers ici",
+  compactBrowse: "Parcourir",
+  sizeUnits: SIZE_UNITS,
+  kinds: { images: "Images", videos: "Vidéos", audio: "Audio", text: "Texte" },
+  maxSizeHint: (size) => `${size} max.`,
+  maxFilesHint: (count) => `${count} ${plural(count, "fichier", "fichiers")} max.`,
+};
+
 export interface FileUploadItemProps extends Omit<React.LiHTMLAttributes<HTMLLIElement>, "children"> {
   /** Le fichier local : fournit nom, taille, type et la miniature des images. */
   file?: File | Blob;
@@ -820,7 +855,9 @@ export const FileUploadItem = React.forwardRef<HTMLLIElement, FileUploadItemProp
   const list = React.useContext(FileUploadListContext);
   const variant = variantProp ?? list?.variant ?? "row";
   const isChip = variant === "chip";
-  const labels = { ...ITEM_LABELS, ...labelsProp };
+  const messages = useMessages("fileUpload", FILE_UPLOAD_LABELS);
+  const locale = useLocale();
+  const labels = { ...messages, ...labelsProp };
 
   const name = nameProp ?? (file && "name" in file ? file.name : "");
   const size = sizeProp ?? file?.size;
@@ -834,7 +871,9 @@ export const FileUploadItem = React.forwardRef<HTMLLIElement, FileUploadItemProp
   const showThumbnail = thumbnail != null && failedThumbnail !== thumbnail;
 
   const percent = progress == null ? null : Math.min(Math.max(progress, 0), 100);
-  const meta = [getExtension(name).toUpperCase(), size != null ? formatFileSize(size) : ""].filter(Boolean).join(" · ");
+  const meta = [getExtension(name).toUpperCase(), size != null ? formatFileSize(size, { locale, units: messages.sizeUnits }) : ""]
+    .filter(Boolean)
+    .join(" · ");
 
   let secondLine: React.ReactNode;
   if (status === "uploading") {

@@ -19,3 +19,6 @@ Thumbs.db
 *.log
 .env
 .env.*
+
+# Outils locaux (worktrees des agents, réglages)
+.claude

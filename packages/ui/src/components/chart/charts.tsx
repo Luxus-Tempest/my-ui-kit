@@ -4,13 +4,22 @@ import { cn } from "../../utils/cn";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "../table/Table";
 import { Chart, type ChartOption, type ChartSize } from "./Chart";
 import { chartDecal, prefersForcedColors, resolveSeriesColor, seriesCssColor, withAlpha, type ChartTokens } from "./theme";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 /* ═══ Formats ═══════════════════════════════════════════════════════════ */
 
-const numberFormat = new Intl.NumberFormat("fr-FR");
-const compactFormat = new Intl.NumberFormat("fr-FR", { notation: "compact", maximumFractionDigits: 1 });
-const percentFormat = new Intl.NumberFormat("fr-FR", { style: "percent", maximumFractionDigits: 1 });
-const defaultValueFormatter = (v: number) => numberFormat.format(v);
+/** Formats des nombres (valeurs, axes compacts, parts) dans la locale du `LocaleProvider`. */
+function useChartFormats() {
+  const locale = useLocale();
+  return React.useMemo(() => {
+    const number = new Intl.NumberFormat(locale);
+    return {
+      value: (v: number) => number.format(v),
+      compact: new Intl.NumberFormat(locale, { notation: "compact", maximumFractionDigits: 1 }),
+      percent: new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 }),
+    };
+  }, [locale]);
+}
 const toNumber = (v: unknown) => (typeof v === "number" ? v : Number(v ?? 0));
 
 /* ═══ Légende ═══════════════════════════════════════════════════════════ */
@@ -258,7 +267,36 @@ function useKeyboardTip(count: number) {
   return { onInit: (c: EChartsType) => (chartRef.current = c), onKeyDown, onBlur: hide };
 }
 
-const KEYBOARD_HINT = "Flèches pour parcourir les valeurs ; les données complètes sont dans le tableau qui suit.";
+/** Textes des graphiques, pour le catalogue de langue. */
+export interface ChartLabels {
+  /** Colonne des abscisses du tableau. « Catégorie ». */
+  category: string;
+  /** Nom de la légende. « Légende : Chiffre d'affaires ». */
+  legend: (title: string) => string;
+  /** Consigne lue avec le nom du tracé. */
+  keyboardHint: string;
+  /** Rôle annoncé du tracé (`aria-roledescription`). « graphique ». */
+  roleDescription: string;
+  /** Centre de l'anneau. « Total ». */
+  total: string;
+  /** Regroupement des petites parts de l'anneau. « Autres ». */
+  other: string;
+  /** Colonnes du tableau de l'anneau. « Libellé », « Valeur », « Part ». */
+  label: string;
+  value: string;
+  share: string;
+}
+export const CHART_LABELS: ChartLabels = {
+  category: "Catégorie",
+  legend: (title) => `Légende : ${title}`,
+  keyboardHint: "Flèches pour parcourir les valeurs ; les données complètes sont dans le tableau qui suit.",
+  roleDescription: "graphique",
+  total: "Total",
+  other: "Autres",
+  label: "Libellé",
+  value: "Valeur",
+  share: "Part",
+};
 
 /* ═══ Lignes et aires ═══════════════════════════════════════════════════ */
 
@@ -289,7 +327,7 @@ export interface LineChartProps<T extends Record<string, unknown>> extends BaseC
 export function LineChart<T extends Record<string, unknown>>({
   data,
   x,
-  xLabel = "Catégorie",
+  xLabel: xLabelProp,
   xFormatter,
   series,
   area,
@@ -298,7 +336,7 @@ export function LineChart<T extends Record<string, unknown>>({
   directLabels,
   title,
   height = 280,
-  valueFormatter = defaultValueFormatter,
+  valueFormatter: valueFormatterProp,
   legend,
   view = "chart",
   loading,
@@ -306,6 +344,10 @@ export function LineChart<T extends Record<string, unknown>>({
   renderer,
   className,
 }: LineChartProps<T>) {
+  const labels = useMessages("chart", CHART_LABELS);
+  const formats = useChartFormats();
+  const valueFormatter = valueFormatterProp ?? formats.value;
+  const xLabel = xLabelProp ?? labels.category;
   const [hidden, toggle] = useHidden();
   const plotRef = React.useRef<HTMLDivElement>(null);
   const keyboard = useKeyboardTip(data.length);
@@ -330,7 +372,7 @@ export function LineChart<T extends Record<string, unknown>>({
           outerBoundsContain: "axisLabel",
         },
         xAxis: { type: "category", boundaryGap: false, data: data.map((r) => fmtX(r[x])) },
-        yAxis: { type: "value", axisLabel: { formatter: (v: number) => compactFormat.format(v) } },
+        yAxis: { type: "value", axisLabel: { formatter: (v: number) => formats.compact.format(v) } },
         tooltip: {
           ...tooltipBase,
           trigger: "axis",
@@ -376,7 +418,7 @@ export function LineChart<T extends Record<string, unknown>>({
         }),
       };
     },
-    [data, x, series, hidden, area, stacked, curve, showDirect, valueFormatter, fmtX],
+    [data, x, series, hidden, area, stacked, curve, showDirect, valueFormatter, fmtX, formats],
   );
 
 
@@ -394,7 +436,7 @@ export function LineChart<T extends Record<string, unknown>>({
       legend={
         showLegend && (
           <ChartLegend
-            aria-label={`Légende : ${title}`}
+            aria-label={labels.legend(title)}
             items={series.map((s, i) => ({ key: s.key, label: s.label, color: seriesCssColor(s.color, i), shape: area || stacked ? "rect" : "line" }))}
             hiddenKeys={hidden}
             onToggleSeries={toggle}
@@ -411,8 +453,8 @@ export function LineChart<T extends Record<string, unknown>>({
         texture={texture}
         renderer={renderer}
         role="img"
-        aria-roledescription="graphique"
-        aria-label={`${title}. ${KEYBOARD_HINT}`}
+        aria-roledescription={labels.roleDescription}
+        aria-label={`${title}. ${labels.keyboardHint}`}
         tabIndex={0}
         {...keyboard}
       />
@@ -441,14 +483,14 @@ export interface BarChartProps<T extends Record<string, unknown>> extends BaseCh
 export function BarChart<T extends Record<string, unknown>>({
   data,
   x,
-  xLabel = "Catégorie",
+  xLabel: xLabelProp,
   xFormatter,
   series,
   stacked,
   horizontal,
   title,
   height = 280,
-  valueFormatter = defaultValueFormatter,
+  valueFormatter: valueFormatterProp,
   legend,
   view = "chart",
   loading,
@@ -456,6 +498,10 @@ export function BarChart<T extends Record<string, unknown>>({
   renderer,
   className,
 }: BarChartProps<T>) {
+  const labels = useMessages("chart", CHART_LABELS);
+  const formats = useChartFormats();
+  const valueFormatter = valueFormatterProp ?? formats.value;
+  const xLabel = xLabelProp ?? labels.category;
   const [hidden, toggle] = useHidden();
   const plotRef = React.useRef<HTMLDivElement>(null);
   const keyboard = useKeyboardTip(data.length);
@@ -476,7 +522,7 @@ export function BarChart<T extends Record<string, unknown>>({
         data: data.map((r) => fmtX(r[x])),
         axisLabel: { interval: 0, width: band, overflow: "truncate" },
       };
-      const value = { type: "value", axisLabel: { formatter: (v: number) => compactFormat.format(v) } };
+      const value = { type: "value", axisLabel: { formatter: (v: number) => formats.compact.format(v) } };
       return {
         grid: { left: 4, right: 12, top: 12, bottom: 4, outerBoundsMode: "same", outerBoundsContain: "axisLabel" },
         xAxis: horizontal ? value : category,
@@ -517,7 +563,7 @@ export function BarChart<T extends Record<string, unknown>>({
         }),
       };
     },
-    [data, x, series, hidden, stacked, horizontal, valueFormatter, fmtX, showTexture],
+    [data, x, series, hidden, stacked, horizontal, valueFormatter, fmtX, showTexture, formats],
   );
 
 
@@ -535,7 +581,7 @@ export function BarChart<T extends Record<string, unknown>>({
       legend={
         showLegend && (
           <ChartLegend
-            aria-label={`Légende : ${title}`}
+            aria-label={labels.legend(title)}
             items={series.map((s, i) => ({ key: s.key, label: s.label, color: seriesCssColor(s.color, i), shape: "rect" }))}
             hiddenKeys={hidden}
             onToggleSeries={toggle}
@@ -552,8 +598,8 @@ export function BarChart<T extends Record<string, unknown>>({
         texture={showTexture}
         renderer={renderer}
         role="img"
-        aria-roledescription="graphique"
-        aria-label={`${title}. ${KEYBOARD_HINT}`}
+        aria-roledescription={labels.roleDescription}
+        aria-label={`${title}. ${labels.keyboardHint}`}
         tabIndex={0}
         {...keyboard}
       />
@@ -591,12 +637,12 @@ const MAX_SLICES = 6;
  */
 export function DonutChart({
   data,
-  centerLabel = "Total",
+  centerLabel: centerLabelProp,
   centerValue,
-  otherLabel = "Autres",
+  otherLabel: otherLabelProp,
   title,
   height = 240,
-  valueFormatter = defaultValueFormatter,
+  valueFormatter: valueFormatterProp,
   legend = true,
   view = "chart",
   loading,
@@ -604,6 +650,11 @@ export function DonutChart({
   renderer,
   className,
 }: DonutChartProps) {
+  const labels = useMessages("chart", CHART_LABELS);
+  const formats = useChartFormats();
+  const valueFormatter = valueFormatterProp ?? formats.value;
+  const centerLabel = centerLabelProp ?? labels.total;
+  const otherLabel = otherLabelProp ?? labels.other;
   const [hidden, toggle] = useHidden();
   const plotRef = React.useRef<HTMLDivElement>(null);
   const showTexture = texture ?? prefersForcedColors();
@@ -633,7 +684,7 @@ export function DonutChart({
         formatter: (params: unknown) => {
           const p = params as { name: string; value: number; color: string; percent: number };
           return tipContent(p.name, [
-            { color: p.color, label: percentFormat.format(p.percent / 100), value: valueFormatter(p.value), shape: "rect" },
+            { color: p.color, label: formats.percent.format(p.percent / 100), value: valueFormatter(p.value), shape: "rect" },
           ]);
         },
       },
@@ -655,14 +706,14 @@ export function DonutChart({
         },
       ],
     }),
-    [slices, visible, valueFormatter, showTexture],
+    [slices, visible, valueFormatter, showTexture, formats],
   );
 
 
   const rows = slices.map((s) => ({
     label: s.label,
     value: valueFormatter(s.value),
-    share: percentFormat.format(s.value / (slices.reduce((sum, d) => sum + d.value, 0) || 1)),
+    share: formats.percent.format(s.value / (slices.reduce((sum, d) => sum + d.value, 0) || 1)),
   }));
 
   return (
@@ -673,7 +724,7 @@ export function DonutChart({
       legend={
         legend && (
           <ChartLegend
-            aria-label={`Légende : ${title}`}
+            aria-label={labels.legend(title)}
             items={slices.map((s, i) => ({ key: s.key, label: s.label, color: s.other ? "var(--ui-outline)" : seriesCssColor(s.color, i), shape: "rect" }))}
             hiddenKeys={hidden}
             onToggleSeries={toggle}
@@ -684,9 +735,9 @@ export function DonutChart({
         <ChartDataTable
           caption={title}
           columns={[
-            { key: "label", label: "Libellé" },
-            { key: "value", label: "Valeur", numeric: true },
-            { key: "share", label: "Part", numeric: true },
+            { key: "label", label: labels.label },
+            { key: "value", label: labels.value, numeric: true },
+            { key: "share", label: labels.share, numeric: true },
           ]}
           rows={rows}
         />
@@ -701,8 +752,8 @@ export function DonutChart({
           texture={showTexture}
           renderer={renderer}
           role="img"
-          aria-roledescription="graphique"
-          aria-label={`${title}. ${KEYBOARD_HINT}`}
+          aria-roledescription={labels.roleDescription}
+          aria-label={`${title}. ${labels.keyboardHint}`}
           tabIndex={0}
           {...keyboard}
         />

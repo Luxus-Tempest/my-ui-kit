@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../../utils/cn";
+import { useLocale } from "../../i18n/LocaleProvider";
 
 /**
  * Fil d'activité, comme le panneau « Activité » de Drive : une liste ordonnée
@@ -162,10 +163,11 @@ export const TimelineTime = React.forwardRef<HTMLTimeElement, TimelineTimeProps>
   { className, dateTime, format = timeFormat, children, ...props },
   ref,
 ) {
+  const locale = useLocale();
   const date = typeof dateTime === "string" ? new Date(dateTime) : dateTime;
   const valid = !Number.isNaN(date.getTime());
   const machine = typeof dateTime === "string" ? dateTime : valid ? date.toISOString() : undefined;
-  const text = children ?? (valid ? new Intl.DateTimeFormat("fr-FR", format).format(date) : null);
+  const text = children ?? (valid ? new Intl.DateTimeFormat(locale, format).format(date) : null);
   return (
     <time ref={ref} data-slot="timeline-time" dateTime={machine} className={cn("ui-timeline__time", className)} {...props}>
       {text}

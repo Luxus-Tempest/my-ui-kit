@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../../utils/cn";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 /**
  * Liste de paires libellé / valeur, comme le panneau « Détails » de Drive ou
@@ -142,6 +143,14 @@ const CheckIcon = () => (
   </svg>
 );
 
+export interface DescriptionListLabels {
+  /** Bouton de copie d'une valeur. « Copier ». */
+  copy: string;
+  /** Confirmation de copie. « Copié ». */
+  copied: string;
+}
+export const DESCRIPTION_LIST_LABELS: DescriptionListLabels = { copy: "Copier", copied: "Copié" };
+
 /** Valeur. Copiable avec `copyable`. */
 export const DescriptionDetails = React.forwardRef<HTMLElement, DescriptionDetailsProps>(function DescriptionDetails(
   {
@@ -149,14 +158,17 @@ export const DescriptionDetails = React.forwardRef<HTMLElement, DescriptionDetai
     children,
     copyable,
     copyValue,
-    copyLabel = "Copier",
-    copiedLabel = "Copié",
+    copyLabel: copyLabelProp,
+    copiedLabel: copiedLabelProp,
     onCopied,
     ...props
   },
   ref,
 ) {
   const item = React.useContext(ItemContext);
+  const labels = useMessages("descriptionList", DESCRIPTION_LIST_LABELS);
+  const copyLabel = copyLabelProp ?? labels.copy;
+  const copiedLabel = copiedLabelProp ?? labels.copied;
   const valueRef = React.useRef<HTMLSpanElement>(null);
   const textId = React.useId();
   const [copied, setCopied] = React.useState(false);
