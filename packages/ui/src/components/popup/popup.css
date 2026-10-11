@@ -43,12 +43,13 @@
 }
 
 /* ── Entrées de liste (menu, select) ─────────────────────────────────── */
+/* Hauteur : --ui-row-h, qui suit la densité (36 px en standard). */
 .ui-menu-item {
   position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
-  height: 36px;
+  height: var(--ui-row-h);
   padding: 0 10px;
   border-radius: var(--ui-r-xs);
   color: var(--ui-fg);

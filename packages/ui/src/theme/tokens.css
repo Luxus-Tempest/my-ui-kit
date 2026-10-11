@@ -9,6 +9,9 @@
      flotte, courbes « ressort », graisses légères (400 / 500 / 600),
      contrôles aux proportions tactiles (interrupteur, segmented control).
 
+   Hauteurs et marges internes des contrôles : jetons de densité (fin de
+   fichier), en trois paliers sous `data-ui-density`.
+
    Les noms de jetons historiques (--ui-pri, --ui-line-2, --ui-r-ctl…) sont
    conservés : une application qui les surcharge continue de fonctionner.
 
@@ -231,6 +234,90 @@
   --ui-thumb: #f4f4f5;
 
   color-scheme: dark;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Densité : compacte, standard (défaut) ou confortable
+
+   La densité règle les hauteurs et les marges internes des contrôles et des
+   lignes, jamais la taille du texte ni des icônes. Chaque palier retire ou
+   ajoute 4 px aux contrôles et 8 px aux lignes de liste et de table : un champ
+   reste 4 px plus haut qu'un bouton, un bouton `sm` 4 px plus bas, dans les
+   trois densités. La standard reproduit les mesures historiques de la librairie.
+
+   - compacte : écrans de gestion denses (ERP, mode compact de Gmail) ;
+   - standard : le langage Drive × iOS tel quel ;
+   - confortable : proportions tactiles (champ de 44 px d'iOS, bouton de 40 px
+     de Material 3), pour tablettes et bornes.
+
+   Activation : `data-ui-density="compact" | "default" | "comfortable"` sur
+   n'importe quel ancêtre. ThemeProvider le pose avec sa prop `density`
+   (conteneur, et <html> en portée globale pour les menus en portail) ; sans
+   ThemeProvider (next-themes…), poser l'attribut sur <html> ou <body> suffit.
+   Sans attribut, la densité est la standard.
+
+   Aucun jeton n'est dérivé d'un autre ici : un jeton écrit avec var() serait
+   résolu sur <html> et ne suivrait pas une densité posée plus bas dans la page.
+   Les dérivations (calc) se font dans le CSS des composants, qui les résout
+   à leur niveau. Le plus petit contrôle (bouton ou champ `sm` en compacte)
+   mesure 28 px, au-dessus de la cible de 24 px de WCAG 2.2 (2.5.8).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root,
+[data-ui-density="default"] {
+  /* Contrôles d'action : Button, Toggle, ToggleGroup, Chip, Pagination, onglets,
+     entrées de Sidebar, déclencheurs de Menubar et de NavigationMenu. */
+  --ui-ctl-h-sm: 32px;         /* bouton `sm`, puce, déclencheur de Menubar */
+  --ui-ctl-h: 36px;            /* bouton, bascule, pagination, entrée de Sidebar */
+  --ui-ctl-h-lg: 44px;         /* bouton `lg`, case d'InputOTP */
+  --ui-ctl-px: 16px;           /* marge interne horizontale d'un bouton (taille par défaut) */
+
+  /* Champs : Input, Textarea, InputGroup, SearchBar, NumberInput, Select,
+     NativeSelect, Combobox, DatePicker, TimePicker. */
+  --ui-field-h-sm: 32px;       /* champ `density="sm"` */
+  --ui-field-h: 40px;          /* champ */
+  --ui-field-px: 14px;         /* marge interne horizontale d'un champ */
+
+  /* Lignes : entrées de menu (Menu, ContextMenu, Menubar, Select, Combobox,
+     Command, TimePicker), arborescence, listes, accordéon, table. */
+  --ui-row-h: 36px;            /* entrée de menu ou de commande, ligne d'arborescence */
+  --ui-row-h-list: 52px;       /* ligne de List `inset` (`plain` : 4 px de moins), en-tête d'Accordion */
+  --ui-row-py: 10px;           /* marge verticale d'une ligne de liste sur deux lignes de texte */
+  --ui-row-h-table: 48px;      /* ligne de Table */
+  --ui-row-h-table-head: 44px; /* en-tête de Table */
+  --ui-cell-px: 16px;          /* marge interne horizontale d'une cellule de Table */
+}
+
+[data-ui-density="compact"] {
+  --ui-ctl-h-sm: 28px;
+  --ui-ctl-h: 32px;
+  --ui-ctl-h-lg: 40px;
+  --ui-ctl-px: 12px;
+  --ui-field-h-sm: 28px;
+  --ui-field-h: 36px;
+  --ui-field-px: 12px;
+  --ui-row-h: 32px;
+  --ui-row-h-list: 44px;
+  --ui-row-py: 6px;
+  --ui-row-h-table: 40px;
+  --ui-row-h-table-head: 40px;
+  --ui-cell-px: 12px;
+}
+
+[data-ui-density="comfortable"] {
+  --ui-ctl-h-sm: 36px;
+  --ui-ctl-h: 40px;
+  --ui-ctl-h-lg: 48px;
+  --ui-ctl-px: 20px;
+  --ui-field-h-sm: 36px;
+  --ui-field-h: 44px;
+  --ui-field-px: 16px;
+  --ui-row-h: 40px;
+  --ui-row-h-list: 60px;
+  --ui-row-py: 14px;
+  --ui-row-h-table: 56px;
+  --ui-row-h-table-head: 48px;
+  --ui-cell-px: 16px;
 }
 
 /* Base posée par ThemeProvider : corps de lecture 14 px / 1.5. */

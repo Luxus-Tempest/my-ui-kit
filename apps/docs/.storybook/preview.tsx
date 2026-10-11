@@ -21,8 +21,21 @@ const preview: Preview = {
         dynamicTitle: true,
       },
     },
+    density: {
+      description: "Densité de l'interface",
+      toolbar: {
+        title: "Densité",
+        icon: "ruler",
+        items: [
+          { value: "compact", title: "Compacte" },
+          { value: "default", title: "Standard" },
+          { value: "comfortable", title: "Confortable" },
+        ],
+        dynamicTitle: true,
+      },
+    },
   },
-  initialGlobals: { theme: "light", dir: "ltr" },
+  initialGlobals: { theme: "light", dir: "ltr", density: "default" },
   parameters: {
     // Le décorateur gère marges et fond : le cadre Storybook reste nu.
     layout: "fullscreen",
@@ -34,7 +47,7 @@ const preview: Preview = {
           "Introduction",
           ["Bienvenue", "Aperçu", "Statut des composants"],
           "Fondations",
-          ["Langage Drive × iOS", "Couleurs", "Typographie", "Espacement et mise en page", "Rayons, élévation et mouvement"],
+          ["Langage Drive × iOS", "Couleurs", "Typographie", "Espacement et mise en page", "Densité", "Rayons, élévation et mouvement"],
           "Composants",
           [
             "Actions",
@@ -59,11 +72,17 @@ const preview: Preview = {
     // Fond d'application et thème autour de chaque story. En page Docs, pas de
     // hauteur d'écran imposée : chaque aperçu prend la hauteur de son contenu.
     // Une story pleine page (exemples) passe `parameters: { padding: 0 }`.
+    // La densité (bascule « Densité ») est posée sur le conteneur et sur <html>.
     (Story, ctx) => {
       const docs = ctx.viewMode === "docs";
       const padding = (ctx.parameters.padding as number | undefined) ?? (docs ? 20 : 24);
       return (
-        <ThemeProvider key={`${ctx.globals.theme}-${ctx.globals.dir}`} defaultMode={ctx.globals.theme} dir={ctx.globals.dir}>
+        <ThemeProvider
+          key={`${ctx.globals.theme}-${ctx.globals.dir}`}
+          defaultMode={ctx.globals.theme}
+          dir={ctx.globals.dir}
+          density={ctx.globals.density}
+        >
           <div style={{ padding, minHeight: docs ? undefined : "100vh", boxSizing: "border-box", background: "var(--ui-app)" }}>
             <Story />
           </div>

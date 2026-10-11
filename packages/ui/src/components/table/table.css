@@ -1,11 +1,17 @@
 /*
  * Table : vue liste de Drive. En-tête en casse de phrase (13 px, fg-2),
  * lignes de 48 px séparées par un filet, survol tonal, sélection bleue.
+ *
+ * Densité : la table suit la densité de l'interface (--ui-row-h-table,
+ * --ui-row-h-table-head, --ui-cell-px). Une densité `compact` ou `comfortable`
+ * posée sur la table (`density`, attribut `data-density`) l'emporte toujours :
+ * ses mesures sont fixes. `default`, la valeur par défaut de la prop, suit la
+ * densité de l'interface (standard : 48 / 44 / 16 px).
  */
 .ui-table-container {
-  --_row-h: 48px;
-  --_head-h: 44px;
-  --_px: 16px;
+  --_row-h: var(--ui-row-h-table);
+  --_head-h: var(--ui-row-h-table-head);
+  --_px: var(--ui-cell-px);
   --_edge: 8px;
   position: relative;
   width: 100%;
@@ -13,7 +19,7 @@
   font-family: var(--ui-font-sans);
 }
 .ui-table-container[data-density="compact"] { --_row-h: 40px; --_head-h: 40px; --_px: 12px; }
-.ui-table-container[data-density="comfortable"] { --_row-h: 56px; --_head-h: 48px; }
+.ui-table-container[data-density="comfortable"] { --_row-h: 56px; --_head-h: 48px; --_px: 16px; }
 /*
  * Défilement horizontal : un fondu du côté où il reste des colonnes, posé par
  * Table (`data-overflow-start` / `-end`). Le masque n'agit que sur l'alpha.

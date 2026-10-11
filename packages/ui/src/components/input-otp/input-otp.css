@@ -1,5 +1,5 @@
 /*
- * Code à usage unique : cases de 44 px au remplissage tonal (celui d'un Input),
+ * Code à usage unique : cases de 44 px (--ui-ctl-h-lg, suit la densité) au remplissage tonal (celui d'un Input),
  * rayon de champ. La case où se trouve le curseur prend la surface claire, le
  * filet primaire et le halo du focus ; vide, elle montre un curseur qui
  * clignote. Chaque caractère apparaît en ressort. Le vrai <input> (invisible,
@@ -21,7 +21,7 @@
 }
 
 .ui-input-otp__slot {
-  --_size: 44px;
+  --_size: var(--ui-ctl-h-lg);
   box-sizing: border-box;
   position: relative;
   display: flex;

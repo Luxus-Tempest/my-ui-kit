@@ -10,13 +10,13 @@
   font-family: var(--ui-font-sans);
 }
 
-/* Champ : sans cadre, grand corps, filet dessous (Spotlight). */
+/* Champ : sans cadre, grand corps, filet dessous (Spotlight). 56 px en densité standard. */
 .ui-command__search {
   display: flex;
   flex-shrink: 0;
   align-items: center;
   gap: 12px;
-  height: 56px;
+  height: calc(var(--ui-row-h) + 20px);
   padding: 0 18px;
   border-bottom: 1px solid var(--ui-line);
   color: var(--ui-fg-2);

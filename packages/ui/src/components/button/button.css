@@ -5,6 +5,9 @@
  * Langage Drive × iOS : pilule, aucune ombre au repos, couche d'état
  * (currentColor à 8 % au survol, 12 % à l'appui) sur un pseudo-élément,
  * pression « ressort » à 97 %.
+ *
+ * Hauteurs et marge interne : jetons de densité (--ui-ctl-h, --ui-ctl-h-sm,
+ * --ui-ctl-h-lg, --ui-ctl-px), qui suivent `data-ui-density`.
  */
 .ui-button {
   box-sizing: border-box;
@@ -18,8 +21,8 @@
   --_shadow-hover: var(--_shadow);
   --_ring: var(--ui-ring);
   --_ring-border: var(--ui-pri);
-  --_h: 36px;
-  --_px: 16px;
+  --_h: var(--ui-ctl-h);
+  --_px: var(--ui-ctl-px);
   --_radius: var(--ui-r-pill);
   --_font: 14px;
   --_icon: 18px;
@@ -231,7 +234,7 @@
 
 .ui-button--size-sm,
 .ui-button--size-icon-sm {
-  --_h: 32px;
+  --_h: var(--ui-ctl-h-sm);
   --_px: 12px;
   --_font: 13px;
   --_icon: 16px;
@@ -239,7 +242,7 @@
 }
 .ui-button--size-lg,
 .ui-button--size-icon-lg {
-  --_h: 44px;
+  --_h: var(--ui-ctl-h-lg);
   --_px: 22px;
   --_font: 15px;
   --_icon: 20px;
