@@ -1,6 +1,7 @@
 import * as React from "react";
 import {
   getCoreRowModel,
+  getExpandedRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
@@ -9,6 +10,9 @@ import {
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
+  type ColumnPinningState,
+  type ColumnSizingState,
+  type ExpandedState,
   type PaginationState,
   type Row,
   type RowSelectionState,
@@ -18,10 +22,12 @@ import {
   type Updater,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { DataTableDefaultCell, selectColumn } from "./columns";
+import { DataTableDefaultCell, expandColumn, selectColumn } from "./columns";
 import type { DataTablePersistedKey, DataTableState } from "./types";
 import {
   createGlobalFilterFn,
+  DEFAULT_MAX_COLUMN_WIDTH,
+  DEFAULT_MIN_COLUMN_WIDTH,
   DEFAULT_PERSISTED_KEYS,
   facetFilterFn,
   localeSortingFn,
@@ -57,6 +63,37 @@ export interface UseDataTableOptions<TData> {
   manualFiltering?: boolean;
   /** Nombre total de lignes côté serveur (mode `manualPagination`). */
   rowCount?: number;
+  /**
+   * Colonnes figées : entrées « Figer au début / à la fin / Libérer » du menu
+   * de colonne, `meta.pin` et état `columnPinning`. Par défaut `true`. Les
+   * colonnes de sélection, de dépliage et d'actions restent figées dans tous les cas.
+   */
+  enableColumnPinning?: boolean;
+  /**
+   * Colonnes redimensionnables : poignée dans chaque en-tête (souris, doigt,
+   * clavier), mise en page fixe (`table-layout: fixed`), largeurs dans l'état
+   * `columnSizing`. Largeur de départ : `size`, sinon `meta.width` en px, sinon
+   * 150 ; bornes `meta.minWidth` / `meta.maxWidth`. Par défaut `false`.
+   */
+  enableColumnResizing?: boolean;
+  /**
+   * Lignes enfants (données hiérarchiques) : elles s'affichent sous leur parent
+   * déplié, en retrait dans la première colonne de données. Le tri s'applique
+   * dans chaque niveau ; une recherche ou un filtre garde les parents des lignes
+   * trouvées ; avec la pagination, les enfants restent sur la page du parent.
+   */
+  getSubRows?: (row: TData, index: number) => TData[] | undefined;
+  /**
+   * Ligne dépliable. Avec un panneau de détail (`renderSubComponent` de
+   * DataTable), toutes les lignes le sont par défaut ; sinon, celles qui ont
+   * des lignes enfants.
+   */
+  getRowCanExpand?: (row: Row<TData>) => boolean;
+  /**
+   * Colonne de dépliage (chevron) ajoutée en tête si aucune colonne `expand`
+   * n'est déclarée. Par défaut : avec `getSubRows` ou `getRowCanExpand`.
+   */
+  enableExpanding?: boolean;
   /** État de départ (non contrôlé). */
   initialState?: Partial<DataTableState>;
   /** État contrôlé, partie par partie : ce qui est fourni ici n'est plus géré en interne. */
@@ -68,7 +105,14 @@ export interface UseDataTableOptions<TData> {
   onPaginationChange?: (pagination: PaginationState) => void;
   onRowSelectionChange?: (rowSelection: RowSelectionState) => void;
   onColumnVisibilityChange?: (columnVisibility: VisibilityState) => void;
-  /** Mémorise l'état dans `localStorage` sous cette clé (tri, filtres, colonnes, lignes par page, densité). */
+  /** Colonnes figées par l'utilisateur (sans les colonnes figées d'office). */
+  onColumnPinningChange?: (columnPinning: ColumnPinningState) => void;
+  onColumnSizingChange?: (columnSizing: ColumnSizingState) => void;
+  onExpandedChange?: (expanded: ExpandedState) => void;
+  /**
+   * Mémorise l'état dans `localStorage` sous cette clé (tri, filtres, colonnes,
+   * lignes par page, densité, colonnes figées, largeurs).
+   */
   persistKey?: string;
   /** Parties de l'état mémorisées avec `persistKey`. */
   persistState?: DataTablePersistedKey[];
@@ -118,19 +162,107 @@ function collectColumnIds<TData>(columns: ColumnDef<TData, any>[], ids = new Set
   return ids;
 }
 
-/** Pose le filtre à facettes sur les colonnes qui déclarent `meta.filterOptions` sans `filterFn`. */
-function prepareColumns<TData>(columns: ColumnDef<TData, any>[], withSelect: boolean): ColumnDef<TData, any>[] {
+/** Colonnes feuilles (celles qui portent les cellules), dans l'ordre de déclaration. */
+function leafDefs<TData>(columns: ColumnDef<TData, any>[], out: AnyColumnDef<TData>[] = []): AnyColumnDef<TData>[] {
+  for (const def of columns as AnyColumnDef<TData>[]) {
+    if (def.columns?.length) leafDefs(def.columns, out);
+    else out.push(def);
+  }
+  return out;
+}
+
+interface PrepareOptions {
+  withSelect: boolean;
+  withExpand: boolean;
+}
+
+/**
+ * Pose le filtre à facettes sur les colonnes qui déclarent `meta.filterOptions`
+ * sans `filterFn`, traduit `meta.width` / `minWidth` / `maxWidth` en tailles
+ * TanStack, et ajoute en tête les colonnes de sélection et de dépliage.
+ */
+function prepareColumns<TData>(columns: ColumnDef<TData, any>[], { withSelect, withExpand }: PrepareOptions): ColumnDef<TData, any>[] {
   const prepare = (def: AnyColumnDef<TData>): ColumnDef<TData, any> => {
     let next: AnyColumnDef<TData> = def;
     if (def.columns) next = { ...next, columns: def.columns.map((child) => prepare(child as AnyColumnDef<TData>)) } as AnyColumnDef<TData>;
-    if (def.meta?.filterOptions && def.filterFn === undefined) next = { ...next, filterFn: facetFilterFn } as AnyColumnDef<TData>;
+    const meta = def.meta;
+    if (meta?.filterOptions && def.filterFn === undefined) next = { ...next, filterFn: facetFilterFn } as AnyColumnDef<TData>;
+    if (!def.columns && meta) {
+      const sizes: Partial<Pick<ColumnDef<TData, any>, "size" | "minSize" | "maxSize">> = {};
+      if (def.size === undefined && typeof meta.width === "number") sizes.size = meta.width;
+      if (def.minSize === undefined && meta.minWidth != null) sizes.minSize = meta.minWidth;
+      if (def.maxSize === undefined && meta.maxWidth != null) sizes.maxSize = meta.maxWidth;
+      if (Object.keys(sizes).length) next = { ...next, ...sizes } as AnyColumnDef<TData>;
+    }
     return next;
   };
   const prepared = (columns as AnyColumnDef<TData>[]).map(prepare);
-  return withSelect && !collectColumnIds(columns).has("select") ? [selectColumn<TData>(), ...prepared] : prepared;
+  const ids = collectColumnIds(columns);
+  if (withSelect && !ids.has("select")) prepared.unshift(selectColumn<TData>() as AnyColumnDef<TData>);
+  if (withExpand && !ids.has("expand")) {
+    // Le chevron se place juste après la case de sélection, sinon en tête.
+    const after = prepared.findIndex((def) => columnId(def) === "select");
+    prepared.splice(after + 1, 0, expandColumn<TData>() as AnyColumnDef<TData>);
+  }
+  return prepared;
 }
 
+/* ── Colonnes figées ───────────────────────────────────────────────── */
+
+interface PinPlan {
+  /** Figées pour de bon (`enablePinning: false` + `meta.pin`), dans l'ordre de déclaration. */
+  forcedStart: string[];
+  forcedEnd: string[];
+  forced: Set<string>;
+  /** Colonnes que l'utilisateur peut figer ou libérer. */
+  pinnable: Set<string>;
+  /** État de départ tiré de `meta.pin` (colonnes libérables). */
+  initial: ColumnPinningState;
+}
+
+function planPinning<TData>(columns: ColumnDef<TData, any>[]): PinPlan {
+  const plan: PinPlan = { forcedStart: [], forcedEnd: [], forced: new Set(), pinnable: new Set(), initial: { left: [], right: [] } };
+  for (const def of leafDefs(columns)) {
+    const id = columnId(def);
+    if (!id) continue;
+    const pin = def.meta?.pin;
+    if (def.enablePinning === false) {
+      if (pin === "start") plan.forcedStart.push(id);
+      else if (pin === "end") plan.forcedEnd.push(id);
+      if (pin) plan.forced.add(id);
+      continue;
+    }
+    plan.pinnable.add(id);
+    if (pin === "start") plan.initial.left!.push(id);
+    else if (pin === "end") plan.initial.right!.push(id);
+  }
+  return plan;
+}
+
+const unique = (ids: string[]) => [...new Set(ids)];
+
+/** Ne garde de l'état utilisateur que les colonnes qu'il peut figer. */
+function userPinning(state: ColumnPinningState, plan: PinPlan): ColumnPinningState {
+  const keep = (ids: string[] | undefined) => unique((ids ?? []).filter((id) => plan.pinnable.has(id) && !plan.forced.has(id)));
+  const left = keep(state.left);
+  const right = keep(state.right).filter((id) => !left.includes(id));
+  return { left, right };
+}
+
+/** État transmis à TanStack : colonnes figées d'office aux bords, celles de l'utilisateur à l'intérieur. */
+function effectivePinning(state: ColumnPinningState, plan: PinPlan, enabled: boolean): ColumnPinningState {
+  const user = enabled ? userPinning(state, plan) : { left: [], right: [] };
+  return { left: [...plan.forcedStart, ...user.left!], right: [...user.right!, ...plan.forcedEnd] };
+}
+
+const sameIds = (a: string[] = [], b: string[] = []) => a.length === b.length && a.every((id, i) => id === b[i]);
+const samePinning = (a: ColumnPinningState, b: ColumnPinningState) => sameIds(a.left, b.left) && sameIds(a.right, b.right);
+
+/* ── Persistance ───────────────────────────────────────────────────── */
+
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+const stringList = (value: unknown, ids: Set<string>) =>
+  Array.isArray(value) ? value.filter((id): id is string => typeof id === "string" && ids.has(id)) : [];
 
 /** Garde ce qui est utilisable dans l'état relu (colonnes disparues, valeurs corrompues). */
 function sanitizePersisted(raw: PersistedDataTableState, ids: Set<string>, keys: DataTablePersistedKey[]): PersistedDataTableState {
@@ -148,6 +280,13 @@ function sanitizePersisted(raw: PersistedDataTableState, ids: Set<string>, keys:
   if (keys.includes("pageSize") && typeof raw.pageSize === "number" && raw.pageSize > 0) out.pageSize = raw.pageSize;
   if (keys.includes("density") && (raw.density === "compact" || raw.density === "default" || raw.density === "comfortable"))
     out.density = raw.density;
+  if (keys.includes("columnPinning") && isObject(raw.columnPinning))
+    out.columnPinning = { left: stringList(raw.columnPinning.left, ids), right: stringList(raw.columnPinning.right, ids) };
+  if (keys.includes("columnSizing") && isObject(raw.columnSizing)) {
+    out.columnSizing = Object.fromEntries(
+      Object.entries(raw.columnSizing).filter(([id, size]) => ids.has(id) && typeof size === "number" && Number.isFinite(size) && size > 0),
+    ) as ColumnSizingState;
+  }
   return out;
 }
 
@@ -157,8 +296,9 @@ const EMPTY_OBJECT = {};
 /**
  * Crée l'instance TanStack Table configurée comme `DataTable` : tri français
  * multi-colonnes, recherche sans accents, filtres à facettes, pagination,
- * sélection, mode serveur et persistance. À utiliser pour composer sa propre
- * table avec `DataTableView`, `DataTableToolbar`, `DataTablePagination`…
+ * sélection, colonnes figées et redimensionnables, lignes dépliables, mode
+ * serveur et persistance. À utiliser pour composer sa propre table avec
+ * `DataTableView`, `DataTableToolbar`, `DataTablePagination`…
  *
  *   const table = useDataTable({ data, columns, enableRowSelection: true });
  *   return (
@@ -182,6 +322,11 @@ export function useDataTable<TData>(options: UseDataTableOptions<TData>): Table<
     manualSorting = false,
     manualFiltering = false,
     rowCount,
+    enableColumnPinning = true,
+    enableColumnResizing = false,
+    getSubRows,
+    getRowCanExpand,
+    enableExpanding,
     initialState,
     state,
     persistKey,
@@ -193,6 +338,16 @@ export function useDataTable<TData>(options: UseDataTableOptions<TData>): Table<
   const persisted = React.useState(() =>
     persistKey ? sanitizePersisted(readPersisted(persistKey), collectColumnIds(columns), persistState) : {},
   )[0];
+
+  const withSelect = enableRowSelection !== false;
+  const withExpand = enableExpanding ?? Boolean(getSubRows || getRowCanExpand);
+  const preparedColumns = React.useMemo(
+    () => prepareColumns(columns, { withSelect, withExpand }),
+    [columns, withSelect, withExpand],
+  );
+  const pinPlan = React.useMemo(() => planPinning(preparedColumns), [preparedColumns]);
+  const pinPlanRef = React.useRef(pinPlan);
+  pinPlanRef.current = pinPlan;
 
   const [sorting, setSorting] = useStateSlice<SortingState>(
     state?.sorting,
@@ -227,6 +382,21 @@ export function useDataTable<TData>(options: UseDataTableOptions<TData>): Table<
     () => initialState?.rowSelection ?? EMPTY_OBJECT,
     options.onRowSelectionChange,
   );
+  const [columnPinning, setColumnPinning] = useStateSlice<ColumnPinningState>(
+    state?.columnPinning,
+    () => userPinning(persisted.columnPinning ?? initialState?.columnPinning ?? pinPlan.initial, pinPlan),
+    options.onColumnPinningChange,
+  );
+  const [columnSizing, setColumnSizing] = useStateSlice<ColumnSizingState>(
+    state?.columnSizing,
+    () => persisted.columnSizing ?? initialState?.columnSizing ?? EMPTY_OBJECT,
+    options.onColumnSizingChange,
+  );
+  const [expanded, setExpanded] = useStateSlice<ExpandedState>(
+    state?.expanded,
+    () => initialState?.expanded ?? EMPTY_OBJECT,
+    options.onExpandedChange,
+  );
 
   // En mode serveur, un nouveau tri ou un nouveau filtre ramène en page 1
   // (en mode client, TanStack s'en charge lui-même).
@@ -258,25 +428,56 @@ export function useDataTable<TData>(options: UseDataTableOptions<TData>): Table<
     [setGlobalFilter, backToFirstPage],
   );
 
-  const withSelect = enableRowSelection !== false;
-  const preparedColumns = React.useMemo(() => prepareColumns(columns, withSelect), [columns, withSelect]);
+  // TanStack voit les colonnes figées d'office ; l'appelant et la persistance, seulement son choix.
+  const pinningState = React.useMemo(
+    () => effectivePinning(columnPinning, pinPlan, enableColumnPinning),
+    [columnPinning, pinPlan, enableColumnPinning],
+  );
+  const pinningRef = React.useRef(pinningState);
+  pinningRef.current = pinningState;
+  const onColumnPinningChange = React.useCallback(
+    (updater: Updater<ColumnPinningState>) => {
+      const next = userPinning(resolveUpdater(updater, pinningRef.current), pinPlanRef.current);
+      setColumnPinning((previous) => (samePinning(previous, next) ? previous : next));
+    },
+    [setColumnPinning],
+  );
 
   const tableRef = React.useRef<Table<TData> | undefined>(undefined);
   const globalFilterFn = React.useMemo(() => createGlobalFilterFn(() => tableRef.current as Table<any> | undefined), []);
 
   const { defaultColumn, ...restTableOptions } = tableOptions ?? {};
+  // Sans pagination côté client, les lignes enfants se déplient dans le modèle développé ;
+  // avec, elles suivent leur parent sur sa page au lieu de compter dans la taille de page.
+  const paginated = !manualPagination && enablePagination;
 
   const table = useReactTable<TData>({
     data,
     columns: preparedColumns,
     getRowId,
-    state: { sorting, columnFilters, globalFilter, columnVisibility, pagination, rowSelection },
+    getSubRows,
+    // Données hiérarchiques : une recherche garde les parents des lignes trouvées.
+    filterFromLeafRows: Boolean(getSubRows),
+    state: {
+      sorting,
+      columnFilters,
+      globalFilter,
+      columnVisibility,
+      pagination,
+      rowSelection,
+      columnPinning: pinningState,
+      columnSizing,
+      expanded,
+    },
     onSortingChange,
     onColumnFiltersChange,
     onGlobalFilterChange,
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
     onRowSelectionChange: setRowSelection,
+    onColumnPinningChange,
+    onColumnSizingChange: setColumnSizing,
+    onExpandedChange: setExpanded,
     // Les modèles sont toujours fournis : TanStack les met en cache à la première
     // utilisation. Désactiver une fonction passe donc par le mode « manuel ».
     getCoreRowModel: getCoreRowModel(),
@@ -285,14 +486,21 @@ export function useDataTable<TData>(options: UseDataTableOptions<TData>): Table<
     getPaginationRowModel: getPaginationRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    manualPagination: manualPagination || !enablePagination,
-    autoResetPageIndex: !manualPagination && enablePagination,
+    getExpandedRowModel: getExpandedRowModel(),
+    manualPagination: !paginated,
+    autoResetPageIndex: paginated,
+    paginateExpandedRows: !paginated,
     manualSorting,
     manualFiltering,
     rowCount,
     enableSorting,
     enableMultiSort,
     enableRowSelection,
+    enableColumnPinning,
+    enableColumnResizing,
+    columnResizeMode: "onChange",
+    enableExpanding: withExpand,
+    getRowCanExpand,
     // Premier clic : croissant, puis décroissant, puis sans tri, pour toutes les colonnes.
     sortDescFirst: false,
     globalFilterFn,
@@ -300,15 +508,18 @@ export function useDataTable<TData>(options: UseDataTableOptions<TData>): Table<
     defaultColumn: {
       cell: DataTableDefaultCell as NonNullable<ColumnDef<TData, unknown>["cell"]>,
       sortingFn: localeSortingFn,
+      minSize: DEFAULT_MIN_COLUMN_WIDTH,
+      maxSize: DEFAULT_MAX_COLUMN_WIDTH,
       ...defaultColumn,
     },
     ...restTableOptions,
   });
   tableRef.current = table;
 
-  // Persistance : écrit la part de l'état choisie à chaque changement.
+  // Persistance : écrit la part de l'état choisie à chaque changement (pas pendant un glissement de poignée).
+  const resizing = Boolean(table.getState().columnSizingInfo?.isResizingColumn);
   React.useEffect(() => {
-    if (!persistKey) return;
+    if (!persistKey || resizing) return;
     const keys = persistSignature.split(",") as DataTablePersistedKey[];
     const out: PersistedDataTableState = {};
     if (keys.includes("sorting")) out.sorting = sorting;
@@ -316,8 +527,21 @@ export function useDataTable<TData>(options: UseDataTableOptions<TData>): Table<
     if (keys.includes("globalFilter")) out.globalFilter = globalFilter;
     if (keys.includes("columnVisibility")) out.columnVisibility = columnVisibility;
     if (keys.includes("pageSize")) out.pageSize = pagination.pageSize;
+    if (keys.includes("columnPinning")) out.columnPinning = columnPinning;
+    if (keys.includes("columnSizing")) out.columnSizing = columnSizing;
     writePersisted(persistKey, out);
-  }, [persistKey, persistSignature, sorting, columnFilters, globalFilter, columnVisibility, pagination.pageSize]);
+  }, [
+    persistKey,
+    persistSignature,
+    resizing,
+    sorting,
+    columnFilters,
+    globalFilter,
+    columnVisibility,
+    pagination.pageSize,
+    columnPinning,
+    columnSizing,
+  ]);
 
   return table;
 }

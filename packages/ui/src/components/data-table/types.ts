@@ -1,7 +1,11 @@
 import type * as React from "react";
 import type {
   ColumnFiltersState,
+  ColumnPinningState,
+  ColumnSizingState,
+  ExpandedState,
   PaginationState,
+  Row,
   RowData,
   RowSelectionState,
   SortingState,
@@ -11,6 +15,25 @@ import type { PaginationLabels } from "../pagination/Pagination";
 
 /** Hauteur de ligne : 40 / 48 / 56 px, comme `Table`. */
 export type DataTableDensity = "compact" | "default" | "comfortable";
+
+/** Bord auquel une colonne est figée : début ou fin de ligne (droite et gauche s'inversent en RTL). */
+export type DataTablePinPosition = "start" | "end";
+
+/**
+ * Calcul personnalisé de la ligne de totaux : reçoit les valeurs de la colonne
+ * et les lignes filtrées (toutes pages confondues). Un nombre renvoyé passe par
+ * `meta.format` ; tout autre nœud est affiché tel quel.
+ */
+export type DataTableAggregateFn<TData = any> = (values: unknown[], rows: Row<TData>[]) => React.ReactNode;
+
+/**
+ * Agrégat d'une colonne pour la ligne de totaux :
+ * - `sum`, `avg` : somme et moyenne des valeurs numériques ;
+ * - `min`, `max` : plus petite et plus grande valeur (nombres ou dates) ;
+ * - `count` : nombre de valeurs renseignées (affiché en nombre, sans `meta.format`) ;
+ * - une fonction pour tout autre calcul.
+ */
+export type DataTableAggregate<TData = any> = "sum" | "avg" | "min" | "max" | "count" | DataTableAggregateFn<TData>;
 
 /** Une valeur proposée par un filtre à facettes (`meta.filterOptions`). */
 export interface DataTableFilterOption {
@@ -60,6 +83,25 @@ declare module "@tanstack/react-table" {
     cellClassName?: string;
     /** Classe ajoutée à l'en-tête de la colonne. */
     headerClassName?: string;
+    /**
+     * Colonne figée au début ou à la fin de la ligne : elle reste visible quand
+     * la table défile horizontalement. C'est l'état de départ : le menu de
+     * colonne permet de la libérer (sauf avec `enablePinning: false`, qui la fige
+     * pour de bon, comme les colonnes de sélection, de dépliage et d'actions).
+     */
+    pin?: DataTablePinPosition;
+    /** Largeur minimale au redimensionnement (px). Par défaut 48. */
+    minWidth?: number;
+    /** Largeur maximale au redimensionnement (px). Par défaut 960. */
+    maxWidth?: number;
+    /**
+     * Agrégat affiché dans la ligne de totaux, calculé sur toutes les lignes
+     * filtrées (pas seulement la page) et formaté par `meta.format`. En
+     * pagination serveur, passer la valeur par la prop `aggregates`.
+     */
+    aggregate?: DataTableAggregate<TData>;
+    /** Libellé de la ligne de totaux dans cette colonne (à la place de « Total »). */
+    footerLabel?: string;
   }
 }
 
@@ -71,10 +113,28 @@ export interface DataTableState {
   columnVisibility: VisibilityState;
   pagination: PaginationState;
   rowSelection: RowSelectionState;
+  /**
+   * Colonnes figées par l'utilisateur, en identifiants TanStack (`left` : début,
+   * `right` : fin, quel que soit le sens de lecture). Les colonnes figées pour de
+   * bon (sélection, dépliage, actions) n'y figurent pas : elles s'ajoutent d'office.
+   */
+  columnPinning: ColumnPinningState;
+  /** Largeurs choisies au redimensionnement (px), par identifiant de colonne. */
+  columnSizing: ColumnSizingState;
+  /** Lignes dépliées (`true` : toutes), par identifiant de ligne. */
+  expanded: ExpandedState;
 }
 
 /** Parties de l'état mémorisées dans `localStorage` avec `persistKey`. */
-export type DataTablePersistedKey = "sorting" | "columnFilters" | "globalFilter" | "columnVisibility" | "pageSize" | "density";
+export type DataTablePersistedKey =
+  | "sorting"
+  | "columnFilters"
+  | "globalFilter"
+  | "columnVisibility"
+  | "pageSize"
+  | "density"
+  | "columnPinning"
+  | "columnSizing";
 
 /** Libellés internes, tous surchargeables par la prop `labels`. */
 export interface DataTableLabels {
@@ -125,6 +185,26 @@ export interface DataTableLabels {
   sortDescending: string;
   clearSorting: string;
   hideColumn: string;
+  /** Menu de colonne : figer la colonne au début de la ligne. */
+  pinStart: string;
+  /** Menu de colonne : figer la colonne à la fin de la ligne. */
+  pinEnd: string;
+  /** Menu de colonne : libérer une colonne figée. */
+  unpin: string;
+  /** Poignée de redimensionnement ; reçoit l'intitulé de la colonne. */
+  resizeColumn: (title: string) => string;
+  /** Largeur annoncée par la poignée de redimensionnement (px). */
+  columnWidth: (width: number) => string;
+  /** Bouton de dépliage d'une ligne fermée ; reçoit le libellé de la ligne. */
+  expandRow: (rowLabel: string) => string;
+  /** Bouton de dépliage d'une ligne ouverte ; reçoit le libellé de la ligne. */
+  collapseRow: (rowLabel: string) => string;
+  /** Bouton d'en-tête : déplier toutes les lignes. */
+  expandAll: string;
+  /** Bouton d'en-tête : replier toutes les lignes. */
+  collapseAll: string;
+  /** Libellé de la ligne de totaux. */
+  total: string;
   /** Début (masqué) du nom de la puce, qui la distingue de l'en-tête homonyme : « Filtre : Statut ». */
   facetPrefix: string;
   /** Champ de recherche d'un filtre à facettes. */
