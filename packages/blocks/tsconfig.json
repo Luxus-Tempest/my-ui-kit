@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@rovia/ui": ["../ui/src/index.ts"],
+      "@rovia/ui/theme": ["../ui/src/theme/index.ts"],
+      "@rovia/ui/i18n": ["../ui/src/i18n/index.ts"],
+      "@rovia/ui/hooks": ["../ui/src/hooks/index.ts"],
+      "@rovia/ui/utils": ["../ui/src/utils/index.ts"],
+      "@rovia/ui/*": ["../ui/src/components/*/index.ts"]
+    }
+  },
+  "include": ["src"]
+}

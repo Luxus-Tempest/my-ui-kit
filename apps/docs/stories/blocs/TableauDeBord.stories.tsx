@@ -19,7 +19,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
   Text,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { CircleDollarSign, Percent, Receipt, Target } from "lucide-react";
 import { BY_FAMILY, BY_REGION, formatMad, REVENUE } from "../_shared/data";
 

@@ -1,7 +1,8 @@
 import type { Preview } from "@storybook/react";
-import { LocaleProvider, ThemeProvider, localeAr, localeEn, type UiMessagesInput } from "@acme/ui";
-import "@acme/ui/styles.css";
+import { LocaleProvider, ThemeProvider, localeAr, localeEn, type UiMessagesInput } from "@rovia/ui";
+import "@rovia/ui/styles.css";
 import { brandTheme } from "./theme";
+import { DocsPage } from "../stories/_shared/registry";
 
 /** Langues de la barre d'outils : locale Intl et catalogue (le français est intégré aux composants). */
 const LANGUES: Record<string, { locale: string; messages?: UiMessagesInput }> = {
@@ -76,7 +77,8 @@ const preview: Preview = {
     // Le décorateur gère marges et fond : le cadre Storybook reste nu.
     layout: "fullscreen",
     controls: { expanded: true, sort: "requiredFirst" },
-    docs: { toc: true, theme: brandTheme },
+    // `page` : la page Docs par défaut, plus la commande du registre (spec 0001).
+    docs: { toc: true, theme: brandTheme, page: DocsPage },
     options: {
       storySort: {
         order: [

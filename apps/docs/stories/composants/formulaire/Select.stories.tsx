@@ -9,7 +9,7 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 
 const meta = {
@@ -17,6 +17,7 @@ const meta = {
   component: Select,
   tags: ["autodocs"],
   parameters: {
+    registry: "select",
     docs: {
       description: {
         component:

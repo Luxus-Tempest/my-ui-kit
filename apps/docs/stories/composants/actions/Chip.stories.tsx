@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Avatar, AvatarFallback, Chip, ChipGroup, Menu, MenuContent, MenuItem, MenuTrigger } from "@acme/ui";
+import { Avatar, AvatarFallback, Chip, ChipGroup, Menu, MenuContent, MenuItem, MenuTrigger } from "@rovia/ui";
 import { ClockIcon } from "../../_shared/icons";
 
 const Chevron = () => (
@@ -14,6 +14,7 @@ const meta = {
   component: Chip,
   tags: ["autodocs"],
   parameters: {
+    registry: "chip",
     docs: {
       description: {
         component:

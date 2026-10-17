@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { ToggleGroup, ToggleGroupItem } from "@acme/ui";
+import { ToggleGroup, ToggleGroupItem } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 import {
   AlignCenterIcon,
@@ -18,6 +18,7 @@ const meta = {
   component: ToggleGroup,
   tags: ["autodocs"],
   parameters: {
+    registry: "toggle",
     docs: {
       description: {
         component:

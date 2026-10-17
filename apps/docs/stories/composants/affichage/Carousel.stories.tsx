@@ -13,7 +13,7 @@ import {
   CarouselNext,
   CarouselPrevious,
   type CarouselApi,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { Bell, Calendar, FileImage, FileSpreadsheet, FileText, Package, Presentation, TrendingUp, Truck } from "lucide-react";
 
 /* ── Visuels de démo : SVG en data-URI et dégradés de jetons, aucune ressource externe ── */
@@ -87,6 +87,7 @@ const meta = {
   component: Carousel,
   tags: ["autodocs"],
   parameters: {
+    registry: "carousel",
     docs: {
       description: {
         component:

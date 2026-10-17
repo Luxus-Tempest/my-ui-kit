@@ -1,4 +1,4 @@
-# Contribuer à @acme/ui
+# Contribuer à @rovia/ui
 
 Ce guide décrit comment un composant naît, est documenté et est validé. Toute
 contribution (humaine ou outillée) le suit : c'est ce qui garde la librairie
@@ -20,6 +20,18 @@ Puis, dans le même changement :
 3. `apps/docs/stories/composants/<catégorie>/<Nom>.stories.tsx` : la page Storybook.
 4. `apps/docs/stories/introduction/Statut.mdx` : une ligne dans le tableau de statut.
 5. Une entrée Changeset (`pnpm changeset`).
+6. `pnpm --filter @rovia/ui subpaths` : régénère le sous chemin `@rovia/ui/<nom-en-kebab>` (son `index.ts` et
+   `exports` dans package.json). `pnpm lint` échoue tant qu'il n'est pas à jour.
+7. Dans la méta de la story : `parameters: { registry: "<nom-en-kebab>" }`, pour que la page affiche la commande
+   d'éjection. Le build du registre échoue sinon.
+
+### Blocs (écrans installables)
+
+Un bloc vit dans `packages/blocks/src/<nom>/` : ses modules, `<nom>.sample.ts` (données d'exemple) et un `index.ts`.
+Il prend ses données et ses actions en props typées, n'importe la librairie que par un sous chemin
+(`@rovia/ui/button`, jamais le barrel `@rovia/ui` ni un chemin relatif hors de son dossier), et ses textes sont en
+français en clair. Sa story l'importe depuis `@rovia/blocks/<nom>` avec `parameters: { registry: "<nom>" }`.
+`pnpm registry:build` vérifie ces règles (voir la spec `docs/specs/_root/0001-registre-blocs-installables`).
 
 ### Règles d'écriture
 
@@ -84,7 +96,7 @@ Modèle :
 
 ```tsx
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button } from "@acme/ui";
+import { Button } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 
 const meta = {
@@ -124,4 +136,4 @@ export const Variantes: Story = { render: () => <Row>…</Row> };
 - [ ] Rendu vérifié en clair, en sombre **et** de droite à gauche (bascules « Thème » et « Sens » de Storybook), addon a11y sans erreur ;
       contrôles vérifiés dans les trois densités (bascule « Densité »).
 - [ ] Aucune valeur en dur dans le CSS (hauteurs de contrôle comprises : jetons de densité) ; textes en français.
-- [ ] Exports, styles, story, statut et Changeset ajoutés.
+- [ ] Exports, styles, sous chemin, story (avec `parameters.registry`), statut et Changeset ajoutés.

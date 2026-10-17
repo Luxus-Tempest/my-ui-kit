@@ -15,7 +15,7 @@ import {
   MenubarSubContent,
   MenubarSubTrigger,
   MenubarTrigger,
-} from "@acme/ui";
+} from "@rovia/ui";
 import {
   ClipboardPaste,
   Copy,
@@ -132,6 +132,7 @@ const meta = {
   component: Menubar,
   tags: ["autodocs"],
   parameters: {
+    registry: "menubar",
     docs: {
       description: {
         component:

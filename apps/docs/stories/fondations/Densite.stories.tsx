@@ -39,7 +39,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
   type ThemeDensity,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { Copy, Download, FilePlus2, LayoutGrid, List, Pencil, Plus, Send, Trash2 } from "lucide-react";
 import { Section } from "../_shared/tokens";
 

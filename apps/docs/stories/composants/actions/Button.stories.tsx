@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button } from "@acme/ui";
+import { Button } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 import { ArrowIcon, BoldIcon, DownloadIcon, MoreIcon, PlusIcon, TrashIcon } from "../../_shared/icons";
 
@@ -9,6 +9,7 @@ const meta = {
   component: Button,
   tags: ["autodocs"],
   parameters: {
+    registry: "button",
     docs: {
       description: {
         component:

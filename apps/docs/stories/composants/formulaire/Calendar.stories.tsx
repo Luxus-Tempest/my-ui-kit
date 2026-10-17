@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Calendar, Field, type DateRange } from "@acme/ui";
+import { Calendar, Field, type DateRange } from "@rovia/ui";
 import { Card, Row } from "../../_shared/demo";
 
 const meta = {
@@ -8,6 +8,7 @@ const meta = {
   component: Calendar,
   tags: ["autodocs"],
   parameters: {
+    registry: "calendar",
     docs: {
       description: {
         component:

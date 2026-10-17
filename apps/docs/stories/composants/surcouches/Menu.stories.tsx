@@ -14,7 +14,7 @@ import {
   MenuSubContent,
   MenuSubTrigger,
   MenuTrigger,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { CopyIcon, DownloadIcon, EditIcon, MoreIcon, TrashIcon } from "../../_shared/icons";
 
 function Actions() {
@@ -51,6 +51,7 @@ const meta = {
   component: Menu,
   tags: ["autodocs"],
   parameters: {
+    registry: "menu",
     docs: {
       description: {
         component:

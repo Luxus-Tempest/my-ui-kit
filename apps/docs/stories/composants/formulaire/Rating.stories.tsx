@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, Field, Rating } from "@acme/ui";
+import { Button, Field, Rating } from "@rovia/ui";
 import { Flame, Heart, ThumbsUp } from "lucide-react";
 import { Card, Row } from "../../_shared/demo";
 
@@ -9,6 +9,7 @@ const meta = {
   component: Rating,
   tags: ["autodocs"],
   parameters: {
+    registry: "rating",
     docs: {
       description: {
         component:

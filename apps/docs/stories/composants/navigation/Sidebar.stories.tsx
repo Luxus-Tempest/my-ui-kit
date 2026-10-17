@@ -54,8 +54,8 @@ import {
   Text,
   Tooltip,
   useSidebar,
-} from "@acme/ui";
-import type { SidebarProps, SidebarProviderProps } from "@acme/ui";
+} from "@rovia/ui";
+import type { SidebarProps, SidebarProviderProps } from "@rovia/ui";
 import {
   Check,
   ChevronRight,
@@ -442,6 +442,7 @@ const meta = {
   component: Sidebar,
   tags: ["autodocs"],
   parameters: {
+    registry: "sidebar",
     padding: 0,
     docs: {
       // Chaque aperçu dans son propre cadre : la coquille occupe tout l'écran.

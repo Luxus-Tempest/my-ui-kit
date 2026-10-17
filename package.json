@@ -9,9 +9,10 @@
     "lint": "turbo run typecheck",
     "storybook": "pnpm --filter docs storybook",
     "changeset": "changeset",
-    "release": "turbo run build && changeset publish",
+    "release": "turbo run build --filter=@rovia/ui && changeset publish",
     "size": "turbo run size",
-    "e2e": "turbo run e2e"
+    "e2e": "turbo run e2e",
+    "registry:build": "node packages/registry/src/cli.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.0",

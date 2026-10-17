@@ -21,7 +21,7 @@ import {
   Stat,
   Text,
   type UiMessagesInput,
-} from "@acme/ui";
+} from "@rovia/ui";
 
 const meta: Meta = {
   title: "Fondations/Langue",
@@ -32,7 +32,7 @@ const meta: Meta = {
           "Chaque composant parle français par défaut. `LocaleProvider` change la langue de toute l'interface : la **locale** `Intl` (dates, nombres, pluriels, tri, premier jour de la semaine) et le **catalogue** de libellés (boutons, annonces aux lecteurs d'écran, messages d'erreur).",
           "",
           "```tsx",
-          'import { LocaleProvider, ThemeProvider, getLocaleDirection, localeAr } from "@acme/ui";',
+          'import { LocaleProvider, ThemeProvider, getLocaleDirection, localeAr } from "@rovia/ui";',
           "",
           'const locale = "ar-MA";',
           "<ThemeProvider dir={getLocaleDirection(locale)}>",

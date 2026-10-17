@@ -15,7 +15,7 @@ import {
   Text,
   TypingIndicator,
   type MessageStatus,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { FileSpreadsheet, Paperclip, Phone, Smile, Video } from "lucide-react";
 
 /* ── Données de démonstration (images : données, pas des jetons de style) ── */
@@ -255,6 +255,7 @@ const meta = {
   subcomponents: { MessageGroup, Message, MessageAttachment, MessageDateSeparator, TypingIndicator, ChatComposer },
   tags: ["autodocs"],
   parameters: {
+    registry: "chat",
     docs: {
       description: {
         component:

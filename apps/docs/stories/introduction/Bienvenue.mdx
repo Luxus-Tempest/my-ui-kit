@@ -1,8 +1,9 @@
 import { Meta } from "@storybook/blocks";
+import { RegistrySetup, SHADCN } from "../_shared/registry";
 
 <Meta title="Introduction/Bienvenue" />
 
-# @acme/ui
+# @rovia/ui
 
 Librairie de composants React accessible, au langage visuel **Drive × iOS** : la clarté tonale de
 Google Drive et la douceur d'iOS. Construite sur **Radix UI** (comportement, clavier, ARIA) avec une
@@ -11,13 +12,13 @@ couche de style en **variables CSS** : aucune dépendance à Tailwind, thème cl
 ## Installation
 
 ```bash
-pnpm add @acme/ui
+pnpm add @rovia/ui
 ```
 
 ```tsx
 // Une fois, à la racine de l'application
-import "@acme/ui/styles.css";
-import { ThemeProvider, Toaster } from "@acme/ui";
+import "@rovia/ui/styles.css";
+import { ThemeProvider, Toaster } from "@rovia/ui";
 
 export function App({ children }) {
   return (
@@ -32,6 +33,23 @@ export function App({ children }) {
 Le thème sombre s'active par `ThemeProvider` ou par la classe `.dark` sur un parent : la librairie
 fonctionne telle quelle avec `next-themes`. Les surcharges de jetons passent par
 `<ThemeProvider overrides={{ pri: "#0b57d0" }}>`.
+
+## Blocs et éjection (registre)
+
+Les **blocs** (écrans complets) s'installent dans ton application, copiés pour être modifiés
+librement. Un **composant** peut aussi être éjecté : son seul dossier est copié, le reste continue de
+venir du paquet. Les deux passent par le CLI shadcn, épinglé en <code>{SHADCN}</code> ; Tailwind
+n'est pas nécessaire.
+
+Mise en place, une fois par application (en plus de l'installation plus haut) : un `components.json`
+à la racine. Avec un dossier `src/`, remplace `app/globals.css` par `src/app/globals.css` ; garde
+`"rsc": true` (sinon le CLI retire `"use client"`).
+
+<RegistrySetup />
+
+Ensuite, chaque page de bloc ou de composant affiche sa commande, par exemple
+<code>pnpm dlx {SHADCN} add @rovia/connexion</code>. Pour mettre à jour une copie, relance la même
+commande avec `--overwrite`, puis relis la différence dans git.
 
 ## Parcourir cette documentation
 

@@ -38,7 +38,7 @@ import {
   type PaginationState,
   type Row as TableRowModel,
   type SortingState,
-} from "@acme/ui";
+} from "@rovia/ui";
 import {
   Copy,
   Download,
@@ -162,6 +162,7 @@ const meta = {
   component: DataTable<Facture>,
   tags: ["autodocs"],
   parameters: {
+    registry: "data-table",
     docs: {
       description: {
         component:

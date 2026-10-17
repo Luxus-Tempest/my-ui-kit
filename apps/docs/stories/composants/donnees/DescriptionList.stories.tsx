@@ -10,7 +10,7 @@ import {
   DescriptionTerm,
   toast,
   Toaster,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { Card } from "../../_shared/demo";
 
 /** Les détails d'un fichier, tels que les montre le panneau de Drive. */
@@ -51,6 +51,7 @@ const meta = {
   subcomponents: { DescriptionItem, DescriptionTerm, DescriptionDetails },
   tags: ["autodocs"],
   parameters: {
+    registry: "description-list",
     docs: {
       description: {
         component:

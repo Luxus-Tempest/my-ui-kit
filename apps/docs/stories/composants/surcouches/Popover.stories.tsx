@@ -15,7 +15,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { FilterIcon } from "../../_shared/icons";
 
 const Filters = () => (
@@ -47,6 +47,7 @@ const meta = {
   component: Popover,
   tags: ["autodocs"],
   parameters: {
+    registry: "popover",
     docs: {
       description: {
         component:

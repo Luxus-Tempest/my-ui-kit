@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, HStack, Toaster, toast } from "@acme/ui";
+import { Button, HStack, Toaster, toast } from "@rovia/ui";
 
 const meta = {
   title: "Composants/Retour/Toast",
   component: Toaster,
   tags: ["autodocs"],
   parameters: {
+    registry: "toast",
     docs: {
       description: {
         component:

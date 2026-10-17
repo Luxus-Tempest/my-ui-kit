@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Field, Switch } from "@acme/ui";
+import { Field, Switch } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 
 const meta = {
@@ -7,6 +7,7 @@ const meta = {
   component: Switch,
   tags: ["autodocs"],
   parameters: {
+    registry: "switch",
     docs: {
       description: {
         component:

@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Card, CardContent, CardHeader, CardTitle, ScrollArea, Text } from "@acme/ui";
+import { Card, CardContent, CardHeader, CardTitle, ScrollArea, Text } from "@rovia/ui";
 
 const meta = {
   title: "Composants/Mise en page/ScrollArea",
   component: ScrollArea,
   tags: ["autodocs"],
   parameters: {
+    registry: "scroll-area",
     docs: {
       description: {
         component:

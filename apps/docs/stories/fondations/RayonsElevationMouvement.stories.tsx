@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, Text } from "@acme/ui";
+import { Button, Text } from "@rovia/ui";
 import { Section, useTokenValue } from "../_shared/tokens";
 
 const meta: Meta = {

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Field, Input, Textarea } from "@acme/ui";
+import { Field, Input, Textarea } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 
 const meta = {
@@ -7,6 +7,7 @@ const meta = {
   component: Input,
   tags: ["autodocs"],
   parameters: {
+    registry: "input",
     docs: {
       description: {
         component:

@@ -12,7 +12,7 @@ import {
   MenuContent,
   MenuItem,
   MenuTrigger,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 import { ChevronDownIcon, FolderIcon, HomeIcon } from "../../_shared/icons";
 
@@ -21,6 +21,7 @@ const meta = {
   component: Breadcrumb,
   tags: ["autodocs"],
   parameters: {
+    registry: "breadcrumb",
     docs: {
       description: {
         component:

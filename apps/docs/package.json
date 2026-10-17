@@ -4,19 +4,21 @@
   "type": "module",
   "scripts": {
     "storybook": "storybook dev -p 6006",
-    "build": "storybook build",
+    "build": "storybook build && node ../../packages/registry/src/cli.mjs --out storybook-static/r",
     "typecheck": "tsc --noEmit -p .",
     "e2e": "playwright test",
     "e2e:report": "playwright show-report"
   },
   "dependencies": {
-    "@acme/ui": "workspace:*",
+    "@rovia/blocks": "workspace:*",
+    "@rovia/ui": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.63.0",
+    "@rovia/registry": "workspace:*",
     "@storybook/addon-a11y": "^8.6.0",
     "@storybook/addon-docs": "^8.6.0",
     "@storybook/addon-essentials": "^8.6.0",

@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Field, RadioGroup, RadioGroupItem } from "@acme/ui";
+import { Field, RadioGroup, RadioGroupItem } from "@rovia/ui";
 
 const meta = {
   title: "Composants/Formulaire/RadioGroup",
   component: RadioGroup,
   tags: ["autodocs"],
   parameters: {
+    registry: "radio",
     docs: {
       description: {
         component:

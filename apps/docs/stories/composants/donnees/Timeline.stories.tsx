@@ -11,7 +11,7 @@ import {
   TimelineItem,
   TimelineTime,
   TimelineTitle,
-} from "@acme/ui";
+} from "@rovia/ui";
 import {
   CircleCheck,
   CircleX,
@@ -130,6 +130,7 @@ const meta = {
   },
   tags: ["autodocs"],
   parameters: {
+    registry: "timeline",
     docs: {
       description: {
         component:

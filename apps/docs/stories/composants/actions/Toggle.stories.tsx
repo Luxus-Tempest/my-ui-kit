@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Toggle } from "@acme/ui";
+import { Toggle } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 import { BoldIcon, InfoIcon, ItalicIcon, PinIcon, StarIcon, UnderlineIcon } from "../../_shared/icons";
 
@@ -9,6 +9,7 @@ const meta = {
   component: Toggle,
   tags: ["autodocs"],
   parameters: {
+    registry: "toggle",
     docs: {
       description: {
         component:

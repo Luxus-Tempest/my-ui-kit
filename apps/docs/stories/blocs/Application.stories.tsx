@@ -53,7 +53,7 @@ import {
   Toaster,
   type ColumnDef,
   type DataTableFilterOption,
-} from "@acme/ui";
+} from "@rovia/ui";
 import {
   Bell,
   BookOpen,

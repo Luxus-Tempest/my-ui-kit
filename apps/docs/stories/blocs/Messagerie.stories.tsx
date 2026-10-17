@@ -27,7 +27,7 @@ import {
   formatMessageDate,
   useMediaQuery,
   type MessageStatus,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { ArrowLeft, FileSpreadsheet, FileText, Info, Paperclip, Phone, Smile, SquarePen, Video } from "lucide-react";
 
 const meta: Meta = {

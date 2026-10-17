@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { BarChart, Card, CardContent } from "@acme/ui";
+import { BarChart, Card, CardContent } from "@rovia/ui";
 import { BY_REGION, formatMad } from "../../_shared/data";
 
 const SERIES = [
@@ -12,6 +12,7 @@ const meta = {
   component: BarChart,
   tags: ["autodocs"],
   parameters: {
+    registry: "chart",
     docs: {
       description: {
         component:

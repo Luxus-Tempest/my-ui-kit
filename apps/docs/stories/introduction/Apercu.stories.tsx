@@ -51,7 +51,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
   toast,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { Check, Copy, CreditCard, Landmark, Pencil, Share2, Upload, UserPlus, Wallet } from "lucide-react";
 import { REVENUE } from "../_shared/data";
 

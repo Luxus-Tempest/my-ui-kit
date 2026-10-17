@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, DatePicker, DateRangePicker, Field, type DateRange } from "@acme/ui";
+import { Button, DatePicker, DateRangePicker, Field, type DateRange } from "@rovia/ui";
 import { Card, Row } from "../../_shared/demo";
 
 /** Empile des champs avec l'espacement d'un formulaire. */
@@ -13,6 +13,7 @@ const meta = {
   component: DatePicker,
   tags: ["autodocs"],
   parameters: {
+    registry: "date-picker",
     docs: {
       description: {
         component:

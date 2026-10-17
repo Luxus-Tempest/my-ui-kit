@@ -1,6 +1,6 @@
 import type * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { AspectRatio, Badge } from "@acme/ui";
+import { AspectRatio, Badge } from "@rovia/ui";
 
 /* ── Visuels de démo : SVG en data-URI et dégradés de jetons, aucune ressource externe ── */
 
@@ -42,6 +42,7 @@ const meta = {
   component: AspectRatio,
   tags: ["autodocs"],
   parameters: {
+    registry: "aspect-ratio",
     docs: {
       description: {
         component:

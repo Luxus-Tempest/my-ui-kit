@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Card, CardContent, Separator, Skeleton } from "@acme/ui";
+import { Card, CardContent, Separator, Skeleton } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 
 const meta = {
@@ -7,6 +7,7 @@ const meta = {
   component: Skeleton,
   tags: ["autodocs"],
   parameters: {
+    registry: "skeleton",
     docs: {
       description: {
         component:

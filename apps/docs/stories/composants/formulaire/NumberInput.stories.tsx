@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Field, NumberInput } from "@acme/ui";
+import { Field, NumberInput } from "@rovia/ui";
 import { Card, Row } from "../../_shared/demo";
 
 const meta = {
@@ -8,6 +8,7 @@ const meta = {
   component: NumberInput,
   tags: ["autodocs"],
   parameters: {
+    registry: "number-input",
     docs: {
       description: {
         component:

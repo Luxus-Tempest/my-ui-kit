@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Fab, SpeedDial, SpeedDialAction, type SpeedDialProps } from "@acme/ui";
+import { Fab, SpeedDial, SpeedDialAction, type SpeedDialProps } from "@rovia/ui";
 import {
   Camera,
   FileSpreadsheet,
@@ -59,6 +59,7 @@ const meta = {
   component: SpeedDial,
   tags: ["autodocs"],
   parameters: {
+    registry: "speed-dial",
     docs: {
       description: {
         component:

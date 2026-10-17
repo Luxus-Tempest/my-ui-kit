@@ -11,7 +11,7 @@ import {
   CardMedia,
   CardTitle,
   Progress,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { FileIcon, MoreIcon } from "../../_shared/icons";
 
 const meta = {
@@ -19,6 +19,7 @@ const meta = {
   component: Card,
   tags: ["autodocs"],
   parameters: {
+    registry: "card",
     docs: {
       description: {
         component:

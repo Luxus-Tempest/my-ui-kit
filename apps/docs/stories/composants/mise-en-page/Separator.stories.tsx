@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { HStack, Separator, Stack, Text } from "@acme/ui";
+import { HStack, Separator, Stack, Text } from "@rovia/ui";
 
 const meta = {
   title: "Composants/Mise en page/Separator",
   component: Separator,
   tags: ["autodocs"],
   parameters: {
+    registry: "separator",
     docs: {
       description: {
         component:

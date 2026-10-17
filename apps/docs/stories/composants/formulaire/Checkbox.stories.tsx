@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Checkbox, Field } from "@acme/ui";
+import { Checkbox, Field } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 
 const meta = {
@@ -7,6 +7,7 @@ const meta = {
   component: Checkbox,
   tags: ["autodocs"],
   parameters: {
+    registry: "checkbox",
     docs: {
       description: {
         component:

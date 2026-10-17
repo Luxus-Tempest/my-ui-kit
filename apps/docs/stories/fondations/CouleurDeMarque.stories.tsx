@@ -23,7 +23,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
   type BrandTokens,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { Folder, Plus } from "lucide-react";
 
 const meta: Meta = {
@@ -35,7 +35,7 @@ const meta: Meta = {
           "Une seule couleur suffit : `createBrandTokens(couleur)` calcule toute la famille primaire (bouton plein, conteneur tonal, sélection, liens, focus) pour le clair **et** le sombre, en OKLCH. La teinte de la marque est gardée ; luminosité et saturation s'ajustent pour garantir les contrastes : texte sur le primaire ≥ 4,5:1, liens sur les surfaces ≥ 4,5:1, texte sur le conteneur ≥ 7:1.",
           "",
           "```tsx",
-          'import { createBrandCss } from "@acme/ui";',
+          'import { createBrandCss } from "@rovia/ui";',
           "",
           "// Avec ou sans ThemeProvider (next-themes…) : une feuille de style après styles.css.",
           '<style>{createBrandCss("#7c3aed")}</style>',

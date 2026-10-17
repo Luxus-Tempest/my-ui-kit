@@ -15,7 +15,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { DownloadIcon, FileIcon, FolderIcon, HomeIcon, StarIcon } from "../../_shared/icons";
 
 const Details = () => (
@@ -51,6 +51,7 @@ const meta = {
   component: SheetContent,
   tags: ["autodocs"],
   parameters: {
+    registry: "sheet",
     docs: {
       description: {
         component:

@@ -8,7 +8,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
   REGEXP_ONLY_DIGITS_AND_CHARS,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { Card, Row } from "../../_shared/demo";
 
 /** Cases d'un code : deux groupes séparés par un tiret au-delà de 5 caractères. */
@@ -46,6 +46,7 @@ const meta = {
   component: InputOTP,
   tags: ["autodocs"],
   parameters: {
+    registry: "input-otp",
     docs: {
       description: {
         component:

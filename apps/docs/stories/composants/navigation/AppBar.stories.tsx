@@ -17,7 +17,7 @@ import {
   Switch,
   Text,
   Tooltip,
-} from "@acme/ui";
+} from "@rovia/ui";
 import {
   Bell,
   ChevronLeft,
@@ -87,6 +87,7 @@ const meta = {
   component: AppBar,
   tags: ["autodocs"],
   parameters: {
+    registry: "app-bar",
     docs: {
       description: {
         component:

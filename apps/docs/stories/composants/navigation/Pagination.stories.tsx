@@ -1,7 +1,7 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Pagination } from "@acme/ui";
-import type { PaginationProps } from "@acme/ui";
+import { Pagination } from "@rovia/ui";
+import type { PaginationProps } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 
 /** Démo pilotée : la page courante vit dans l'état de la story. */
@@ -25,6 +25,7 @@ const meta = {
   component: Pagination,
   tags: ["autodocs"],
   parameters: {
+    registry: "pagination",
     docs: {
       description: {
         component:

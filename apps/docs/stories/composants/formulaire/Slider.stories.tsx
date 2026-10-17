@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Field, Slider } from "@acme/ui";
+import { Field, Slider } from "@rovia/ui";
 import { Card, Row } from "../../_shared/demo";
 
 const fmt = new Intl.NumberFormat("fr-FR");
@@ -10,6 +10,7 @@ const meta = {
   component: Slider,
   tags: ["autodocs"],
   parameters: {
+    registry: "slider",
     docs: {
       description: {
         component:
