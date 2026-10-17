@@ -1,11 +1,11 @@
 /*
  * Tailwind v4 déclare ses couches : theme, base, components, utilities.
- * Les styles de @acme/ui sont rangés dans « components » : ils l'emportent
+ * Les styles de @rovia/ui sont rangés dans « components » : ils l'emportent
  * sur la remise à zéro de Tailwind (base), et une classe utilitaire posée
  * sur un composant (`className="rounded-none"`) l'emporte sur eux.
  */
 @import "tailwindcss";
-@import "@acme/ui/styles.css" layer(components);
+@import "@rovia/ui/styles.css" layer(components);
 
 /* Les jetons de la librairie, utilisables comme couleurs et rayons Tailwind : `bg-panel`, `text-fg-2`, `rounded-lg`. */
 @theme inline {

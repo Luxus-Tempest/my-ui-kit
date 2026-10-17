@@ -28,7 +28,7 @@ import {
   type BadgeVariant,
   type ColumnDef,
   type DataTableFilterOption,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { Download, FileImage, FileSpreadsheet, FileText, Presentation, Share2, Trash2, Upload } from "lucide-react";
 import type { Document, StatutDocument, TypeDocument } from "@/lib/donnees";
 

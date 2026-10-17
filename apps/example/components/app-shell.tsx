@@ -33,7 +33,7 @@ import {
   SidebarRail,
   SidebarTrigger,
   Tooltip,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { Files, FileText, Languages, LayoutDashboard, Monitor, Moon, Sun, Users } from "lucide-react";
 import { useLangue, type Langue } from "./providers";
 

@@ -1,5 +1,5 @@
 ---
-"@acme/ui": minor
+"@rovia/ui": minor
 ---
 
 Langue de l'interface : `LocaleProvider`, catalogues anglais et arabe.

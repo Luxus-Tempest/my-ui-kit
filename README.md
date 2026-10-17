@@ -1,4 +1,4 @@
-# @acme/ui
+# @rovia/ui
 
 Librairie de composants React façon MUI, construite sur **Radix UI** (logique + accessibilité) avec une couche de style maison en **variables CSS** et un langage visuel **Drive × iOS**. Clair, sombre, droite à gauche ; chaque composant est testé (comportement + axe) et documenté dans Storybook.
 
@@ -245,8 +245,8 @@ taille. Chaque palier retire ou ajoute 4 px aux contrôles et 8 px aux lignes : 
 ## Utilisation dans une application
 
 ```tsx
-import { ThemeProvider, Button } from "@acme/ui";
-import "@acme/ui/styles.css";
+import { ThemeProvider, Button } from "@rovia/ui";
+import "@rovia/ui/styles.css";
 
 <ThemeProvider defaultMode="dark" overrides={{ pri: "#7c3aed", "r-ctl": "6px" }}>
   <Button size="lg">Commencer</Button>
@@ -263,12 +263,12 @@ saturation s'ajustent pour garantir les contrastes (texte sur le primaire et lie
 ≥ 7:1) : une marque jaune vif donne un bouton ambré lisible.
 
 ```tsx
-import { ThemeProvider, createBrandCss, createBrandTokens } from "@acme/ui";
+import { ThemeProvider, createBrandCss, createBrandTokens } from "@rovia/ui";
 
 // Avec ThemeProvider : la famille suit le mode clair ou sombre.
 <ThemeProvider brand="#7c3aed">…</ThemeProvider>
 
-// Sans ThemeProvider (next-themes…) : une feuille de style après @acme/ui/styles.css.
+// Sans ThemeProvider (next-themes…) : une feuille de style après @rovia/ui/styles.css.
 <style>{createBrandCss("#7c3aed")}</style>
 
 // Ou les valeurs elles-mêmes : { light, dark }.
@@ -284,7 +284,7 @@ Les composants s'importent directement dans un composant serveur, tant que leurs
 
 ```tsx
 // app/page.tsx — composant serveur, sans "use client"
-import { Stat, StatGroup } from "@acme/ui";
+import { Stat, StatGroup } from "@rovia/ui";
 
 export default async function Page() {
   const kpi = await getKpi();
@@ -297,7 +297,7 @@ le composant qui la porte vit dans un fichier `"use client"` (voir `apps/example
 (`dataTableFormatters`, `formatFileSize`, `breakpoints`…) sont du code client : appelez-les côté client.
 Les formulaires marchent avec les server actions : les champs postent leur valeur par leur `name`.
 
-Le barrel `@acme/ui` ne porte pas `"use client"` ; chaque module le porte. Une page n'embarque ainsi que ce
+Le barrel `@rovia/ui` ne porte pas `"use client"` ; chaque module le porte. Une page n'embarque ainsi que ce
 qu'elle affiche : dans l'application d'exemple, la page de connexion pèse 193 Ko gzip (React et Next compris),
 sans ECharts ni TanStack, au lieu de 606 Ko quand tout le paquet devenait une seule frontière client.
 
@@ -308,7 +308,7 @@ Rangez les styles de la librairie dans la couche `components` de Tailwind : ils 
 
 ```css
 @import "tailwindcss";
-@import "@acme/ui/styles.css" layer(components);
+@import "@rovia/ui/styles.css" layer(components);
 
 /* Les jetons comme couleurs Tailwind : bg-panel, text-fg-2… */
 @theme inline {
@@ -344,7 +344,7 @@ la **locale** `Intl` (dates, nombres compacts, pluriels, listes « A, B ou C »,
 **catalogue** de libellés (boutons, annonces aux lecteurs d'écran, erreurs de dépôt de fichiers…).
 
 ```tsx
-import { LocaleProvider, ThemeProvider, getLocaleDirection, localeEn, localeAr } from "@acme/ui";
+import { LocaleProvider, ThemeProvider, getLocaleDirection, localeEn, localeAr } from "@rovia/ui";
 
 <LocaleProvider locale="en-US" messages={localeEn}>…</LocaleProvider>
 
@@ -440,10 +440,10 @@ pnpm changeset version
 pnpm release        # build puis publication sur npm
 ```
 
-Renomme d'abord `@acme/ui` avec ton propre scope npm.
+Renomme d'abord `@rovia/ui` avec ton propre scope npm.
 
 ## Prochaines étapes suggérées
 
 - Utilitaires appelables depuis un composant serveur (formateurs, `breakpoints`) : un point d'entrée sans `"use client"`.
-- Exports par composant (`@acme/ui/button`), comme `@mui/material/Button`, pour les outils qui ne lisent pas `sideEffects`.
+- Exports par composant (`@rovia/ui/button`), comme `@mui/material/Button`, pour les outils qui ne lisent pas `sideEffects`.
 - Remplacer `vaul` (Drawer), qui n'est plus maintenu, le jour où une alternative stable couvre le glisser iOS.

@@ -1,5 +1,5 @@
 /*
- * API publique de @acme/ui. Les familles suivent la barre latérale de la
+ * API publique de @rovia/ui. Les familles suivent la barre latérale de la
  * documentation (Composants/<Famille>/<Nom>) ; chaque composant exporte ses
  * composants **et** ses types. Voir CONTRIBUTING.md.
  */

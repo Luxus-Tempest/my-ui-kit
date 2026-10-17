@@ -1,5 +1,5 @@
 ---
-"@acme/ui": minor
+"@rovia/ui": minor
 ---
 
 Densité globale : compacte, standard ou confortable, pour toute l'interface.

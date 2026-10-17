@@ -1,5 +1,5 @@
 ---
-"@acme/ui": minor
+"@rovia/ui": minor
 ---
 
 Composants d'application, de données et de messagerie ; droite à gauche ; poids embarqué réduit.

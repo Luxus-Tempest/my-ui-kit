@@ -28,7 +28,7 @@ import {
   toast,
   type BadgeVariant,
   type ColumnDef,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { Ban, Mail, UserPlus } from "lucide-react";
 import { inviter, type InvitationState } from "@/lib/actions";
 import type { Role, StatutUtilisateur, Utilisateur } from "@/lib/donnees";

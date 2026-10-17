@@ -2,7 +2,7 @@ import type { StorybookConfig } from "@storybook/react-vite";
 import { fileURLToPath } from "node:url";
 import remarkGfm from "remark-gfm";
 
-// Storybook lit directement les sources de @acme/ui : pas besoin de build, rechargement instantané.
+// Storybook lit directement les sources de @rovia/ui : pas besoin de build, rechargement instantané.
 const uiSrc = (p: string) => fileURLToPath(new URL(`../../../packages/ui/src/${p}`, import.meta.url));
 
 const config: StorybookConfig = {
@@ -20,8 +20,11 @@ const config: StorybookConfig = {
   viteFinal: async (cfg) => {
     cfg.resolve ??= {};
     cfg.resolve.alias = [
-      { find: /^@acme\/ui\/styles\.css$/, replacement: uiSrc("styles.css") },
-      { find: /^@acme\/ui$/, replacement: uiSrc("index.ts") },
+      { find: /^@rovia\/ui\/styles\.css$/, replacement: uiSrc("styles.css") },
+      // Sous chemins (`@rovia/ui/theme`, `@rovia/ui/button`…), comme les blocs les importent (spec 0001).
+      { find: /^@rovia\/ui\/(theme|i18n|hooks|utils)$/, replacement: uiSrc("$1/index.ts") },
+      { find: /^@rovia\/ui\/([a-z-]+)$/, replacement: uiSrc("components/$1/index.ts") },
+      { find: /^@rovia\/ui$/, replacement: uiSrc("index.ts") },
       ...(Array.isArray(cfg.resolve.alias) ? cfg.resolve.alias : []),
     ];
     return cfg;

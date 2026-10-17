@@ -9,7 +9,7 @@ Read `docs/README.md` inside that installed package first, then read the relevan
 This block is written and re-added by `turbo` before repository-scoped commands when an AI agent is detected. In the Turborepo source repository, its template is defined in `crates/turborepo-cli/src/cli/agent_guidance.rs`. Removing the managed block while updates are enabled means a later qualifying invocation will add it again. Set `"agentGuidance": false` in the root `turbo.json` or `turbo.jsonc` to opt out; this does not remove an existing block. Keep the block committed with your work to avoid an uncommitted change on the next agent invocation.
 <!-- END:turborepo-agent-rules -->
 
-# @acme/ui (monorepo)
+# @rovia/ui (monorepo)
 
 ## Stack
 
@@ -46,7 +46,7 @@ Stored in `docs/specs/`. Format: `docs/specs/NNNN-title.md`. Le scope (quoi cons
 - Code, libellés, commentaires, documentation et messages de commit en français.
 - Aucune valeur en dur dans le CSS : jetons `--ui-*` et jetons de densité ; propriétés logiques seulement (droite à gauche).
 - Chaque composant a un test de comportement (clavier compris) et un test axe ; rendu vérifié en clair, en sombre et en RTL.
-- Tout changement de `@acme/ui` s'accompagne d'une entrée Changeset.
+- Tout changement de `@rovia/ui` s'accompagne d'une entrée Changeset.
 
 ## Context files
 

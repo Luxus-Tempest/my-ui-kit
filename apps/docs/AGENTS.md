@@ -2,7 +2,7 @@
 
 ## Overview
 
-La documentation interactive de `@acme/ui` (Storybook 8, Vite) et sa suite de tests en vrai navigateur : chaque story est ouverte en clair, en sombre et de droite à gauche, vérifiée par axe et comparée à une capture de référence.
+La documentation interactive de `@rovia/ui` (Storybook 8, Vite) et sa suite de tests en vrai navigateur : chaque story est ouverte en clair, en sombre et de droite à gauche, vérifiée par axe et comparée à une capture de référence.
 
 ## Key files
 

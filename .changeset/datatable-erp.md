@@ -1,5 +1,5 @@
 ---
-"@acme/ui": minor
+"@rovia/ui": minor
 ---
 
 DataTable au niveau d'un ERP : colonnes figées et redimensionnables, lignes dépliables, ligne de totaux.

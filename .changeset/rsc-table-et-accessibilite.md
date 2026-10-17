@@ -1,5 +1,5 @@
 ---
-"@acme/ui": minor
+"@rovia/ui": minor
 ---
 
 Intégration Next.js (composants serveur), défilement des tables, accessibilité vérifiée en vrai navigateur.

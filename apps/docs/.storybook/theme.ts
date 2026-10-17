@@ -12,14 +12,14 @@ const brandMark =
     `<svg xmlns='http://www.w3.org/2000/svg' width='164' height='32' viewBox='0 0 164 32'>
       <rect x='0' y='2' width='28' height='28' rx='9' fill='#0b57d0'/>
       <path d='M9 19.5a4.5 4.5 0 0 1 .9-8.9 6 6 0 0 1 11.4 2.2 3.5 3.5 0 0 1-.8 6.7z' fill='#fff'/>
-      <text x='38' y='22' font-family='Inter, -apple-system, Segoe UI, sans-serif' font-size='16' font-weight='600' fill='#1f1f1f'>acme</text>
+      <text x='38' y='22' font-family='Inter, -apple-system, Segoe UI, sans-serif' font-size='16' font-weight='600' fill='#1f1f1f'>rovia</text>
       <text x='84' y='22' font-family='Inter, -apple-system, Segoe UI, sans-serif' font-size='16' font-weight='400' fill='#5f6368'>/ ui</text>
     </svg>`,
   );
 
 export const brandTheme = create({
   base: "light",
-  brandTitle: "acme/ui — Drive × iOS",
+  brandTitle: "rovia/ui — Drive × iOS",
   brandImage: brandMark,
   brandTarget: "_self",
 

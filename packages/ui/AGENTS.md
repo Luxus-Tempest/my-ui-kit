@@ -1,4 +1,4 @@
-# packages/ui (@acme/ui)
+# packages/ui (@rovia/ui)
 
 ## Overview
 
@@ -21,10 +21,10 @@ La librairie publiée : plus de 70 familles de composants React, construites sur
 ## Commands
 
 ```bash
-pnpm --filter @acme/ui test        # Vitest + Testing Library + axe (jsdom)
-pnpm --filter @acme/ui typecheck
-pnpm --filter @acme/ui build       # tsup puis CSS
-pnpm --filter @acme/ui size        # budget de poids, après build
+pnpm --filter @rovia/ui test        # Vitest + Testing Library + axe (jsdom)
+pnpm --filter @rovia/ui typecheck
+pnpm --filter @rovia/ui build       # tsup puis CSS
+pnpm --filter @rovia/ui size        # budget de poids, après build
 ```
 
 ## Conventions

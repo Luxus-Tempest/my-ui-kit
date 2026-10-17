@@ -1,6 +1,6 @@
 "use client";
 
-import { LineChart } from "@acme/ui";
+import { LineChart } from "@rovia/ui";
 
 const nombre = new Intl.NumberFormat("fr-FR");
 

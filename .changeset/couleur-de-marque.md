@@ -1,5 +1,5 @@
 ---
-"@acme/ui": minor
+"@rovia/ui": minor
 ---
 
 Thème à partir d'une couleur de marque : `ThemeProvider brand`, `createBrandTokens`, `createBrandCss`, `brandStyle`, `contrastRatio`.

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ThemeProvider } from "next-themes";
-import { DirectionProvider, getLocaleDirection, LocaleProvider, localeAr, localeEn, Toaster, type UiMessagesInput } from "@acme/ui";
+import { DirectionProvider, getLocaleDirection, LocaleProvider, localeAr, localeEn, Toaster, type UiMessagesInput } from "@rovia/ui";
 
 export type Langue = "fr" | "en" | "ar";
 
@@ -24,7 +24,7 @@ export function useLangue() {
 
 /**
  * Le thème vient de next-themes (classe `dark` sur <html>) : les jetons de
- * @acme/ui suivent cette classe, le ThemeProvider de la librairie n'est pas
+ * @rovia/ui suivent cette classe, le ThemeProvider de la librairie n'est pas
  * nécessaire. La langue des composants vient de `LocaleProvider` ; l'arabe
  * passe aussi l'interface de droite à gauche.
  */

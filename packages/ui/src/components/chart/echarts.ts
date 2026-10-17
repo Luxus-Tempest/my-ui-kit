@@ -3,7 +3,7 @@
  * ici entrent dans le bundle. Pour un autre type (radar, sankey, heatmap,
  * calendrier…), l'application l'enregistre une fois au démarrage :
  *
- *   import { registerChartModules } from "@acme/ui";
+ *   import { registerChartModules } from "@rovia/ui";
  *   import { HeatmapChart } from "echarts/charts";
  *   import { VisualMapComponent } from "echarts/components";
  *   registerChartModules([HeatmapChart, VisualMapComponent]);

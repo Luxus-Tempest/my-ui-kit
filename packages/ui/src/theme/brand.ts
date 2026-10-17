@@ -201,7 +201,7 @@ export interface BrandCssOptions {
 }
 
 /**
- * Feuille de style de la marque, à poser après `@acme/ui/styles.css` (balise
+ * Feuille de style de la marque, à poser après `@rovia/ui/styles.css` (balise
  * `<style>` ou fichier) : utile sans ThemeProvider, avec next-themes par exemple.
  */
 export function createBrandCss(color: string, options: BrandCssOptions = {}): string {

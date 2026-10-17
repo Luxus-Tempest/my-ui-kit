@@ -6,7 +6,7 @@ import type { UiMessages, UiMessagesInput } from "./messages";
  * libellés. Sans provider, tout est en français (`fr-FR`) : les textes par
  * défaut vivent dans chaque composant, le catalogue ne fait que les remplacer.
  *
- *   import { LocaleProvider, localeEn } from "@acme/ui";
+ *   import { LocaleProvider, localeEn } from "@rovia/ui";
  *   <LocaleProvider locale="en-US" messages={localeEn}>…</LocaleProvider>
  *
  * Les providers s'emboîtent : un provider intérieur hérite de la locale et des
