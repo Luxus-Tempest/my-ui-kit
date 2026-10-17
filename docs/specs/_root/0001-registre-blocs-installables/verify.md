@@ -1,4 +1,4 @@
-# Verify: registre de blocs installables · spec 0001 · updated 2026-10-17
+# Verify: registre de blocs installables · spec 0001 · updated 2026-10-18
 _Steps derived from spec 0001 acceptance criteria. `/check verify` runs these; `/test` locks the durable ones._
 
 ## Commands
@@ -8,9 +8,14 @@ _Steps derived from spec 0001 acceptance criteria. `/check verify` runs these; `
 - [x] `pnpm lint` → `subpaths --check` vert (74 sous chemins à jour) et types verts sur les 5 paquets → AC-7, AC-9
 - [x] `pnpm test`, `pnpm build`, `pnpm size`, `pnpm --filter example e2e` verts après le renommage → AC-12
 - [x] `STORIES=authentification pnpm --filter docs e2e` → la story Connexion, qui importe `@rovia/blocks/connexion`, est identique aux captures de référence (clair, sombre, RTL) → AC-9
-- [ ] Sur une PR : le job CI « Registre, installation réelle » passe sous Linux (Chromium) et joint les captures → AC-10
-- [ ] Après fusion sur `main` : `https://luxus-tempest.github.io/my-ui-kit/r/registry.json` répond 200 et liste `connexion` → AC-8
-- [ ] Avec le secret `NPM_TOKEN` : la PR « Version des paquets » publie `@rovia/ui@1.0.0` ; `npm view @rovia/ui exports` liste `./button`, `./theme`… → AC-7
+- [x] Sur une PR : le job CI « Registre, installation réelle » passe sous Linux (Chromium) et joint les captures → AC-10
+- [x] Après fusion sur `main` : `https://luxus-tempest.github.io/my-ui-kit/r/registry.json` répond 200 et liste `connexion` → AC-8
+- [x] Avec le secret `NPM_TOKEN` : la PR « Version des paquets » publie `@rovia/ui@1.0.0` ; `npm view @rovia/ui exports` liste `./button`, `./theme`… → AC-7
+
+## Résultats du 2026-10-18
+- PR #1 : CI verte (types, tests, build, poids, installation réelle sous Linux, accessibilité et régression visuelle), fusionnée.
+- GitHub Pages : Storybook, `r/registry.json` et `r/connexion.json` répondent 200 ; `connexion.json` déclare `@rovia/ui@^1.0.0` et commence par `"use client";` puis l'en tête `1.0.0`.
+- PR #2 « Version des paquets » fusionnée : `@rovia/ui@1.0.0` publié (`latest`), 77 entrées dans `exports`.
 
 ## UI / manual
 - [ ] Storybook déployé, page *Composants › Actions › Button* (onglet Docs) → bloc « Éjecter ce composant » avec `pnpm dlx shadcn@4.21.4 add @rovia/button` → AC-8
@@ -22,7 +27,7 @@ _Steps derived from spec 0001 acceptance criteria. `/check verify` runs these; `
 - [x] En tête : version lue dans `packages/ui/package.json` (`0.1.0` aujourd'hui, `1.0.0` après publication) ; en CI, `REGISTRY_PKG_SPEC=file:<archive>` remplace la dépendance `@rovia/ui` (test « REGISTRY_PKG_SPEC remplace la version ») → AC-5, AC-10
 - [x] Dépendances npm : `button` → `@radix-ui/react-slot`, `class-variance-authority` ; `data-table` → `@tanstack/react-table`, `@tanstack/react-virtual` ; `chart` → `echarts` (réduit depuis `echarts/core`) ; aucun `react` ni `react-dom` → AC-1
 - [x] Réécriture : `data-table/DataTable.tsx` éjecté importe `@rovia/ui/utils`, `@rovia/ui/i18n`, `@rovia/ui/pagination` ; ses imports internes (`./context`) restent relatifs → AC-4
-- [ ] URL de base : sans `REGISTRY_BASE_URL`, `registry.json` porte `homepage: https://luxus-tempest.github.io/my-ui-kit` → AC-8
+- [x] URL de base : sans `REGISTRY_BASE_URL`, `registry.json` porte `homepage: https://luxus-tempest.github.io/my-ui-kit` → AC-8
 
 ## Acceptance-criteria coverage
 - AC-1 : registry:build, tests du générateur · AC-2 : smoke (mise en place), Bienvenue · AC-3 : smoke · AC-4 : smoke, réécriture · AC-5 : smoke, en tête · AC-6 : smoke (redirection + règle de la copie, `--overwrite`) · AC-7 : subpaths, publication npm · AC-8 : tests du générateur, pages Docs, Pages · AC-9 : story Connexion · AC-10 : smoke local, job CI · AC-11 : smoke sans Tailwind · AC-12 : lint, test, build, size, e2e

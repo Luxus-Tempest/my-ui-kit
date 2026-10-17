@@ -1,7 +1,7 @@
 # 0001. Registre de blocs installables et éjection de composants
 
 **Date**: 2026-10-17
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
@@ -135,9 +135,9 @@ Ordonné en Tracer Bullet : un fil fin de bout en bout (bloc connexion, éjectio
 3. Fait le 2026-10-17. Sous chemins : `index.ts` par dossier et pour `theme`, `i18n`, `hooks`, `utils`, entrées tsup, types par `tsc`, `exports` ; alias Vite et `tsconfig` de Storybook et de `packages/blocks`, satisfies **AC-7**, **AC-9**
 4. Fait le 2026-10-17. Créer `packages/blocks`, y déplacer le bloc connexion avec props typées et `connexion.sample.ts`, faire importer la story avec `parameters.registry`, satisfies **AC-9**
 5. Fait le 2026-10-17. Créer `packages/registry` et `registry:build` : analyse des imports, réécriture des éjectés, en têtes et `"use client"`, contrôles d'échec avec fichiers de test d'échec, ordre turbo après Storybook, satisfies **AC-1**, **AC-3**, **AC-4**, **AC-5**
-6. Écrit et vérifié en local le 2026-10-17 (`pnpm --filter @rovia/registry smoke`), job CI `registre` pas encore exécuté. Job CI d'installation réelle (archive du paquet, registre local, application vierge, mise en place, bloc, éjection, types, build, captures), satisfies **AC-2**, **AC-3**, **AC-4**, **AC-6**, **AC-10**
-7. Écrit le 2026-10-17 (job `deployer`, page Docs), pas encore exécuté. Déploiement GitHub Pages de Storybook et du registre, bloc de doc qui affiche la commande depuis `parameters.registry`, satisfies **AC-8**
-8. Écrit le 2026-10-17 (`.github/workflows/release.yml`, changeset majeur), attend le secret `NPM_TOKEN` et la fusion sur `main`. Publication npm par Changesets depuis la CI, première version `1.0.0`, satisfies **AC-7**
+6. Fait le 2026-10-18 (CI verte sur la PR #1 et sur main). Job CI d'installation réelle (archive du paquet, registre local, application vierge, mise en place, bloc, éjection, types, build, captures), satisfies **AC-2**, **AC-3**, **AC-4**, **AC-6**, **AC-10**
+7. Fait le 2026-10-18 (Pages en ligne, registre servi). Déploiement GitHub Pages de Storybook et du registre, bloc de doc qui affiche la commande depuis `parameters.registry`, satisfies **AC-8**
+8. Fait le 2026-10-18 (`@rovia/ui@1.0.0` publié). Publication npm par Changesets depuis la CI, première version `1.0.0`, satisfies **AC-7**
 
 ## Consequences
 
