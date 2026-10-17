@@ -27,10 +27,16 @@ Le `AGENTS.md` racine ne contient que le bloc Turborepo. Recommandé : y capture
 **Done when:** le `AGENTS.md` racine décrit la stack réelle et la checklist de qualité de `CONTRIBUTING.md`, et `packages/ui` a son `AGENTS.md`.
 - [x] Capture conventions: `/audit`
 
-### 8. Registre de blocs installables · needs a decision
-Le cœur du « plug and play » : un bloc s'installe dans n'importe laquelle de tes applications en une commande, avec son code copié pour être modifié librement. À décider : le modèle de distribution (piste recommandée : hybride, composants sur npm pour recevoir les correctifs, blocs copiés par le registre), où le registre est servi, et comment une application l'utilise.
+### 8. Registre de blocs installables · in-progress
+Le cœur du « plug and play » : le paquet `@rovia/ui` dans chaque application, et un registre shadcn pour installer un bloc ou éjecter un composant en une commande.
 **Done when:** depuis une application vierge, une seule commande installe un bloc existant, qui s'affiche avec le thème, en clair et en sombre ; la doc montre la commande à côté de chaque bloc.
-- [ ] Design it (spec): `/architect registre de blocs installables`
+- [x] Design it (spec): `/architect registre de blocs installables`
+- [ ] Build it: `/develop registre de blocs installables`
+   - [ ] Preuve du CLI shadcn sans Tailwind, renommage en `@rovia/ui` (AC-11, AC-12)
+   - [ ] Sous chemins du paquet, bloc connexion dans `packages/blocks` (AC-7, AC-9)
+   - [ ] Générateur du registre : blocs et éjection, contrôles d'échec (AC-1, AC-3, AC-4, AC-5)
+   - [ ] CI d'installation réelle, déploiement Pages, publication npm (AC-2, AC-6, AC-7, AC-8, AC-10)
+Spec [0001](../../specs/_root/0001-registre-blocs-installables/index.md)
 
 ## Skeleton
 
