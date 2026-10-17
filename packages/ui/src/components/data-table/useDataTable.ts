@@ -22,15 +22,16 @@ import {
   type Updater,
   type VisibilityState,
 } from "@tanstack/react-table";
+import { useLocale } from "../../i18n/LocaleProvider";
 import { DataTableDefaultCell, expandColumn, selectColumn } from "./columns";
 import type { DataTablePersistedKey, DataTableState } from "./types";
 import {
   createGlobalFilterFn,
+  createLocaleSortingFn,
   DEFAULT_MAX_COLUMN_WIDTH,
   DEFAULT_MIN_COLUMN_WIDTH,
   DEFAULT_PERSISTED_KEYS,
   facetFilterFn,
-  localeSortingFn,
   readPersisted,
   resolveUpdater,
   writePersisted,
@@ -444,7 +445,15 @@ export function useDataTable<TData>(options: UseDataTableOptions<TData>): Table<
   );
 
   const tableRef = React.useRef<Table<TData> | undefined>(undefined);
-  const globalFilterFn = React.useMemo(() => createGlobalFilterFn(() => tableRef.current as Table<any> | undefined), []);
+  // Langue de l'interface : rendu des valeurs cherchées et ordre alphabétique du tri.
+  const locale = useLocale();
+  const localeRef = React.useRef(locale);
+  localeRef.current = locale;
+  const globalFilterFn = React.useMemo(
+    () => createGlobalFilterFn(() => tableRef.current as Table<any> | undefined, () => localeRef.current),
+    [],
+  );
+  const sortingFn = React.useMemo(() => createLocaleSortingFn(locale), [locale]);
 
   const { defaultColumn, ...restTableOptions } = tableOptions ?? {};
   // Sans pagination côté client, les lignes enfants se déplient dans le modèle développé ;
@@ -507,7 +516,7 @@ export function useDataTable<TData>(options: UseDataTableOptions<TData>): Table<
     getColumnCanGlobalFilter: () => true,
     defaultColumn: {
       cell: DataTableDefaultCell as NonNullable<ColumnDef<TData, unknown>["cell"]>,
-      sortingFn: localeSortingFn,
+      sortingFn,
       minSize: DEFAULT_MIN_COLUMN_WIDTH,
       maxSize: DEFAULT_MAX_COLUMN_WIDTH,
       ...defaultColumn,

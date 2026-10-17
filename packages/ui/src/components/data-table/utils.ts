@@ -13,7 +13,25 @@ export function normalizeText(value: string): string {
     .toLocaleLowerCase("fr-FR");
 }
 
-const shortDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+/** Locale par défaut, celle de `LocaleProvider` sans réglage. */
+export const DEFAULT_LOCALE = "fr-FR";
+
+/** Un objet `Intl` par locale : coûteux à créer, réutilisé d'une cellule à l'autre. */
+export function byLocale<T>(create: (locale: string) => T): (locale: string) => T {
+  const cache = new Map<string, T>();
+  return (locale) => {
+    let value = cache.get(locale);
+    if (value === undefined) {
+      value = create(locale);
+      cache.set(locale, value);
+    }
+    return value;
+  };
+}
+
+const shortDate = byLocale((locale) => new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric" }));
+const plainNumber = byLocale((locale) => new Intl.NumberFormat(locale));
+const collator = byLocale((locale) => new Intl.Collator(locale, { numeric: true, sensitivity: "base" }));
 
 /** Date valide tirée d'une valeur (Date, horodatage, chaîne ISO), ou `null`. */
 export function toDate(value: unknown): Date | null {
@@ -26,13 +44,13 @@ export function toDate(value: unknown): Date | null {
   return null;
 }
 
-/** Rendu texte par défaut d'une valeur de cellule (sans formateur). */
-export function defaultValueText(value: unknown, yes = "Oui", no = "Non"): string {
+/** Rendu texte par défaut d'une valeur de cellule (sans formateur), dans la langue donnée. */
+export function defaultValueText(value: unknown, yes = "Oui", no = "Non", locale = DEFAULT_LOCALE): string {
   if (value == null) return "";
-  if (value instanceof Date) return Number.isNaN(value.getTime()) ? "" : shortDate.format(value);
-  if (typeof value === "number") return Number.isFinite(value) ? value.toLocaleString("fr-FR") : "";
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? "" : shortDate(locale).format(value);
+  if (typeof value === "number") return Number.isFinite(value) ? plainNumber(locale).format(value) : "";
   if (typeof value === "boolean") return value ? yes : no;
-  if (Array.isArray(value)) return value.map((v) => defaultValueText(v, yes, no)).filter(Boolean).join(", ");
+  if (Array.isArray(value)) return value.map((v) => defaultValueText(v, yes, no, locale)).filter(Boolean).join(", ");
   if (typeof value === "object") return "";
   return String(value);
 }
@@ -64,24 +82,28 @@ facetFilterFn.autoRemove = (value) => !Array.isArray(value) || value.length === 
  * dans la ligne (valeur brute ou formatée), sans tenir compte de la casse ni
  * des accents. « dupont payée » trouve la facture de M. Dupont au statut Payée.
  */
-export function createGlobalFilterFn(getTable: () => Table<any> | undefined): FilterFn<any> {
-  const cache = new WeakMap<Row<any>, { columns: unknown; text: string }>();
+export function createGlobalFilterFn(
+  getTable: () => Table<any> | undefined,
+  getLocale: () => string = () => DEFAULT_LOCALE,
+): FilterFn<any> {
+  const cache = new WeakMap<Row<any>, { columns: unknown; locale: string; text: string }>();
   const rowText = (row: Row<any>) => {
     const table = getTable();
+    const locale = getLocale();
     const columns = table?.getAllLeafColumns() ?? [];
     const cached = cache.get(row);
-    if (cached && cached.columns === table?.options.columns) return cached.text;
+    if (cached && cached.columns === table?.options.columns && cached.locale === locale) return cached.text;
     const parts: string[] = [];
     for (const column of columns) {
       if (!column.getCanGlobalFilter()) continue;
       const value = row.getValue<unknown>(column.id);
       const format = column.columnDef.meta?.format;
-      if (format && value != null) parts.push(format(value as never));
+      if (format && value != null) parts.push(format(value as never, locale));
       if (typeof value === "string" || typeof value === "number") parts.push(String(value));
-      else if (!format) parts.push(defaultValueText(value, "", ""));
+      else if (!format) parts.push(defaultValueText(value, "", "", locale));
     }
     const text = normalizeText(parts.join(" \u0000 "));
-    cache.set(row, { columns: table?.options.columns, text });
+    cache.set(row, { columns: table?.options.columns, locale, text });
     return text;
   };
 
@@ -97,22 +119,27 @@ export function createGlobalFilterFn(getTable: () => Table<any> | undefined): Fi
 
 /* ── Tri ───────────────────────────────────────────────────────────── */
 
-const collator = new Intl.Collator("fr", { numeric: true, sensitivity: "base" });
-
-/** Compare deux valeurs : dates, nombres, booléens, puis texte en ordre français (« Émilie » avant « Zoé »). */
-export function compareValues(a: unknown, b: unknown): number {
+/**
+ * Compare deux valeurs : dates, nombres, booléens, puis texte dans l'ordre de
+ * la langue (en français, « Émilie » avant « Zoé »).
+ */
+export function compareValues(a: unknown, b: unknown, locale = DEFAULT_LOCALE): number {
   if (a == null && b == null) return 0;
   if (a == null) return -1;
   if (b == null) return 1;
   if (a instanceof Date || b instanceof Date) return (toDate(a)?.getTime() ?? 0) - (toDate(b)?.getTime() ?? 0);
   if (typeof a === "number" && typeof b === "number") return a - b;
   if (typeof a === "boolean" && typeof b === "boolean") return Number(a) - Number(b);
-  return collator.compare(defaultValueText(a), defaultValueText(b));
+  return collator(locale).compare(defaultValueText(a, undefined, undefined, locale), defaultValueText(b, undefined, undefined, locale));
 }
 
-/** Tri par défaut des colonnes de DataTable. */
-export const localeSortingFn: SortingFn<any> = (rowA, rowB, columnId) =>
-  compareValues(rowA.getValue(columnId), rowB.getValue(columnId));
+/** Tri par défaut des colonnes de DataTable, dans l'ordre de la langue donnée. */
+export function createLocaleSortingFn(locale = DEFAULT_LOCALE): SortingFn<any> {
+  return (rowA, rowB, columnId) => compareValues(rowA.getValue(columnId), rowB.getValue(columnId), locale);
+}
+
+/** Tri par défaut en ordre français. */
+export const localeSortingFn = createLocaleSortingFn();
 
 /* ── État ──────────────────────────────────────────────────────────── */
 

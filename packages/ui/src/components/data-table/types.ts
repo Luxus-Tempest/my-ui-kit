@@ -64,9 +64,10 @@ declare module "@tanstack/react-table" {
     filterOptions?: DataTableFilterOption[];
     /**
      * Formateur de la valeur (voir `dataTableFormatters`) : utilisé par la
-     * cellule par défaut, la recherche globale et, sur demande, l'export CSV.
+     * cellule par défaut, la recherche globale, les totaux et, sur demande,
+     * l'export CSV. Reçoit la locale de l'interface (`LocaleProvider`).
      */
-    format?: (value: TValue) => string;
+    format?: (value: TValue, locale?: string) => string;
     /** Largeur de la colonne (px ou valeur CSS). */
     width?: number | string;
     /** `false` : colonne exclue de l'export CSV. */

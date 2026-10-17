@@ -1,5 +1,5 @@
 import type { Column, Row, Table } from "@tanstack/react-table";
-import { getColumnLabel, toDate } from "./utils";
+import { DEFAULT_LOCALE, getColumnLabel, toDate } from "./utils";
 
 export interface DataTableCsvOptions {
   /**
@@ -12,9 +12,15 @@ export interface DataTableCsvOptions {
   rows?: "filtered" | "page" | "selected" | "all";
   /** Colonnes exportées (identifiants). Par défaut : les colonnes visibles qui portent une valeur. */
   columns?: string[];
-  /** Séparateur de champs. Par défaut « ; » (Excel en français). */
+  /**
+   * Langue de l'export (par défaut `fr-FR`) : passée à `meta.format` et, sauf
+   * réglage explicite, choisit les séparateurs. Le bouton d'export de
+   * DataTable passe la langue de l'interface.
+   */
+  locale?: string;
+  /** Séparateur de champs. Par défaut « ; » si la virgule est décimale (Excel en français), sinon « , ». */
   delimiter?: string;
-  /** Séparateur décimal des nombres. Par défaut « , ». */
+  /** Séparateur décimal des nombres. Par défaut celui de `locale` : « , » en français, « . » en anglais. */
   decimalSeparator?: string;
   /** Écrit la valeur formatée par `meta.format` plutôt que la valeur brute. Par défaut `false`. */
   formatted?: boolean;
@@ -75,13 +81,22 @@ function exportRows<TData>(table: Table<TData>, rows: DataTableCsvOptions["rows"
   }
 }
 
+/** Séparateur décimal d'une locale, ramené à « , » ou « . » (ceux que lit un tableur). */
+function decimalSeparatorOf(locale: string): string {
+  const decimal = new Intl.NumberFormat(locale).formatToParts(1.5).find((part) => part.type === "decimal")?.value;
+  return decimal === "," ? "," : ".";
+}
+
 /**
  * Contenu CSV de la table (RFC 4180, fins de ligne CRLF). Par défaut : la vue
  * filtrée et triée, colonnes visibles, « ; » et virgule décimale pour Excel
- * en français ; colonnes de sélection et d'actions exclues.
+ * en français (« , » et point décimal pour une locale anglaise) ; colonnes de
+ * sélection et d'actions exclues.
  */
 export function toCsv<TData>(table: Table<TData>, options: DataTableCsvOptions = {}): string {
-  const { delimiter = ";", decimalSeparator = ",", formatted = false, headers = true, booleans = ["Oui", "Non"] } = options;
+  const { locale = DEFAULT_LOCALE, formatted = false, headers = true, booleans = ["Oui", "Non"] } = options;
+  const decimalSeparator = options.decimalSeparator ?? decimalSeparatorOf(locale);
+  const delimiter = options.delimiter ?? (decimalSeparator === "," ? ";" : ",");
   const columns = exportColumns(table, options.columns);
   const lines: string[] = [];
   if (headers) lines.push(columns.map((column) => escapeField(getColumnLabel(column), delimiter, true)).join(delimiter));
@@ -91,7 +106,7 @@ export function toCsv<TData>(table: Table<TData>, options: DataTableCsvOptions =
         .map((column) => {
           const meta = column.columnDef.meta;
           const raw = meta?.exportValue ? meta.exportValue(row.original) : row.getValue<unknown>(column.id);
-          const value = formatted && meta?.format && raw != null ? meta.format(raw) : raw;
+          const value = formatted && meta?.format && raw != null ? meta.format(raw, locale) : raw;
           return escapeField(serialize(value, { decimalSeparator, booleans }), delimiter, typeof value === "string");
         })
         .join(delimiter),

@@ -4,32 +4,36 @@ import { Button } from "../button/Button";
 import { Checkbox } from "../checkbox/Checkbox";
 import { Menu, MenuContent, MenuTrigger } from "../menu/Menu";
 import { DataTableViewContext, useDataTableLabels, useRowLabel } from "./context";
-import { defaultValueText, toDate } from "./utils";
+import { useLocale } from "../../i18n/LocaleProvider";
+import { byLocale, DEFAULT_LOCALE, defaultValueText, toDate } from "./utils";
 
 /* ── Formateurs ────────────────────────────────────────────────────── */
 
-type Formatter = (value: unknown) => string;
+/** `locale` : celle de l'interface, passée par DataTable (cellule, recherche, totaux, export). */
+type Formatter = (value: unknown, locale?: string) => string;
 
-function numberFormatter(options?: Intl.NumberFormatOptions, locale = "fr-FR"): Formatter {
-  const format = new Intl.NumberFormat(locale, options);
-  return (value) => {
+function numberFormatter(options?: Intl.NumberFormatOptions, fixed?: string): Formatter {
+  const format = byLocale((locale) => new Intl.NumberFormat(locale, options));
+  return (value, locale) => {
     if (value == null || value === "") return "";
     const number = typeof value === "number" ? value : Number(value);
-    return Number.isFinite(number) ? format.format(number) : "";
+    return Number.isFinite(number) ? format(fixed ?? locale ?? DEFAULT_LOCALE).format(number) : "";
   };
 }
 
-function dateFormatter(options: Intl.DateTimeFormatOptions, locale = "fr-FR"): Formatter {
-  const format = new Intl.DateTimeFormat(locale, options);
-  return (value) => {
+function dateFormatter(options: Intl.DateTimeFormatOptions, fixed?: string): Formatter {
+  const format = byLocale((locale) => new Intl.DateTimeFormat(locale, options));
+  return (value, locale) => {
     const date = toDate(value);
-    return date ? format.format(date) : "";
+    return date ? format(fixed ?? locale ?? DEFAULT_LOCALE).format(date) : "";
   };
 }
 
 /**
  * Formateurs simples à poser sur `meta.format` : la cellule par défaut, la
- * recherche globale et l'export CSV (option `formatted`) les utilisent.
+ * recherche globale, les totaux et l'export CSV (option `formatted`) les
+ * utilisent. Sans `locale`, ils suivent la langue de l'interface
+ * (`LocaleProvider`, français par défaut) ; une locale passée la fige.
  *
  *   columnHelper.accessor("montant", {
  *     header: "Montant",
@@ -57,12 +61,13 @@ export const dataTableFormatters = {
 
 /* ── Cellule par défaut ────────────────────────────────────────────── */
 
-/** Cellule par défaut : `meta.format` s'il existe, sinon un rendu français de la valeur ; « — » si vide. */
+/** Cellule par défaut : `meta.format` s'il existe, sinon un rendu de la valeur dans la langue de l'interface ; « — » si vide. */
 export function DataTableDefaultCell({ getValue, column }: CellContext<any, unknown>) {
   const labels = useDataTableLabels();
+  const locale = useLocale();
   const value = getValue();
   const format = column.columnDef.meta?.format;
-  const text = format ? (value == null ? "" : format(value)) : defaultValueText(value, labels.yes, labels.no);
+  const text = format ? (value == null ? "" : format(value, locale)) : defaultValueText(value, labels.yes, labels.no, locale);
   if (text === "") return <span className="ui-data-table__nil">—</span>;
   return <>{text}</>;
 }

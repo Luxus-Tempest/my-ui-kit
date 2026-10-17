@@ -1,6 +1,7 @@
 import * as React from "react";
 import { flexRender, type Column, type Header, type Row, type Table as TanstackTable } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { useLocale } from "../../i18n/LocaleProvider";
 import { cn } from "../../utils/cn";
 import { Button } from "../button/Button";
 import { EmptyState } from "../empty-state/EmptyState";
@@ -333,23 +334,24 @@ function DataTableViewInner<TData>(
   const partialData = table.options.rowCount != null && table.options.rowCount > table.getCoreRowModel().rows.length;
   const aggregateRows = footerVisible && !partialData ? table.getFilteredRowModel().rows : null;
   const columnSignature = leafColumns.map((column) => column.id).join(",");
+  const locale = useLocale();
   const totals = React.useMemo(() => {
     const out = new Map<string, React.ReactNode>();
     if (!footerVisible) return out;
     for (const column of table.getVisibleLeafColumns()) {
       const provided = aggregates?.[column.id];
       if (provided !== undefined) {
-        out.set(column.id, typeof provided === "number" ? formatAggregate(column as Column<any, unknown>, provided) : provided);
+        out.set(column.id, typeof provided === "number" ? formatAggregate(column as Column<any, unknown>, provided, undefined, locale) : provided);
         continue;
       }
       const aggregate = column.columnDef.meta?.aggregate;
       if (aggregate == null || !aggregateRows) continue;
       const values = aggregateRows.map((row) => row.getValue<unknown>(column.id));
-      out.set(column.id, formatAggregate(column as Column<any, unknown>, computeAggregate(aggregate, values, aggregateRows), aggregate));
+      out.set(column.id, formatAggregate(column as Column<any, unknown>, computeAggregate(aggregate, values, aggregateRows), aggregate, locale));
     }
     return out;
     // Les colonnes sont relues par leur signature et par `options.columns`.
-  }, [footerVisible, aggregates, aggregateRows, columnSignature, table.options.columns]);
+  }, [footerVisible, aggregates, aggregateRows, columnSignature, table.options.columns, locale]);
 
   /* ── Virtualisation ── */
   const bodyRef = React.useRef<HTMLTableSectionElement | null>(null);
