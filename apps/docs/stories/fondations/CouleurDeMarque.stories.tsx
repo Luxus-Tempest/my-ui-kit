@@ -17,6 +17,7 @@ import {
   Progress,
   Switch,
   Tabs,
+  TabsContent,
   TabsList,
   TabsTrigger,
   Text,
@@ -76,6 +77,9 @@ function Apercu({ jetons, mode }: { jetons: BrandTokens; mode: "light" | "dark" 
               <TabsTrigger value="fichiers">Fichiers</TabsTrigger>
               <TabsTrigger value="partages">Partagés</TabsTrigger>
             </TabsList>
+            {/* Panneaux : un onglet doit contrôler un panneau existant (aria-controls). */}
+            <TabsContent value="fichiers"><Text size={13} tone="muted">Vos fichiers récents.</Text></TabsContent>
+            <TabsContent value="partages"><Text size={13} tone="muted">Partagés avec vous.</Text></TabsContent>
           </Tabs>
           <ToggleGroup type="single" defaultValue="liste" aria-label={`Affichage ${mode}`}>
             <ToggleGroupItem value="liste">Liste</ToggleGroupItem>
