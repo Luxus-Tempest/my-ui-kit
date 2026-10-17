@@ -32,11 +32,11 @@ Le cœur du « plug and play » : le paquet `@rovia/ui` dans chaque application,
 **Done when:** depuis une application vierge, une seule commande installe un bloc existant, qui s'affiche avec le thème, en clair et en sombre ; la doc montre la commande à côté de chaque bloc.
 - [x] Design it (spec): `/architect registre de blocs installables`
 - [ ] Build it: `/develop registre de blocs installables`
-   - [ ] Preuve du CLI shadcn sans Tailwind, renommage en `@rovia/ui` (AC-11, AC-12)
-   - [ ] Sous chemins du paquet, bloc connexion dans `packages/blocks` (AC-7, AC-9)
-   - [ ] Générateur du registre : blocs et éjection, contrôles d'échec (AC-1, AC-3, AC-4, AC-5)
+   - [x] Preuve du CLI shadcn sans Tailwind, renommage en `@rovia/ui` (AC-11, AC-12)
+   - [x] Sous chemins du paquet, bloc connexion dans `packages/blocks` (AC-7, AC-9)
+   - [x] Générateur du registre : blocs et éjection, contrôles d'échec (AC-1, AC-3, AC-4, AC-5)
    - [ ] CI d'installation réelle, déploiement Pages, publication npm (AC-2, AC-6, AC-7, AC-8, AC-10)
-Spec [0001](../../specs/_root/0001-registre-blocs-installables/index.md)
+Spec [0001](../../specs/_root/0001-registre-blocs-installables/index.md) · code in `packages/registry/`, `packages/blocks/`, `packages/ui/scripts/subpaths.mjs`
 
 ## Skeleton
 
