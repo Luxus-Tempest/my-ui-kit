@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import NextLink from "next/link";
-import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Checkbox, Field, Input, Link, Text } from "@acme/ui";
+import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Checkbox, Field, Input, Link, Text } from "@rovia/ui";
 import { connexion } from "@/lib/actions";
 
 export const metadata: Metadata = { title: "Connexion" };

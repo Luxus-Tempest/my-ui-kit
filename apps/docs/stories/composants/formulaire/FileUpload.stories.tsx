@@ -9,7 +9,7 @@ import {
   Textarea,
   type FileRejection,
   type FileUploadStatus,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { ImageUp, Paperclip, Send } from "lucide-react";
 import { Row } from "../../_shared/demo";
 
@@ -145,6 +145,7 @@ const meta = {
   component: Dropzone,
   tags: ["autodocs"],
   parameters: {
+    registry: "file-upload",
     docs: {
       description: {
         component:

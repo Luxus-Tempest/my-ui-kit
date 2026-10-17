@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, EmptyState } from "@acme/ui";
+import { Button, EmptyState } from "@rovia/ui";
 import { Card } from "../../_shared/demo";
 import { FolderIcon, InboxIcon, PlusIcon, SearchIcon, StarIcon, TrashIcon, UploadIcon } from "../../_shared/icons";
 
@@ -8,6 +8,7 @@ const meta = {
   component: EmptyState,
   tags: ["autodocs"],
   parameters: {
+    registry: "empty-state",
     docs: {
       description: {
         component:

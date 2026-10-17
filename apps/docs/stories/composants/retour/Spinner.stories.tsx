@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, Spinner } from "@acme/ui";
+import { Button, Spinner } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 
 const meta = {
@@ -7,6 +7,7 @@ const meta = {
   component: Spinner,
   tags: ["autodocs"],
   parameters: {
+    registry: "spinner",
     docs: {
       description: {
         component:

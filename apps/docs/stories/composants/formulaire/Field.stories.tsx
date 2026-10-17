@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Checkbox, Field, Grid, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea } from "@acme/ui";
+import { Checkbox, Field, Grid, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea } from "@rovia/ui";
 
 const meta = {
   title: "Composants/Formulaire/Field",
   component: Field,
   tags: ["autodocs"],
   parameters: {
+    registry: "field",
     docs: {
       description: {
         component:

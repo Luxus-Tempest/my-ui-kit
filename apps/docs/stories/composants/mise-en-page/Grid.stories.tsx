@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Box, Grid, Text } from "@acme/ui";
+import { Box, Grid, Text } from "@rovia/ui";
 
 const Cell = ({ children }: { children: string }) => (
   <Box bg="card-2" radius="md" p={4}>
@@ -12,6 +12,7 @@ const meta = {
   component: Grid,
   tags: ["autodocs"],
   parameters: {
+    registry: "layout",
     docs: {
       description: {
         component:

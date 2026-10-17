@@ -11,6 +11,7 @@ import {
   type PanelResizeHandleProps,
 } from "react-resizable-panels";
 import { cn } from "../../utils/cn";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 export type ResizableOrientation = "horizontal" | "vertical";
 /** Poignée impérative d'un panneau (`ref`) : `resize`, `collapse`, `expand`, `getSize`, `isCollapsed`. */
@@ -70,15 +71,23 @@ export interface ResizableHandleProps extends PanelResizeHandleProps {
   "aria-label"?: string;
 }
 
+export interface ResizableLabels {
+  /** Nom du séparateur. « Redimensionner les panneaux ». */
+  handle: string;
+}
+export const RESIZABLE_LABELS: ResizableLabels = { handle: "Redimensionner les panneaux" };
+
 /**
  * Séparateur entre deux panneaux (`role="separator"`, valeur = taille du panneau
  * précédent). Filet de 1 px au repos ; il s'épaissit et prend la couleur primaire
  * au survol, au glissement et au focus clavier.
  */
 export const ResizableHandle = React.forwardRef<HTMLElement, ResizableHandleProps>(function ResizableHandle(
-  { className, withHandle = false, id, "aria-label": ariaLabel = "Redimensionner les panneaux", children, ...props },
+  { className, withHandle = false, id, "aria-label": ariaLabelProp, children, ...props },
   ref,
 ) {
+  const ariaLabelLabels = useMessages("resizable", RESIZABLE_LABELS);
+  const ariaLabel = ariaLabelProp ?? ariaLabelLabels.handle;
   // react-resizable-panels v3 ne transmet pas de ref au séparateur : on le retrouve par son identifiant.
   const autoId = React.useId();
   const handleId = id ?? autoId;

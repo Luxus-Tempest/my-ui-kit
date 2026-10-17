@@ -1,6 +1,6 @@
 /* Factures de démonstration, déterministes : DataTable, blocs Application et Tableau de bord. */
 import * as React from "react";
-import type { BadgeVariant } from "@acme/ui";
+import type { BadgeVariant } from "@rovia/ui";
 import { CircleAlert, CircleCheck, CircleDashed, FilePen, Send } from "lucide-react";
 
 /** Générateur pseudo-aléatoire à graine (mulberry32) : mêmes données à chaque rendu. */

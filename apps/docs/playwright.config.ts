@@ -11,7 +11,8 @@ import type { Mode } from "./tests/stories";
  * Les références visuelles sont rangées par plateforme : celles de la CI (Linux)
  * ne se comparent pas à celles d'un poste Windows.
  */
-const PORT = 6100;
+// Port du serveur statique : PW_PORT permet de lancer plusieurs suites en parallèle (worktrees).
+const PORT = Number(process.env.PW_PORT ?? 6100);
 
 export default defineConfig<{ mode: Mode }>({
   testDir: "./tests",

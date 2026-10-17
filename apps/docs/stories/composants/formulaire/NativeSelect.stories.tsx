@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, Field, NativeSelect, NativeSelectOptGroup, NativeSelectOption } from "@acme/ui";
+import { Button, Field, NativeSelect, NativeSelectOptGroup, NativeSelectOption } from "@rovia/ui";
 import { Card, Row } from "../../_shared/demo";
 
 const Pays = () => (
@@ -20,6 +20,7 @@ const meta = {
   component: NativeSelect,
   tags: ["autodocs"],
   parameters: {
+    registry: "native-select",
     docs: {
       description: {
         component:

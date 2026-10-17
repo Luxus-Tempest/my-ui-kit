@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Badge, Tabs, TabsContent, TabsList, TabsTrigger, Text } from "@acme/ui";
+import { Badge, Tabs, TabsContent, TabsList, TabsTrigger, Text } from "@rovia/ui";
 import { ClockIcon, FolderIcon, HomeIcon, StarIcon } from "../../_shared/icons";
 
 const meta = {
@@ -7,6 +7,7 @@ const meta = {
   component: Tabs,
   tags: ["autodocs"],
   parameters: {
+    registry: "tabs",
     docs: {
       description: {
         component:

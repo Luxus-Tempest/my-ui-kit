@@ -11,7 +11,7 @@ import {
   DialogTrigger,
   Field,
   Input,
-} from "@acme/ui";
+} from "@rovia/ui";
 
 const RenameForm = () => (
   <>
@@ -34,6 +34,7 @@ const meta = {
   component: DialogContent,
   tags: ["autodocs"],
   parameters: {
+    registry: "dialog",
     docs: {
       description: {
         component:

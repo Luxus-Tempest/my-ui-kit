@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../../utils/cn";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 /* ══ Types ══════════════════════════════════════════════════════════════ */
 
@@ -15,12 +16,15 @@ export interface StepperLabels {
   complete: string;
   /** Ajouté à l'annonce d'une étape en erreur. */
   error: string;
+  /** Nom de la liste d'étapes (si aucun `aria-label`). « Étapes ». */
+  label: string;
 }
 
-const DEFAULT_LABELS: StepperLabels = {
+export const STEPPER_LABELS: StepperLabels = {
   step: (position, count) => `Étape ${position} sur ${count}`,
   complete: "terminée",
   error: "en erreur",
+  label: "Étapes",
 };
 
 /* ══ Contextes ══════════════════════════════════════════════════════════ */
@@ -123,18 +127,19 @@ export const Stepper = React.forwardRef<HTMLOListElement, StepperProps>(function
     labels,
     className,
     children,
-    "aria-label": ariaLabel = "Étapes",
+    "aria-label": ariaLabelProp,
     ...props
   },
   ref,
 ) {
   const steps = React.Children.toArray(children).filter(React.isValidElement);
   const count = steps.length;
-  const { step, complete, error } = { ...DEFAULT_LABELS, ...labels };
+  const { step, complete, error, label } = { ...useMessages("stepper", STEPPER_LABELS), ...labels };
+  const ariaLabel = ariaLabelProp ?? label;
 
   const context = React.useMemo<StepperContextValue>(
-    () => ({ activeStep, count, orientation, nonLinear, onStepChange, labels: { step, complete, error } }),
-    [activeStep, count, orientation, nonLinear, onStepChange, step, complete, error],
+    () => ({ activeStep, count, orientation, nonLinear, onStepChange, labels: { step, complete, error, label } }),
+    [activeStep, count, orientation, nonLinear, onStepChange, step, complete, error, label],
   );
 
   return (

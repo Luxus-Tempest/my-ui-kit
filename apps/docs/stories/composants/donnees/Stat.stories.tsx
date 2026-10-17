@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Sparkline, Stat, StatGroup } from "@acme/ui";
+import { Sparkline, Stat, StatGroup } from "@rovia/ui";
 import { Clock, Receipt, Users, Wallet } from "lucide-react";
 import { Card, Row } from "../../_shared/demo";
 import { REVENUE } from "../../_shared/data";
@@ -16,6 +16,7 @@ const meta = {
   subcomponents: { StatGroup, Sparkline },
   tags: ["autodocs"],
   parameters: {
+    registry: "stat",
     docs: {
       description: {
         component:

@@ -1,6 +1,6 @@
 /*
  * Arborescence : le volet de dossiers de Drive. Lignes en pilule de 36 px
- * (32 en `sm`), couche d'état Material au survol, sélection en conteneur
+ * (32 en `sm`) en densité standard (--ui-row-h), couche d'état Material au survol, sélection en conteneur
  * bleu, chevron qui pivote en ressort, guides d'indentation discrets,
  * groupes qui se déroulent en hauteur.
  *
@@ -8,7 +8,7 @@
  * chaque nœud) : padding = marge + (niveau - 1) × indentation.
  */
 .ui-tree {
-  --_row-h: 36px;
+  --_row-h: var(--ui-row-h);
   --_pad: 8px;
   --_indent: 20px;
   --_toggle: 20px;
@@ -25,7 +25,7 @@
   font-size: 14px;
   line-height: 1.4;
 }
-.ui-tree[data-size="sm"] { --_row-h: 32px; --_indent: 18px; --_toggle: 18px; --_gap: 6px; font-size: 13px; }
+.ui-tree[data-size="sm"] { --_row-h: calc(var(--ui-row-h) - 4px); --_indent: 18px; --_toggle: 18px; --_gap: 6px; font-size: 13px; }
 
 .ui-tree__item { display: block; margin: 0; padding: 0; outline: none; }
 .ui-tree__group {

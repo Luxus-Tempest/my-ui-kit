@@ -3,7 +3,7 @@ import { defineConfig } from "@playwright/test";
 /*
  * Test de fumée de l'application d'exemple, sur le build de production :
  * chaque page s'hydrate sans erreur, les interactions clés marchent. Il casse
- * si une version de @acme/ui casse l'intégration Next.js (composants serveur,
+ * si une version de @rovia/ui casse l'intégration Next.js (composants serveur,
  * server actions, thème).
  */
 const PORT = 3101;

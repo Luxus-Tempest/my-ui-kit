@@ -1,4 +1,4 @@
-import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle, Heading, List, ListItem, Stat, StatGroup, Text } from "@acme/ui";
+import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle, Heading, List, ListItem, Stat, StatGroup, Text } from "@rovia/ui";
 import { CircleAlert, FileText, MessagesSquare, Users } from "lucide-react";
 import { ActivityChart } from "@/components/activity-chart";
 import { getActivite, getDocuments, getUtilisateurs } from "@/lib/donnees";

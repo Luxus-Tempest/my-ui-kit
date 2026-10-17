@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
   type TableSortDirection,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { FileIcon, MoreIcon } from "../../_shared/icons";
 
 const meta = {
@@ -27,6 +27,7 @@ const meta = {
   component: Table,
   tags: ["autodocs"],
   parameters: {
+    registry: "table",
     docs: {
       description: {
         component:

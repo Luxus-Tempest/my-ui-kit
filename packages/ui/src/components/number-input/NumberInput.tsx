@@ -2,6 +2,7 @@ import * as React from "react";
 import { cn } from "../../utils/cn";
 import { useFieldControl } from "../field/Field";
 import type { InputDensity } from "../input/Input";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 export interface NumberInputProps
   extends Omit<
@@ -38,7 +39,13 @@ export interface NumberInputProps
   incrementLabel?: string;
 }
 
-const LOCALE = "fr-FR";
+export interface NumberInputLabels {
+  /** Bouton −. « Diminuer ». */
+  decrement: string;
+  /** Bouton +. « Augmenter ». */
+  increment: string;
+}
+export const NUMBER_INPUT_LABELS: NumberInputLabels = { decrement: "Diminuer", increment: "Augmenter" };
 
 function decimalsOf(n: number) {
   if (!Number.isFinite(n)) return 0;
@@ -126,8 +133,8 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     formatOptions,
     unit,
     density = "default",
-    decrementLabel = "Diminuer",
-    incrementLabel = "Augmenter",
+    decrementLabel: decrementLabelProp,
+    incrementLabel: incrementLabelProp,
     name,
     onKeyDown,
     onBlur,
@@ -136,6 +143,10 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
   },
   ref,
 ) {
+  const locale = useLocale();
+  const numberLabels = useMessages("numberInput", NUMBER_INPUT_LABELS);
+  const decrementLabel = decrementLabelProp ?? numberLabels.decrement;
+  const incrementLabel = incrementLabelProp ?? numberLabels.increment;
   const props = useFieldControl(rest);
   const { id: idProp, disabled, readOnly } = props;
   const autoId = React.useId();
@@ -148,7 +159,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
   const [draft, setDraft] = React.useState<string | null>(null);
 
   const formatter = React.useMemo(
-    () => new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 20, ...formatOptions }),
+    () => new Intl.NumberFormat(locale, { maximumFractionDigits: 20, ...formatOptions }),
     [formatOptions],
   );
   const format = React.useCallback((n: number | null) => (n == null ? "" : formatter.format(n)), [formatter]);

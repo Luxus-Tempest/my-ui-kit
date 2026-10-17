@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 
 export const metadata: Metadata = {
   title: { default: "Acme Documents", template: "%s · Acme Documents" },
-  description: "Application d'exemple construite avec @acme/ui.",
+  description: "Application d'exemple construite avec @rovia/ui.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

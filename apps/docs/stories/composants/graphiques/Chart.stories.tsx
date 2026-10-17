@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Chart } from "@acme/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Chart } from "@rovia/ui";
 import { MONTHS, REVENUE } from "../../_shared/data";
 
 const meta = {
@@ -7,6 +7,7 @@ const meta = {
   component: Chart,
   tags: ["autodocs"],
   parameters: {
+    registry: "chart",
     docs: {
       description: {
         component:

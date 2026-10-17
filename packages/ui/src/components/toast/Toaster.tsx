@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Toaster as Sonner, toast, type ToasterProps as SonnerProps } from "sonner";
+import { useMessages } from "../../i18n/LocaleProvider";
 import { Spinner } from "../spinner/Spinner";
 
 const stroke = { fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round" } as const;
@@ -34,15 +35,26 @@ export type ToasterProps = Omit<SonnerProps, "theme"> & {
  *   toast.error("Envoi impossible", { description: message });
  *   toast.promise(enregistrer(), { loading: "…", success: "…", error: "…" });
  */
+export interface ToastLabels {
+  /** Bouton de fermeture d'une notification. « Fermer la notification » (sonner dit « Close toast »). */
+  close: string;
+  /** Nom de la région des notifications. « Notifications ». */
+  region: string;
+}
+export const TOAST_LABELS: ToastLabels = { close: "Fermer la notification", region: "Notifications" };
+
 export function Toaster({ theme, position = "bottom-right", toastOptions, ...props }: ToasterProps) {
+  const labels = useMessages("toast", TOAST_LABELS);
   return (
     <Sonner
       theme={theme}
       position={position}
       icons={ICONS}
       gap={8}
+      containerAriaLabel={labels.region}
       toastOptions={{
         unstyled: true,
+        closeButtonAriaLabel: labels.close,
         ...toastOptions,
         classNames: {
           toast: "ui-toast",

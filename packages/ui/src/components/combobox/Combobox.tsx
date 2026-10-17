@@ -4,6 +4,7 @@ import { Chip } from "../chip/Chip";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../command/Command";
 import { useFieldContext, useFieldControl } from "../field/Field";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "../popover/Popover";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 const Chevron = () => (
   <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -77,7 +78,25 @@ export interface ComboboxMultipleProps extends ComboboxBaseProps {
 
 export type ComboboxProps = ComboboxSingleProps | ComboboxMultipleProps;
 
-const defaultFormatCount = (count: number) => (count > 1 ? `${count} sélectionnés` : `${count} sélectionné`);
+export interface ComboboxLabels {
+  /** Déclencheur vide. « Choisir… ». */
+  placeholder: string;
+  /** Champ de recherche. « Rechercher… ». */
+  searchPlaceholder: string;
+  /** Aucune option ne correspond. « Aucun résultat ». */
+  empty: string;
+  /** Nom de la liste d'options. « Options ». */
+  list: string;
+  /** Résumé au-delà de `maxChips`. « 3 sélectionnés ». */
+  selectedCount: (count: number) => string;
+}
+export const COMBOBOX_LABELS: ComboboxLabels = {
+  placeholder: "Choisir…",
+  searchPlaceholder: "Rechercher…",
+  empty: "Aucun résultat",
+  list: "Options",
+  selectedCount: (count) => (count > 1 ? `${count} sélectionnés` : `${count} sélectionné`),
+};
 
 /** Regroupe les options en conservant l'ordre d'apparition ; les options sans groupe d'abord. */
 function groupOptions(options: ComboboxOption[]) {
@@ -118,17 +137,18 @@ const EMPTY: string[] = [];
  * Hors d'un `Field`, nommer le déclencheur par `aria-label`.
  */
 export const Combobox = React.forwardRef<HTMLButtonElement, ComboboxProps>(function Combobox(props, ref) {
+  const labels = useMessages("combobox", COMBOBOX_LABELS);
   const {
     options,
-    placeholder = "Choisir…",
-    searchPlaceholder = "Rechercher…",
-    emptyText = "Aucun résultat",
+    placeholder = labels.placeholder,
+    searchPlaceholder = labels.searchPlaceholder,
+    emptyText = labels.empty,
     density = "default",
     open: openProp,
     defaultOpen,
     onOpenChange,
     contentClassName,
-    listLabel = "Options",
+    listLabel = labels.list,
     className,
     multiple,
     value: _value,
@@ -140,7 +160,7 @@ export const Combobox = React.forwardRef<HTMLButtonElement, ComboboxProps>(funct
     ...rest
   } = props;
   // Props propres au mode multiple, retirées de ce qui part sur le bouton.
-  const { maxChips = 2, formatCount = defaultFormatCount, ...buttonProps } = rest as typeof rest & {
+  const { maxChips = 2, formatCount = labels.selectedCount, ...buttonProps } = rest as typeof rest & {
     maxChips?: number;
     formatCount?: (count: number) => string;
   };

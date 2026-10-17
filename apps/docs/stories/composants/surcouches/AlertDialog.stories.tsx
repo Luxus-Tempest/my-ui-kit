@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
   Button,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { TrashIcon } from "../../_shared/icons";
 
 const Confirm = () => (
@@ -35,6 +35,7 @@ const meta = {
   component: AlertDialog,
   tags: ["autodocs"],
   parameters: {
+    registry: "alert-dialog",
     docs: {
       description: {
         component:

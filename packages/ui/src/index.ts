@@ -1,14 +1,48 @@
 /*
- * API publique de @acme/ui. Les familles suivent la barre latérale de la
+ * API publique de @rovia/ui. Les familles suivent la barre latérale de la
  * documentation (Composants/<Famille>/<Nom>) ; chaque composant exporte ses
  * composants **et** ses types. Voir CONTRIBUTING.md.
  */
 
 /* ══ Thème ══════════════════════════════════════════════════════════════ */
 export { ThemeProvider, useTheme } from "./theme/ThemeProvider";
-export type { ThemeMode, ThemeOverrides, ThemeProviderProps } from "./theme/ThemeProvider";
+export type { ThemeMode, ThemeOverrides, ThemeProviderProps, ThemeDensity } from "./theme/ThemeProvider";
 export { DirectionProvider, useDirection } from "./theme/DirectionProvider";
 export type { Direction, DirectionProviderProps } from "./theme/DirectionProvider";
+export { createBrandTokens, createBrandCss, brandStyle, contrastRatio } from "./theme/brand";
+export type { BrandTokens, BrandCssOptions } from "./theme/brand";
+
+/* ══ Langue ═════════════════════════════════════════════════════════════ */
+export { LocaleProvider, useLocale, useMessages, getLocaleDirection } from "./i18n/LocaleProvider";
+export type { LocaleProviderProps } from "./i18n/LocaleProvider";
+export type { UiMessages, UiMessagesInput } from "./i18n/messages";
+export { localeEn } from "./i18n/locales/en";
+export { localeAr } from "./i18n/locales/ar";
+export type { AlertDialogLabels } from "./components/alert-dialog/AlertDialog";
+export type { BottomNavigationLabels } from "./components/bottom-navigation/BottomNavigation";
+export type { BreadcrumbLabels } from "./components/breadcrumb/Breadcrumb";
+export type { CalendarLabels } from "./components/calendar/Calendar";
+export type { ChartLabels } from "./components/chart/charts";
+export type { ChatLabels, FormatMessageDateOptions } from "./components/chat/Chat";
+export type { ChipLabels } from "./components/chip/Chip";
+export type { ComboboxLabels } from "./components/combobox/Combobox";
+export type { CommandLabels } from "./components/command/Command";
+export type { DatePickerLabels, DateRangePresetLabels } from "./components/date-picker/DatePicker";
+export type { DescriptionListLabels } from "./components/description-list/DescriptionList";
+export type { DialogLabels } from "./components/dialog/Dialog";
+export type { FileUploadLabels, FileSizeUnits } from "./components/file-upload/FileUpload";
+export type { InputOTPLabels } from "./components/input-otp/InputOTP";
+export type { NumberInputLabels } from "./components/number-input/NumberInput";
+export type { RatingLabels } from "./components/rating/Rating";
+export type { ResizableLabels } from "./components/resizable/Resizable";
+export type { SearchBarLabels } from "./components/search-bar/SearchBar";
+export type { SidebarLabels } from "./components/sidebar/Sidebar";
+export type { SliderLabels } from "./components/slider/Slider";
+export type { SparklineLabels } from "./components/stat/Sparkline";
+export type { SpinnerLabels } from "./components/spinner/Spinner";
+export type { TimePickerLabels } from "./components/time-picker/TimePicker";
+export type { ToastLabels } from "./components/toast/Toaster";
+export type { LinkLabels } from "./components/typography/Typography";
 
 /* ══ Hooks ══════════════════════════════════════════════════════════════ */
 export { useMediaQuery, breakpoints } from "./hooks/useMediaQuery";
@@ -110,7 +144,7 @@ export type { RatingProps, RatingSize } from "./components/rating/Rating";
 export { Calendar } from "./components/calendar/Calendar";
 export type { CalendarProps, DateRange, Matcher } from "./components/calendar/Calendar";
 
-export { DatePicker, DateRangePicker, formatDate, formatDateRange, defaultDateRangePresets } from "./components/date-picker/DatePicker";
+export { DatePicker, DateRangePicker, formatDate, formatDateRange, defaultDateRangePresets, createDateRangePresets } from "./components/date-picker/DatePicker";
 export type { DatePickerProps, DateRangePickerProps, DateRangePreset } from "./components/date-picker/DatePicker";
 
 export { TimePicker, DateTimePicker, parseTime } from "./components/time-picker/TimePicker";
@@ -210,6 +244,10 @@ export type {
   ColumnDef,
   ColumnFiltersState,
   ColumnHelper,
+  ColumnPinningState,
+  ColumnSizingState,
+  ExpandedState,
+  Header,
   HeaderContext,
   OnChangeFn,
   PaginationState,
@@ -240,25 +278,34 @@ export { DataTableViewOptions } from "./components/data-table/DataTableViewOptio
 export type { DataTableViewOptionsProps } from "./components/data-table/DataTableViewOptions";
 export { DataTablePagination } from "./components/data-table/DataTablePagination";
 export type { DataTablePaginationProps } from "./components/data-table/DataTablePagination";
+export { DataTableColumnResizer } from "./components/data-table/DataTableColumnResizer";
+export type { DataTableColumnResizerProps } from "./components/data-table/DataTableColumnResizer";
 export {
   selectColumn,
+  expandColumn,
   actionsColumn,
   dataTableFormatters,
   DataTableRowActions,
   DataTableRowCheckbox,
   DataTableSelectAllCheckbox,
+  DataTableExpandButton,
+  DataTableExpandAllButton,
   DataTableDefaultCell,
 } from "./components/data-table/columns";
-export type { SelectColumnOptions, ActionsColumnOptions } from "./components/data-table/columns";
+export type { SelectColumnOptions, ExpandColumnOptions, ActionsColumnOptions } from "./components/data-table/columns";
 export { DataTableProvider, defaultDataTableLabels, useDataTableLabels } from "./components/data-table/context";
 export { exportCsv, toCsv } from "./components/data-table/export";
 export type { DataTableCsvOptions } from "./components/data-table/export";
+export { getDataTableAggregate } from "./components/data-table/aggregate";
 export { facetFilterFn } from "./components/data-table/utils";
 export type {
+  DataTableAggregate,
+  DataTableAggregateFn,
   DataTableDensity,
   DataTableFilterOption,
   DataTableLabels,
   DataTablePersistedKey,
+  DataTablePinPosition,
   DataTableState,
 } from "./components/data-table/types";
 

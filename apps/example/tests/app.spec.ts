@@ -67,3 +67,18 @@ test("thème : le choix sombre pose la classe dark", async ({ page }) => {
   await page.getByRole("menuitemradio", { name: "Sombre" }).click();
   await expect(page.locator("html")).toHaveClass(/dark/);
 });
+
+test("langue : l'anglais traduit les composants, l'arabe passe de droite à gauche", async ({ page }) => {
+  await page.goto("/documents");
+  await expect(page.getByRole("searchbox", { name: "Rechercher dans le tableau" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Changer de langue" }).click();
+  await page.getByRole("menuitemradio", { name: "English" }).click();
+  await expect(page.getByRole("searchbox", { name: "Search the table" })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+
+  await page.getByRole("button", { name: "Changer de langue" }).click();
+  await page.getByRole("menuitemradio", { name: "العربية" }).click();
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByRole("searchbox", { name: "البحث في الجدول" })).toBeVisible();
+});

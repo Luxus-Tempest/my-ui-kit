@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Combobox, Field, type ComboboxOption } from "@acme/ui";
+import { Combobox, Field, type ComboboxOption } from "@rovia/ui";
 import { Card, Row } from "../../_shared/demo";
 import { ClockIcon, CloudIcon, FileIcon, FolderIcon, GridIcon, StarIcon } from "../../_shared/icons";
 
@@ -35,6 +35,7 @@ const meta = {
   component: Combobox,
   tags: ["autodocs"],
   parameters: {
+    registry: "combobox",
     docs: {
       description: {
         component:

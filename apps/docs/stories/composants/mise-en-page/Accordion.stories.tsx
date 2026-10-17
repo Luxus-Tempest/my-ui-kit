@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Switch } from "@acme/ui";
-import type { AccordionProps } from "@acme/ui";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Switch } from "@rovia/ui";
+import type { AccordionProps } from "@rovia/ui";
 import { Card } from "../../_shared/demo";
 import { CloudIcon, LockIcon, UsersIcon } from "../../_shared/icons";
 
@@ -38,6 +38,7 @@ const meta = {
   component: Accordion,
   tags: ["autodocs"],
   parameters: {
+    registry: "accordion",
     docs: {
       description: {
         component:

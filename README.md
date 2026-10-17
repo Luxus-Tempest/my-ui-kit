@@ -1,4 +1,4 @@
-# @acme/ui
+# @rovia/ui
 
 Librairie de composants React façon MUI, construite sur **Radix UI** (logique + accessibilité) avec une couche de style maison en **variables CSS** et un langage visuel **Drive × iOS**. Clair, sombre, droite à gauche ; chaque composant est testé (comportement + axe) et documenté dans Storybook.
 
@@ -26,7 +26,7 @@ visuelle, voir « Qualité »).
 ui-kit/
 ├── packages/ui/                     → la librairie publiée sur npm
 │   ├── src/theme/tokens.css         → jetons du langage Drive × iOS (clair + sombre)
-│   ├── src/theme/ThemeProvider      → mode clair/sombre, sens de lecture, surcharge de jetons
+│   ├── src/theme/ThemeProvider      → mode clair/sombre, sens de lecture, densité, surcharge de jetons
 │   ├── src/hooks/                   → useMediaQuery, useControllableState
 │   ├── src/components/<nom>/        → un dossier par composant : .tsx, .css, .test.tsx
 │   ├── src/index.ts                 → API publique, par famille
@@ -95,6 +95,42 @@ mode serveur (`manualPagination`, `manualSorting`, `manualFiltering`) et virtual
 Une cellule tient sur une ligne ; `meta.wrap` autorise le retour à la ligne (notes, descriptions).
 Pour une mise en page sur mesure, `useDataTable` et les briques (`DataTableToolbar`, `DataTableView`, `DataTablePagination`…)
 s'assemblent librement.
+
+Au niveau d'un ERP :
+
+```tsx
+const columns: ColumnDef<Facture, any>[] = [
+  { accessorKey: "numero", header: "Facture", meta: { pin: "start", width: 132 } },
+  { accessorKey: "client", header: "Client", meta: { width: 220, minWidth: 160 } },
+  { accessorKey: "ht", header: "Montant HT", meta: { numeric: true, format: mad.format, aggregate: "sum" } },
+  { accessorKey: "ttc", header: "Montant TTC", meta: { numeric: true, format: mad.format, aggregate: "sum" } },
+  actionsColumn<Facture>((row) => <MenuItem>Ouvrir</MenuItem>),
+];
+
+<DataTable
+  aria-label="Facturation"
+  columns={columns}
+  data={factures}
+  getRowId={(f) => f.id}
+  enableRowSelection
+  enableColumnResizing
+  renderSubComponent={(row) => <LignesFacture facture={row.original} />}
+  maxHeight={560}
+  persistKey="facturation"
+/>
+```
+
+- **Colonnes figées** : `meta.pin: "start" | "end"`, menu de colonne (« Figer au début », « Figer à la fin »,
+  « Libérer »), état `columnPinning` contrôlable et mémorisé. Sélection, dépliage et actions se figent d'office.
+  Position collante en propriétés logiques (RTL), fond opaque, filet et ombre seulement quand du contenu passe dessous.
+- **Colonnes redimensionnables** : `enableColumnResizing` ; poignée au bord de l'en-tête (souris, doigt, et clavier :
+  `role="separator"`, flèches ± 16 px, Maj ± 64 px, Origine / Fin), double-clic pour la largeur par défaut,
+  bornes `meta.minWidth` / `meta.maxWidth`, largeurs dans l'état `columnSizing`.
+- **Lignes dépliables** : panneau de détail (`renderSubComponent`, `getRowCanExpand`) ou données hiérarchiques
+  (`getSubRows`), chevron dans une colonne dédiée (`expandColumn()`), état `expanded` ; compatible tri, sélection,
+  pagination et virtualisation.
+- **Totaux** : `meta.aggregate` (`sum`, `avg`, `min`, `max`, `count` ou fonction) sur toutes les lignes filtrées,
+  formatés par `meta.format`, dans un `<tfoot>` collé en bas avec `maxHeight` ; en pagination serveur, `aggregates`.
 
 ### Field : un champ complet en une ligne
 
@@ -166,11 +202,51 @@ la librairie fonctionne donc telle quelle avec `next-themes`.
 Par défaut, `ThemeProvider` pose aussi le thème sur `<html>` (`scope="global"`) : les menus, infobulles et modales,
 rendus dans un portail hors du provider, suivent ainsi le mode et les surcharges. `scope="local"` le limite au conteneur.
 
+### Densité
+
+Trois densités pour toute l'interface, comme le mode compact d'un ERP ou de Gmail (vitrine : *Fondations › Densité*,
+bascule « Densité » dans la barre d'outils de Storybook) :
+
+```tsx
+<ThemeProvider density="compact">…</ThemeProvider>   // "compact" | "default" | "comfortable"
+```
+
+Seules les hauteurs et les marges internes des contrôles et des lignes changent ; le texte et les icônes gardent leur
+taille. Chaque palier retire ou ajoute 4 px aux contrôles et 8 px aux lignes : un champ reste 4 px plus haut qu'un bouton.
+
+| Jeton | Compacte | Standard | Confortable | Usage |
+|---|---|---|---|---|
+| `--ui-ctl-h-sm` | 28 | 32 | 36 | Bouton `sm`, puce, déclencheur de Menubar |
+| `--ui-ctl-h` | 32 | 36 | 40 | Bouton, Toggle, ToggleGroup, Pagination, onglets, entrée de Sidebar |
+| `--ui-ctl-h-lg` | 40 | 44 | 48 | Bouton `lg`, case d'InputOTP |
+| `--ui-ctl-px` | 12 | 16 | 20 | Marge interne horizontale d'un bouton |
+| `--ui-field-h-sm` | 28 | 32 | 36 | Champ `density="sm"` |
+| `--ui-field-h` | 36 | 40 | 44 | Input, Select, NativeSelect, Combobox, DatePicker, TimePicker, NumberInput, InputGroup, SearchBar |
+| `--ui-field-px` | 12 | 14 | 16 | Marge interne horizontale d'un champ |
+| `--ui-row-h` | 32 | 36 | 40 | Entrée de Menu, ContextMenu, Menubar, Select, Combobox, Command ; ligne de TreeView |
+| `--ui-row-h-list` | 44 | 52 | 60 | Ligne de List (`plain` : 4 px de moins), en-tête d'Accordion |
+| `--ui-row-py` | 6 | 10 | 14 | Marge verticale d'une ligne de liste sur deux lignes de texte |
+| `--ui-row-h-table` | 40 | 48 | 56 | Ligne de Table et de DataTable |
+| `--ui-row-h-table-head` | 40 | 44 | 48 | En-tête de Table |
+| `--ui-cell-px` | 12 | 16 | 16 | Marge interne horizontale d'une cellule |
+
+- `density` pose `data-ui-density` sur le conteneur et, en portée globale, sur `<html>` (restauré au démontage) :
+  menus, listes et modales rendus en portail suivent. Sans `density`, rien n'est posé : la densité est héritée.
+- **Sans `ThemeProvider`** (next-themes, layout serveur) : posez l'attribut vous-même sur `<html>`, `<body>` ou
+  n'importe quel ancêtre, par exemple `<html lang="fr" data-ui-density="compact">`. Une zone peut avoir sa propre
+  densité (un back-office compact dans une page standard). Sans attribut, la densité est la standard.
+- Table et DataTable : une densité `compact` ou `comfortable` posée sur la table (`density`) l'emporte toujours sur
+  celle de l'interface ; `default`, la valeur par défaut de la prop, suit la densité de l'interface.
+- Cibles tactiles : le plus petit contrôle (bouton ou champ `sm` en compacte) mesure 28 px, au-dessus des 24 px de
+  WCAG 2.2. AppBar (sa propre prop `density`), BottomNavigation (tactile) et Switch gardent leurs mesures.
+- Ajuster un palier : une règle dans votre feuille, après celle de la librairie, par exemple
+  `[data-ui-density="compact"] { --ui-row-h-table: 36px; }`. (`overrides` fixerait le jeton pour toutes les densités.)
+
 ## Utilisation dans une application
 
 ```tsx
-import { ThemeProvider, Button } from "@acme/ui";
-import "@acme/ui/styles.css";
+import { ThemeProvider, Button } from "@rovia/ui";
+import "@rovia/ui/styles.css";
 
 <ThemeProvider defaultMode="dark" overrides={{ pri: "#7c3aed", "r-ctl": "6px" }}>
   <Button size="lg">Commencer</Button>
@@ -179,6 +255,28 @@ import "@acme/ui/styles.css";
 
 `overrides` surcharge n'importe quel token : la clé `"r-ctl"` correspond à `--ui-r-ctl`.
 
+### Couleur de marque
+
+Une seule couleur suffit : `createBrandTokens("#7c3aed")` calcule la famille primaire (bouton plein, conteneur
+tonal, sélection, liens, focus) pour le clair **et** le sombre, en OKLCH. La teinte est gardée ; luminosité et
+saturation s'ajustent pour garantir les contrastes (texte sur le primaire et liens ≥ 4,5:1, texte sur le conteneur
+≥ 7:1) : une marque jaune vif donne un bouton ambré lisible.
+
+```tsx
+import { ThemeProvider, createBrandCss, createBrandTokens } from "@rovia/ui";
+
+// Avec ThemeProvider : la famille suit le mode clair ou sombre.
+<ThemeProvider brand="#7c3aed">…</ThemeProvider>
+
+// Sans ThemeProvider (next-themes…) : une feuille de style après @rovia/ui/styles.css.
+<style>{createBrandCss("#7c3aed")}</style>
+
+// Ou les valeurs elles-mêmes : { light, dark }.
+const { light, dark } = createBrandTokens("#7c3aed");
+```
+
+Page *Fondations › Couleur de marque* : essayer une couleur et lire les contrastes obtenus.
+
 ### Next.js (App Router) et composants serveur
 
 Les composants s'importent directement dans un composant serveur, tant que leurs props sont sérialisables
@@ -186,7 +284,7 @@ Les composants s'importent directement dans un composant serveur, tant que leurs
 
 ```tsx
 // app/page.tsx — composant serveur, sans "use client"
-import { Stat, StatGroup } from "@acme/ui";
+import { Stat, StatGroup } from "@rovia/ui";
 
 export default async function Page() {
   const kpi = await getKpi();
@@ -199,7 +297,7 @@ le composant qui la porte vit dans un fichier `"use client"` (voir `apps/example
 (`dataTableFormatters`, `formatFileSize`, `breakpoints`…) sont du code client : appelez-les côté client.
 Les formulaires marchent avec les server actions : les champs postent leur valeur par leur `name`.
 
-Le barrel `@acme/ui` ne porte pas `"use client"` ; chaque module le porte. Une page n'embarque ainsi que ce
+Le barrel `@rovia/ui` ne porte pas `"use client"` ; chaque module le porte. Une page n'embarque ainsi que ce
 qu'elle affiche : dans l'application d'exemple, la page de connexion pèse 193 Ko gzip (React et Next compris),
 sans ECharts ni TanStack, au lieu de 606 Ko quand tout le paquet devenait une seule frontière client.
 
@@ -210,7 +308,7 @@ Rangez les styles de la librairie dans la couche `components` de Tailwind : ils 
 
 ```css
 @import "tailwindcss";
-@import "@acme/ui/styles.css" layer(components);
+@import "@rovia/ui/styles.css" layer(components);
 
 /* Les jetons comme couleurs Tailwind : bg-panel, text-fg-2… */
 @theme inline {
@@ -220,7 +318,7 @@ Rangez les styles de la librairie dans la couche `components` de Tailwind : ils 
 ```
 
 Avec `next-themes` (`attribute="class"`), le `ThemeProvider` de la librairie est facultatif : les jetons sombres
-suivent la classe `dark` de `<html>`.
+suivent la classe `dark` de `<html>`, et la densité l'attribut `data-ui-density` (voir « Densité »).
 
 ### Poids embarqué
 
@@ -233,11 +331,38 @@ et échoue au-delà de son budget, ou si ECharts ou TanStack apparaissent là o�
 | `Button` | 2,4 Ko | 5 Ko |
 | Formulaire (`Field`, `Input`, `Select`, `Checkbox`) | 34 Ko | 40 Ko |
 | `Dialog`, `Menu`, `toast` | 43 Ko | 50 Ko |
-| `DataTable` | 83 Ko | 95 Ko |
+| `DataTable` | 89 Ko | 95 Ko |
 | `LineChart` (ECharts compris) | 225 Ko | 245 Ko |
-| `styles.css` | 34 Ko | 40 Ko |
+| `styles.css` | 35 Ko | 40 Ko |
 
 `styles.dev.css` est la version lisible de la feuille, pour le débogage.
+
+### Langue (français, anglais, arabe…)
+
+Les composants parlent français sans configuration. `LocaleProvider` change la langue de toute l'interface :
+la **locale** `Intl` (dates, nombres compacts, pluriels, listes « A, B ou C », premier jour de la semaine) et le
+**catalogue** de libellés (boutons, annonces aux lecteurs d'écran, erreurs de dépôt de fichiers…).
+
+```tsx
+import { LocaleProvider, ThemeProvider, getLocaleDirection, localeEn, localeAr } from "@rovia/ui";
+
+<LocaleProvider locale="en-US" messages={localeEn}>…</LocaleProvider>
+
+// Arabe : catalogue et sens de lecture.
+<ThemeProvider dir={getLocaleDirection("ar-MA")}>
+  <LocaleProvider locale="ar-MA" messages={localeAr}>…</LocaleProvider>
+</ThemeProvider>
+```
+
+- Catalogues fournis : `localeEn` (en-US) et `localeAr` (ar-MA, pluriels arabes via `Intl.PluralRules` ; à faire
+  relire par un locuteur natif). Une autre langue : un objet `UiMessages` complet, le typage signale toute clé oubliée.
+- Un catalogue partiel (`UiMessagesInput`) ne remplace que ce qu'il précise ; les providers s'emboîtent ; la prop
+  `labels` d'un composant (ou `clearLabel`, `placeholder`…) l'emporte toujours.
+- Dans vos propres composants : `useLocale()` pour `Intl`, `useMessages(espace, défauts)` pour les libellés.
+- Utilitaires hors React : `formatDate(date, locale)`, `formatFileSize(octets, { locale, units })`,
+  `formatMessageDate(date, now, { locale, today, yesterday })`, `createDateRangePresets(libellés)`.
+- Les textes de l'application (en-têtes de colonnes, formateurs de cellules `dataTableFormatters.date(options, locale)`)
+  restent à sa charge. Bascule « Langue » dans la barre d'outils de Storybook ; page *Fondations › Langue*.
 
 ### Droite à gauche (arabe, hébreu)
 
@@ -245,7 +370,7 @@ et échoue au-delà de son budget, ou si ECharts ou TanStack apparaissent là o�
 <ThemeProvider dir="rtl">…</ThemeProvider>
 ```
 
-`dir` est posé sur le conteneur et sur `<html>`, et transmis aux primitives Radix (`DirectionProvider`) : menus,
+`getLocaleDirection(locale)` donne le sens d'une locale. `dir` est posé sur le conteneur et sur `<html>`, et transmis aux primitives Radix (`DirectionProvider`) : menus,
 curseurs, onglets et calendrier suivent le sens de lecture. Le CSS n'emploie que des propriétés logiques
 (`margin-inline-start`, `inset-inline-end`…) ; flèches et chevrons se retournent d'eux-mêmes.
 Bascule « Sens » dans la barre d'outils de Storybook.
@@ -301,7 +426,7 @@ Bascule « Sens » dans la barre d'outils de Storybook.
 | `link` | Navigation dans du texte |
 | `onDark` / `onDarkGhost` | Uniquement sur le bandeau de marque sombre |
 
-- `size` : `sm` (32 px) | `default` (36 px) | `lg` (44 px) | `icon` | `icon-sm` | `icon-lg`. Un bouton icône exige un `aria-label` (avertissement en développement).
+- `size` : `sm` (32 px) | `default` (36 px) | `lg` (44 px) | `icon` | `icon-sm` | `icon-lg` (hauteurs en densité standard). Un bouton icône exige un `aria-label` (avertissement en développement).
 - États pilotés par ARIA, sans prop dédiée : `aria-pressed` (bascule), `aria-expanded` (menu ouvert), `aria-invalid`.
 - `loading` : garde la largeur et le focus, annonce `aria-busy`, ignore les clics.
 - `asChild` : rend l'enfant (un `<a>`, un `<Link>`) avec le style du bouton ; `disabled` y bloque la navigation.
@@ -315,10 +440,10 @@ pnpm changeset version
 pnpm release        # build puis publication sur npm
 ```
 
-Renomme d'abord `@acme/ui` avec ton propre scope npm.
+Renomme d'abord `@rovia/ui` avec ton propre scope npm.
 
 ## Prochaines étapes suggérées
 
 - Utilitaires appelables depuis un composant serveur (formateurs, `breakpoints`) : un point d'entrée sans `"use client"`.
-- Exports par composant (`@acme/ui/button`), comme `@mui/material/Button`, pour les outils qui ne lisent pas `sideEffects`.
+- Exports par composant (`@rovia/ui/button`), comme `@mui/material/Button`, pour les outils qui ne lisent pas `sideEffects`.
 - Remplacer `vaul` (Drawer), qui n'est plus maintenu, le jour où une alternative stable couvre le glisser iOS.

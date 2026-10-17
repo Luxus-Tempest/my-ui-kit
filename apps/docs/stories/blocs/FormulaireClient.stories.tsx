@@ -25,7 +25,7 @@ import {
   Stack,
   Switch,
   Textarea,
-} from "@acme/ui";
+} from "@rovia/ui";
 
 const meta: Meta = {
   title: "Blocs/Formulaire client",

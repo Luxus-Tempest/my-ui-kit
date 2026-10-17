@@ -11,7 +11,7 @@ import {
   MenuItem,
   MenuSeparator,
   MenuTrigger,
-} from "@acme/ui";
+} from "@rovia/ui";
 import {
   Archive,
   Bold,
@@ -42,6 +42,7 @@ const meta = {
   component: ButtonGroup,
   tags: ["autodocs"],
   parameters: {
+    registry: "button-group",
     docs: {
       description: {
         component:

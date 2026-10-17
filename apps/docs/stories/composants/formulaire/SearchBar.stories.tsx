@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, SearchBar, Text } from "@acme/ui";
+import { Button, SearchBar, Text } from "@rovia/ui";
 import { FilterIcon } from "../../_shared/icons";
 
 const meta = {
@@ -8,6 +8,7 @@ const meta = {
   component: SearchBar,
   tags: ["autodocs"],
   parameters: {
+    registry: "search-bar",
     docs: {
       description: {
         component:

@@ -1,0 +1,16 @@
+{
+  "name": "@rovia/registry",
+  "private": true,
+  "description": "Générateur du registre @rovia (blocs et éjection de composants), au format shadcn. Voir la spec 0001.",
+  "type": "module",
+  "scripts": {
+    "registry": "node src/cli.mjs",
+    "test": "node --test test/build.test.mjs",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "shadcn": "4.21.4",
+    "typescript": "^5.6.0"
+  }
+}

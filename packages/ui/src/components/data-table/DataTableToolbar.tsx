@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { Row, Table } from "@tanstack/react-table";
+import { useLocale } from "../../i18n/LocaleProvider";
 import { cn } from "../../utils/cn";
 import { Button } from "../button/Button";
 import { SearchBar } from "../search-bar/SearchBar";
@@ -272,6 +273,7 @@ function DataTableToolbarInner<TData>(
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   const labels = useDataTableLabels(labelsProp);
+  const locale = useLocale();
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const state = table.getState();
   const selectedCount = Object.values(state.rowSelection).filter(Boolean).length;
@@ -343,7 +345,13 @@ function DataTableToolbarInner<TData>(
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => exportCsv(table, exportSettings.filename ?? "export", exportSettings.options)}
+                onClick={() =>
+                  exportCsv(table, exportSettings.filename ?? "export", {
+                    locale,
+                    booleans: [labels.yes, labels.no],
+                    ...exportSettings.options,
+                  })
+                }
               >
                 <DownloadIcon />
                 {labels.exportCsv}

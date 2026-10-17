@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Text } from "@acme/ui";
+import { Text } from "@rovia/ui";
 
 /** Lit la valeur calculée d'un jeton sur l'élément : elle suit le thème actif. */
 export function useTokenValue(name: string) {

@@ -45,7 +45,7 @@ import {
   Textarea,
   toast,
   Toaster,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { Bell, CreditCard, KeyRound, Laptop, Mail, MessageSquare, Shield, Smartphone, Trash2, User } from "lucide-react";
 
 const meta: Meta = {

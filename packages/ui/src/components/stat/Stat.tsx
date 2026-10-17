@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "../../utils/cn";
 import { Sparkline } from "./Sparkline";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 /**
  * Tuile de chiffre clé. Contrat :
@@ -27,14 +28,17 @@ export interface StatLabels {
   unchanged: string;
   favorable: string;
   unfavorable: string;
+  /** Période de la tendance par défaut, au pluriel. « mois ». */
+  trendPeriod: string;
 }
 
-const defaultLabels: StatLabels = {
+export const STAT_LABELS: StatLabels = {
   increase: "Hausse de",
   decrease: "Baisse de",
   unchanged: "Stable",
   favorable: "favorable",
   unfavorable: "défavorable",
+  trendPeriod: "mois",
 };
 
 export interface StatProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children"> {
@@ -77,15 +81,14 @@ export interface StatProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "c
   children?: React.ReactNode;
 }
 
-const LOCALE = "fr-FR";
 /** Signe moins typographique (U+2212) plutôt que le trait d'union d'Intl. */
 const typographicMinus = (text: string) => text.replace(/-/g, "\u2212");
 
-function formatValue(value: number, format: Intl.NumberFormatOptions | undefined, compact: boolean | "auto") {
-  const full = new Intl.NumberFormat(LOCALE, format);
+function formatValue(value: number, format: Intl.NumberFormatOptions | undefined, compact: boolean | "auto", locale: string) {
+  const full = new Intl.NumberFormat(locale, format);
   const shouldCompact = compact === true || (compact === "auto" && Math.abs(value) >= 10_000);
   const formatter = shouldCompact
-    ? new Intl.NumberFormat(LOCALE, {
+    ? new Intl.NumberFormat(locale, {
         ...format,
         notation: "compact",
         minimumFractionDigits: 0,
@@ -135,7 +138,7 @@ export const Stat = React.forwardRef<HTMLDivElement, StatProps>(function Stat(
     positiveIsGood = true,
     trend,
     trendLabel,
-    trendPeriod = "mois",
+    trendPeriod: trendPeriodProp,
     icon,
     size = "default",
     variant = "filled",
@@ -146,14 +149,16 @@ export const Stat = React.forwardRef<HTMLDivElement, StatProps>(function Stat(
   },
   ref,
 ) {
-  const labels = { ...defaultLabels, ...labelsProp };
+  const labels = { ...useMessages("stat", STAT_LABELS), ...labelsProp };
+  const locale = useLocale();
+  const trendPeriod = trendPeriodProp ?? labels.trendPeriod;
   const labelId = React.useId();
 
   /* ── Valeur ── */
   let valueNode: React.ReactNode = value;
   let valueTitle: string | undefined;
   if (typeof value === "number" && Number.isFinite(value)) {
-    const formatted = formatValue(value, format, compact);
+    const formatted = formatValue(value, format, compact, locale);
     const fullText = typographicMinus(formatted.full);
     if (formatted.compacted) {
       valueTitle = fullText;
@@ -175,8 +180,8 @@ export const Stat = React.forwardRef<HTMLDivElement, StatProps>(function Stat(
     const good = direction === "flat" ? null : (direction === "up") === positiveIsGood;
     const tone: StatDeltaTone = good == null ? "neu" : good ? "ok" : "err";
     const options: Intl.NumberFormatOptions = { style: "percent", maximumFractionDigits: 1, ...deltaFormat };
-    const shown = typographicMinus(new Intl.NumberFormat(LOCALE, { ...options, signDisplay: "exceptZero" }).format(delta));
-    const magnitude = new Intl.NumberFormat(LOCALE, { ...options, signDisplay: "never" }).format(Math.abs(delta));
+    const shown = typographicMinus(new Intl.NumberFormat(locale, { ...options, signDisplay: "exceptZero" }).format(delta));
+    const magnitude = new Intl.NumberFormat(locale, { ...options, signDisplay: "never" }).format(Math.abs(delta));
     const spoken =
       direction === "flat"
         ? labels.unchanged
@@ -196,7 +201,7 @@ export const Stat = React.forwardRef<HTMLDivElement, StatProps>(function Stat(
   /* ── Tendance ── */
   let trendNode: React.ReactNode = null;
   if (Array.isArray(trend)) {
-    const full = new Intl.NumberFormat(LOCALE, format);
+    const full = new Intl.NumberFormat(locale, format);
     trendNode = (
       <Sparkline
         data={trend}

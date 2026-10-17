@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Box, Button, Heading, HStack, Stack, Text } from "@acme/ui";
+import { Box, Button, Heading, HStack, Stack, Text } from "@rovia/ui";
 
 const Item = ({ children }: { children: string }) => (
   <Box bg="card-2" radius="sm" px={3} py={2}>
@@ -12,6 +12,7 @@ const meta = {
   component: Stack,
   tags: ["autodocs"],
   parameters: {
+    registry: "layout",
     docs: {
       description: {
         component:

@@ -22,7 +22,7 @@ permissions:
 jobs:
   verifier:
     name: Types, tests, build et poids
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -68,7 +68,7 @@ jobs:
   navigateur:
     name: Accessibilité et régression visuelle
     needs: verifier
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
@@ -118,3 +118,73 @@ jobs:
           name: playwright-report
           path: apps/docs/playwright-report
           retention-days: 7
+
+  # Installation réelle du registre (spec 0001) : archive du paquet, registre
+  # local, application Next.js vierge sans Tailwind, bloc connexion et éjection
+  # de button, types, build, navigateur et --overwrite. Captures jointes.
+  registre:
+    name: Registre, installation réelle
+    needs: verifier
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Installer les dépendances
+        run: pnpm install --frozen-lockfile
+
+      - name: Construire le paquet
+        run: pnpm --filter @rovia/ui build
+
+      - name: Installer Chromium
+        run: pnpm --filter @rovia/registry exec playwright install --with-deps chromium
+
+      - name: Installer un bloc et éjecter un composant
+        run: pnpm --filter @rovia/registry smoke
+
+      - name: Captures de l'application
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: registre-captures
+          path: packages/registry/smoke-results
+          retention-days: 7
+
+  # Storybook et le registre (r/*.json), construits par le job « verifier »,
+  # publiés ensemble sur GitHub Pages à chaque push sur main.
+  deployer:
+    name: Déployer la documentation et le registre
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [verifier, navigateur, registre]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Récupérer le Storybook construit
+        uses: actions/download-artifact@v4
+        with:
+          name: storybook-static
+          path: storybook-static
+
+      - name: Vérifier la présence du registre
+        run: test -f storybook-static/r/registry.json && test -f storybook-static/r/connexion.json
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: storybook-static
+
+      - id: deploiement
+        uses: actions/deploy-pages@v4

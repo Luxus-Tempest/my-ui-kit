@@ -13,6 +13,11 @@
  * Largeurs : --ui-sidebar-width (256 px), --ui-sidebar-width-icon (60 px),
  * --ui-sidebar-width-mobile (288 px). Position : --ui-sidebar-top (0) pour
  * une barre posée sous un bandeau fixe.
+ *
+ * Densité : les entrées suivent --ui-ctl-h (36 px en standard), --ui-ctl-h-sm
+ * pour `sm`, les intitulés et le sous-menu ; l'entrée `lg` (espace de travail,
+ * compte) garde 48 px pour rester centrée sur un AppBar de 64 px. Compteurs
+ * et actions se recentrent sur la hauteur de leur entrée.
  */
 
 /* ── Coquille ─────────────────────────────────────────────────────────── */
@@ -236,7 +241,7 @@
   gap: 8px;
   box-sizing: border-box;
   width: 100%;
-  height: 32px;
+  height: var(--ui-ctl-h-sm);
   margin: 0;
   padding: 0 12px;
   overflow: hidden;
@@ -334,7 +339,7 @@ button.ui-sidebar-group-label:active::before { opacity: var(--ui-state-press); }
 .ui-sidebar-group-action :where(svg),
 .ui-sidebar-menu-action :where(svg) { width: 18px; height: 18px; pointer-events: none; }
 
-.ui-sidebar-group-action { top: 10px; right: 16px; }
+.ui-sidebar-group-action { top: calc(8px + (var(--ui-ctl-h-sm) - 28px) / 2); right: 16px; }
 .ui-sidebar-group:has(> .ui-sidebar-group-action) > .ui-sidebar-group-label { padding-right: 40px; }
 
 /* ── Menu ─────────────────────────────────────────────────────────────── */
@@ -351,7 +356,7 @@ button.ui-sidebar-group-label:active::before { opacity: var(--ui-state-press); }
 .ui-sidebar-menu-item { position: relative; min-width: 0; margin: 0; padding: 0; }
 
 .ui-sidebar-menu-button {
-  --_h: 36px;
+  --_h: var(--ui-ctl-h);
   position: relative;
   isolation: isolate;
   display: flex;
@@ -433,7 +438,7 @@ button.ui-sidebar-group-label:active::before { opacity: var(--ui-state-press); }
 .ui-sidebar-menu-item:has(.ui-sidebar-menu-sub-button[data-active]) > .ui-sidebar-menu-button:not([data-active]) { font-weight: 600; }
 
 /* Tailles */
-.ui-sidebar-menu-button[data-size="sm"] { --_h: 32px; font-size: 13px; }
+.ui-sidebar-menu-button[data-size="sm"] { --_h: var(--ui-ctl-h-sm); font-size: 13px; }
 .ui-sidebar-menu-button[data-size="sm"] > :where(svg) { width: 18px; height: 18px; }
 .ui-sidebar-menu-button[data-size="lg"] { --_h: 48px; gap: 10px; padding-left: 8px; }
 /* Entrée sur deux lignes (espace de travail, compte) : titre appuyé, sous-titre discret. */
@@ -451,7 +456,7 @@ button.ui-sidebar-group-label:active::before { opacity: var(--ui-state-press); }
 
 .ui-sidebar-menu-badge {
   position: absolute;
-  top: 8px;
+  top: calc((var(--ui-ctl-h) - 20px) / 2);
   right: 8px;
   display: flex;
   align-items: center;
@@ -471,11 +476,11 @@ button.ui-sidebar-group-label:active::before { opacity: var(--ui-state-press); }
   transition: opacity var(--ui-duration) var(--ui-ease);
 }
 .ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-active]) > .ui-sidebar-menu-badge { color: var(--ui-on-pri-container); font-weight: 600; }
-.ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-size="sm"]) > .ui-sidebar-menu-badge { top: 6px; }
+.ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-size="sm"]) > .ui-sidebar-menu-badge { top: calc((var(--ui-ctl-h-sm) - 20px) / 2); }
 .ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-size="lg"]) > .ui-sidebar-menu-badge { top: 14px; }
 
-.ui-sidebar-menu-action { top: 4px; right: 4px; }
-.ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-size="sm"]) > .ui-sidebar-menu-action { top: 2px; }
+.ui-sidebar-menu-action { top: calc((var(--ui-ctl-h) - 28px) / 2); right: 4px; }
+.ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-size="sm"]) > .ui-sidebar-menu-action { top: calc((var(--ui-ctl-h-sm) - 28px) / 2); }
 .ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-size="lg"]) > .ui-sidebar-menu-action { top: 10px; }
 .ui-sidebar-menu-item:has(> .ui-sidebar-menu-button[data-active]) > .ui-sidebar-menu-action { color: var(--ui-on-pri-container); }
 
@@ -509,7 +514,7 @@ button.ui-sidebar-group-label:active::before { opacity: var(--ui-state-press); }
 .ui-sidebar-menu-sub-item { position: relative; min-width: 0; margin: 0; padding: 0; }
 
 .ui-sidebar-menu-sub-button {
-  --_h: 32px;
+  --_h: var(--ui-ctl-h-sm);
   position: relative;
   isolation: isolate;
   display: flex;
@@ -557,16 +562,16 @@ button.ui-sidebar-group-label:active::before { opacity: var(--ui-state-press); }
 .ui-sidebar-menu-sub-button:focus-visible { box-shadow: inset 0 0 0 1px var(--ui-pri), 0 0 0 3px var(--ui-ring); }
 .ui-sidebar-menu-sub-button[aria-disabled="true"] { opacity: 0.45; pointer-events: none; }
 .ui-sidebar-menu-sub-button[data-active] { background: var(--ui-sel); color: var(--ui-on-pri-container); font-weight: 600; }
-.ui-sidebar-menu-sub-button[data-size="sm"] { --_h: 28px; font-size: 13px; }
+.ui-sidebar-menu-sub-button[data-size="sm"] { --_h: calc(var(--ui-ctl-h-sm) - 4px); font-size: 13px; }
 
 /* ── Mode icône (barre réduite) ───────────────────────────────────────── */
 
 .ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-content { scrollbar-width: none; }
-.ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-menu-button { --_h: 36px; padding: 0 8px; }
+.ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-menu-button { --_h: var(--ui-ctl-h); padding: 0 8px; }
 .ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-menu-button[data-size="lg"] { padding: 0 2px; }
 .ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-menu-button > :not(:first-child) { opacity: 0; }
 .ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-group-label {
-  margin-top: -32px;
+  margin-top: calc(-1 * var(--ui-ctl-h-sm));
   opacity: 0;
   visibility: hidden;
   transition:
@@ -579,7 +584,7 @@ button.ui-sidebar-group-label:active::before { opacity: var(--ui-state-press); }
 }
 /* Le compteur devient une pastille sur l'icône. */
 .ui-sidebar[data-state="collapsed"][data-collapsible="icon"] .ui-sidebar-menu-badge {
-  top: 6px;
+  top: calc((var(--ui-ctl-h) - 24px) / 2);
   right: auto;
   left: 24px;
   min-width: 0;

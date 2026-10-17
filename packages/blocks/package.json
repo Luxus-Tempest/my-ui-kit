@@ -1,0 +1,27 @@
+{
+  "name": "@rovia/blocks",
+  "private": true,
+  "description": "Blocs (écrans complets) installables par le registre @rovia : source unique pour Storybook et le registre.",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@rovia/ui": "workspace:*",
+    "lucide-react": "1.48.0"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.6.0"
+  }
+}

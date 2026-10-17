@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Input, Label } from "@acme/ui";
+import { Input, Label } from "@rovia/ui";
 
 const meta = {
   title: "Composants/Formulaire/Label",
   component: Label,
   tags: ["autodocs"],
   parameters: {
+    registry: "label",
     docs: {
       description: {
         component:

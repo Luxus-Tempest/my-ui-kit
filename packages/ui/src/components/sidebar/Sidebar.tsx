@@ -11,6 +11,7 @@ import {
   TooltipTrigger,
   type TooltipContentProps,
 } from "../tooltip/Tooltip";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 /*
  * Barre latérale : la coquille d'application, à la manière de Drive.
@@ -191,6 +192,23 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
 
 /* ══ Barre ═══════════════════════════════════════════════════════════════ */
 
+export interface SidebarLabels {
+  /** Nom de la barre (repère de navigation). « Barre latérale ». */
+  label: string;
+  /** `SidebarTrigger` quand la barre est masquée. « Afficher la barre latérale ». */
+  show: string;
+  /** `SidebarTrigger` quand la barre est visible. « Masquer la barre latérale ». */
+  hide: string;
+  /** `SidebarRail`. « Afficher / Masquer la barre latérale ». */
+  toggle: string;
+}
+export const SIDEBAR_LABELS: SidebarLabels = {
+  label: "Barre latérale",
+  show: "Afficher la barre latérale",
+  hide: "Masquer la barre latérale",
+  toggle: "Afficher / Masquer la barre latérale",
+};
+
 export interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Bord de l'écran. `right` : placée à droite quel que soit son rang dans le DOM. */
   side?: SidebarSide;
@@ -207,7 +225,7 @@ export interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
    * `none` : toujours ouverte, sans feuille sur mobile.
    */
   collapsible?: SidebarCollapsible;
-  /** Nom du repère de navigation (et de la feuille sur mobile). */
+/** Nom du repère de navigation (et de la feuille sur mobile). */
   label?: string;
 }
 
@@ -216,7 +234,7 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(function S
     side = "left",
     variant = "inset",
     collapsible = "offcanvas",
-    label = "Barre latérale",
+    label: labelProp,
     "aria-label": ariaLabel,
     "aria-labelledby": ariaLabelledBy,
     className,
@@ -226,6 +244,8 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(function S
   ref,
 ) {
   const context = React.useContext(SidebarContext);
+  const sidebarLabels = useMessages("sidebar", SIDEBAR_LABELS);
+  const label = labelProp ?? sidebarLabels.label;
   const instance = React.useMemo<SidebarInstance>(() => ({ side, collapsible }), [side, collapsible]);
   const navLabel = ariaLabelledBy ? undefined : (ariaLabel ?? label);
 
@@ -305,13 +325,16 @@ export const SidebarTrigger = React.forwardRef<HTMLButtonElement, SidebarTrigger
     children,
     variant = "ghost",
     size = "icon",
-    showLabel = "Afficher la barre latérale",
-    hideLabel = "Masquer la barre latérale",
+    showLabel: showLabelProp,
+    hideLabel: hideLabelProp,
     ...props
   },
   ref,
 ) {
   const { toggleSidebar, open, openMobile, isMobile } = useSidebar();
+  const sidebarLabels = useMessages("sidebar", SIDEBAR_LABELS);
+  const showLabel = showLabelProp ?? sidebarLabels.show;
+  const hideLabel = hideLabelProp ?? sidebarLabels.hide;
   const visible = isMobile ? openMobile : open;
   return (
     <Button
@@ -342,10 +365,12 @@ export interface SidebarRailProps extends React.ButtonHTMLAttributes<HTMLButtonE
  * l'ordre de tabulation (le raccourci et `SidebarTrigger` suffisent au clavier).
  */
 export const SidebarRail = React.forwardRef<HTMLButtonElement, SidebarRailProps>(function SidebarRail(
-  { className, onClick, label = "Afficher / Masquer la barre latérale", ...props },
+  { className, onClick, label: labelProp, ...props },
   ref,
 ) {
   const { toggleSidebar } = useSidebar();
+  const railLabels = useMessages("sidebar", SIDEBAR_LABELS);
+  const label = labelProp ?? railLabels.toggle;
   return (
     <button
       ref={ref}

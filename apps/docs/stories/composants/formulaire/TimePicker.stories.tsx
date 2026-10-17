@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, DateTimePicker, Field, TimePicker } from "@acme/ui";
+import { Button, DateTimePicker, Field, TimePicker } from "@rovia/ui";
 import { Card, Row } from "../../_shared/demo";
 
 /** Empile des champs avec l'espacement d'un formulaire. */
@@ -15,6 +15,7 @@ const meta = {
   component: TimePicker,
   tags: ["autodocs"],
   parameters: {
+    registry: "time-picker",
     docs: {
       description: {
         component:

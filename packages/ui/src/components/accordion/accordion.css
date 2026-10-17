@@ -1,7 +1,7 @@
 /*
  * Accordéon. `inset` : carte tonale d'iOS, filets décalés entre les éléments
  * (comme la liste groupée). `plain` : filets fins pleine largeur, posé sur un panneau.
- * Déclencheur 52 px, couche d'état Material, chevron qui pivote en ressort,
+ * Déclencheur 52 px (--ui-row-h-list), couche d'état Material, chevron qui pivote en ressort,
  * contenu animé en hauteur (--radix-accordion-content-height).
  */
 .ui-accordion {
@@ -44,9 +44,9 @@
   gap: 14px;
   box-sizing: border-box;
   width: 100%;
-  min-height: 52px;
+  min-height: var(--ui-row-h-list);
   margin: 0;
-  padding: 10px var(--_px);
+  padding: var(--ui-row-py) var(--_px);
   border: 0;
   background: transparent;
   color: var(--ui-fg);

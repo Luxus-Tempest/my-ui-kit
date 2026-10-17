@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Link, Text } from "@acme/ui";
+import { Link, Text } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 
 const meta = {
@@ -7,6 +7,7 @@ const meta = {
   component: Link,
   tags: ["autodocs"],
   parameters: {
+    registry: "typography",
     docs: {
       description: {
         component:

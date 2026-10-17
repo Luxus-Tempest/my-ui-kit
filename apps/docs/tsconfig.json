@@ -3,7 +3,31 @@
   "compilerOptions": {
     "noEmit": true,
     "baseUrl": ".",
-    "paths": { "@acme/ui": ["../../packages/ui/src/index.ts"] }
+    "paths": {
+      "@rovia/ui": [
+        "../../packages/ui/src/index.ts"
+      ],
+      "@rovia/ui/theme": [
+        "../../packages/ui/src/theme/index.ts"
+      ],
+      "@rovia/ui/i18n": [
+        "../../packages/ui/src/i18n/index.ts"
+      ],
+      "@rovia/ui/hooks": [
+        "../../packages/ui/src/hooks/index.ts"
+      ],
+      "@rovia/ui/utils": [
+        "../../packages/ui/src/utils/index.ts"
+      ],
+      "@rovia/ui/*": [
+        "../../packages/ui/src/components/*/index.ts"
+      ]
+    }
   },
-  "include": [".storybook", "stories", "tests", "playwright.config.ts"]
+  "include": [
+    ".storybook",
+    "stories",
+    "tests",
+    "playwright.config.ts"
+  ]
 }

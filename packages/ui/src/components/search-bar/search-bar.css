@@ -1,6 +1,6 @@
 /* Barre de recherche : pilule tonale, surface claire et halo au focus. */
 .ui-search {
-  --_h: 40px;
+  --_h: var(--ui-field-h);
   position: relative;
   display: flex;
   align-items: center;
@@ -9,7 +9,8 @@
   width: 100%;
   min-width: 0;
   height: var(--_h);
-  padding: 0 6px 0 14px;
+  padding-block: 0;
+  padding-inline: var(--ui-field-px) 6px;
   border: 1px solid transparent;
   border-radius: var(--ui-r-pill);
   background: var(--ui-card-hover);
@@ -20,7 +21,7 @@
     border-color var(--ui-duration) var(--ui-ease),
     box-shadow var(--ui-duration) var(--ui-ease);
 }
-.ui-search[data-size="lg"] { --_h: 48px; padding-inline-start: 18px; }
+.ui-search[data-size="lg"] { --_h: calc(var(--ui-field-h) + 8px); padding-inline-start: calc(var(--ui-field-px) + 4px); }
 
 @media (hover: hover) {
   .ui-search:hover:not(:focus-within, [data-disabled]) { background: color-mix(in srgb, var(--ui-card-hover) 92%, var(--ui-fg)); }
@@ -39,7 +40,8 @@
   min-width: 0;
   height: 100%;
   margin: 0;
-  padding: 0 6px 0 8px;
+  padding-block: 0;
+  padding-inline: 8px 6px;
   border: 0;
   background: transparent;
   color: inherit;

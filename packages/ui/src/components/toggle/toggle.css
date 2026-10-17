@@ -18,8 +18,8 @@
  */
 .ui-toggle-group {
   box-sizing: border-box;
-  --_h: 36px;
-  --_px: 16px;
+  --_h: var(--ui-ctl-h);
+  --_px: var(--ui-ctl-px);
   --_font: 14px;
   --_icon: 18px;
   display: inline-flex;
@@ -28,7 +28,7 @@
   font-family: var(--ui-font-sans);
 }
 .ui-toggle-group[data-size="sm"] {
-  --_h: 32px;
+  --_h: var(--ui-ctl-h-sm);
   --_px: 12px;
   --_font: 13px;
   --_icon: 16px;
@@ -91,8 +91,13 @@
   flex-shrink: 0;
   pointer-events: none;
 }
-/* Icône seule : un carré arrondi au lieu d'une pilule étirée. */
-.ui-toggle-group__item:has(> svg:only-child) {
+/*
+ * Icône seule : un carré arrondi au lieu d'une pilule étirée. Le CSS ne voit
+ * pas les nœuds texte : « icône + texte » satisferait aussi `svg:only-child`.
+ * Un élément sans texte doit porter un `aria-label` (accessibilité) : c'est
+ * lui qui le distingue.
+ */
+.ui-toggle-group__item[aria-label]:has(> svg:only-child) {
   width: calc(var(--_h) + 8px);
   padding: 0;
 }

@@ -14,7 +14,7 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
   ContextMenuTrigger,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 import {
   CopyIcon,
@@ -61,6 +61,7 @@ const meta = {
   component: ContextMenu,
   tags: ["autodocs"],
   parameters: {
+    registry: "context-menu",
     docs: {
       description: {
         component:

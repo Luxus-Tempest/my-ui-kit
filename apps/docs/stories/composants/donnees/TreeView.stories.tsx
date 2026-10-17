@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Badge, TreeItem, TreeView, type TreeViewItem } from "@acme/ui";
+import { Badge, TreeItem, TreeView, type TreeViewItem } from "@rovia/ui";
 import {
   FileSpreadsheet,
   FileText,
@@ -84,6 +84,7 @@ const meta = {
   subcomponents: { TreeItem },
   tags: ["autodocs"],
   parameters: {
+    registry: "tree-view",
     docs: {
       description: {
         component:

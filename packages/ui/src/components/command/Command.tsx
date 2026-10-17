@@ -2,6 +2,7 @@ import * as React from "react";
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { Command as CommandPrimitive, useCommandState } from "cmdk";
 import { cn } from "../../utils/cn";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 const SearchIcon = () => (
   <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -34,14 +35,28 @@ export interface CommandDialogProps extends React.ComponentPropsWithoutRef<typeo
   children?: React.ReactNode;
 }
 
+export interface CommandLabels {
+  /** Titre (lu) de la palette. « Palette de commandes ». */
+  title: string;
+  /** Description (lue) de la palette. « Recherchez une commande ou une page. ». */
+  description: string;
+}
+export const COMMAND_LABELS: CommandLabels = {
+  title: "Palette de commandes",
+  description: "Recherchez une commande ou une page.",
+};
+
 export function CommandDialog({
-  title = "Palette de commandes",
-  description = "Recherchez une commande ou une page.",
+  title: titleProp,
+  description: descriptionProp,
   commandProps,
   className,
   children,
   ...props
 }: CommandDialogProps) {
+  const labels = useMessages("command", COMMAND_LABELS);
+  const title = titleProp ?? labels.title;
+  const description = descriptionProp ?? labels.description;
   return (
     <RadixDialog.Root {...props}>
       <RadixDialog.Portal>

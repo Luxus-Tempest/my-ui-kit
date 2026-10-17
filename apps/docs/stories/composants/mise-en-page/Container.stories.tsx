@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Box, Container, Text } from "@acme/ui";
+import { Box, Container, Text } from "@rovia/ui";
 
 const meta = {
   title: "Composants/Mise en page/Container",
   component: Container,
   tags: ["autodocs"],
   parameters: {
+    registry: "layout",
     docs: {
       description: {
         component:

@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { Column } from "@tanstack/react-table";
+import { useLocale } from "../../i18n/LocaleProvider";
 import { cn } from "../../utils/cn";
 import { Button } from "../button/Button";
 import { Chip } from "../chip/Chip";
@@ -55,6 +56,7 @@ export const DataTableFacetedFilter = React.forwardRef<HTMLButtonElement, DataTa
     ref,
   ) {
     const labels = useDataTableLabels(labelsProp);
+    const locale = useLocale();
     const [open, setOpen] = React.useState(false);
     const name = title ?? getColumnLabel(column);
     const options = optionsProp ?? column.columnDef.meta?.filterOptions ?? [];
@@ -133,7 +135,7 @@ export const DataTableFacetedFilter = React.forwardRef<HTMLButtonElement, DataTa
                     </span>
                     {option.icon != null && <span className="ui-data-table-facet__icon">{option.icon}</span>}
                     <span className="ui-data-table-facet__label">{option.label}</span>
-                    {optionCount !== undefined && <span className="ui-data-table-facet__count">{optionCount.toLocaleString("fr-FR")}</span>}
+                    {optionCount !== undefined && <span className="ui-data-table-facet__count">{optionCount.toLocaleString(locale)}</span>}
                   </CommandItem>
                 );
               })}

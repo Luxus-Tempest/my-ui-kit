@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, ChatComposer, Field, Text, type ChatComposerProps } from "@acme/ui";
+import { Button, ChatComposer, Field, Text, type ChatComposerProps } from "@rovia/ui";
 import { Camera, Paperclip, Smile } from "lucide-react";
 import { Card } from "../../_shared/demo";
 
@@ -35,6 +35,7 @@ const meta = {
   component: ChatComposer,
   tags: ["autodocs"],
   parameters: {
+    registry: "chat",
     docs: {
       description: {
         component:

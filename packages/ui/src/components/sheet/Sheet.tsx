@@ -2,6 +2,8 @@ import * as React from "react";
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { cn } from "../../utils/cn";
 import { Button } from "../button/Button";
+import { useMessages } from "../../i18n/LocaleProvider";
+import { DIALOG_LABELS } from "../dialog/Dialog";
 
 const CloseIcon = () => (
   <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -39,6 +41,7 @@ export const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
   { className, side = "right", size = "md", showCloseButton = true, showHandle, container, children, ...props },
   ref,
 ) {
+  const { close } = useMessages("dialog", DIALOG_LABELS);
   const handle = showHandle ?? side === "bottom";
   return (
     <RadixDialog.Portal container={container}>
@@ -55,7 +58,7 @@ export const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
         {/* La croix vient en premier : elle reçoit le focus à l'ouverture, plutôt qu'une action du pied. */}
         {showCloseButton && (
           <RadixDialog.Close asChild>
-            <Button variant="secondary" size="icon-sm" className="ui-sheet__close" aria-label="Fermer">
+            <Button variant="secondary" size="icon-sm" className="ui-sheet__close" aria-label={close}>
               <CloseIcon />
             </Button>
           </RadixDialog.Close>

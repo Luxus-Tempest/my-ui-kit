@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from "@acme/ui";
+import { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 
 // Portrait de démonstration (données, pas un jeton de style).
@@ -14,6 +14,7 @@ const meta = {
   component: Avatar,
   tags: ["autodocs"],
   parameters: {
+    registry: "avatar",
     docs: {
       description: {
         component:

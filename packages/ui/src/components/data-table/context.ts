@@ -1,6 +1,7 @@
 import * as React from "react";
 import type { Row } from "@tanstack/react-table";
 import type { DataTableLabels } from "./types";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 const plural = (count: number, one: string, many: string) => (count > 1 ? many : one);
 const n = (value: number) => value.toLocaleString("fr-FR");
@@ -34,6 +35,16 @@ export const defaultDataTableLabels: DataTableLabels = {
   sortDescending: "Trier par ordre décroissant",
   clearSorting: "Retirer le tri",
   hideColumn: "Masquer la colonne",
+  pinStart: "Figer au début",
+  pinEnd: "Figer à la fin",
+  unpin: "Libérer",
+  resizeColumn: (title) => `Redimensionner la colonne ${title}`,
+  columnWidth: (width) => `${n(Math.round(width))} pixels`,
+  expandRow: (rowLabel) => `Afficher le détail de ${rowLabel}`,
+  collapseRow: (rowLabel) => `Masquer le détail de ${rowLabel}`,
+  expandAll: "Tout déplier",
+  collapseAll: "Tout replier",
+  total: "Total",
   facetPrefix: "Filtre : ",
   facetSearch: (title) => `Filtrer : ${title.toLocaleLowerCase("fr-FR")}`,
   facetEmpty: "Aucune option",
@@ -75,28 +86,44 @@ export function DataTableProvider({
   children?: React.ReactNode;
 }) {
   const parent = React.useContext(DataTableContext);
+  // Défauts français, remplacés par le catalogue du LocaleProvider s'il y en a un.
+  const base = useMessages("dataTable", defaultDataTableLabels);
   const value = React.useMemo<DataTableContextValue>(
     () => ({
-      labels: { ...(parent?.labels ?? defaultDataTableLabels), ...labels },
+      labels: { ...(parent?.labels ?? base), ...labels },
       getRowLabel: getRowLabel ?? parent?.getRowLabel,
     }),
-    [parent, labels, getRowLabel],
+    [parent, base, labels, getRowLabel],
   );
   return React.createElement(DataTableContext.Provider, { value }, children);
 }
 
-/** Libellés effectifs : défauts, puis contexte, puis surcharge locale. */
+/** Libellés effectifs : défauts (et catalogue de langue), puis contexte, puis surcharge locale. */
 export function useDataTableLabels(overrides?: Partial<DataTableLabels>): DataTableLabels {
   const context = React.useContext(DataTableContext);
+  const base = useMessages("dataTable", defaultDataTableLabels);
   return React.useMemo(
-    () => (overrides ? { ...(context?.labels ?? defaultDataTableLabels), ...overrides } : (context?.labels ?? defaultDataTableLabels)),
-    [context, overrides],
+    () => (overrides ? { ...(context?.labels ?? base), ...overrides } : (context?.labels ?? base)),
+    [context, base, overrides],
   );
 }
+
+/**
+ * Contexte posé par `DataTableView` autour de ses lignes : le bouton de
+ * dépliage y lit l'identifiant de la ligne de détail qu'il contrôle
+ * (`aria-controls`). Interne : pas de libellés ici.
+ */
+export interface DataTableViewContextValue {
+  /** Identifiant DOM de la ligne de détail affichée sous `row`, s'il y en a une. */
+  getDetailId: (row: Row<any>) => string | undefined;
+}
+
+export const DataTableViewContext = React.createContext<DataTableViewContextValue | null>(null);
 
 /** Libellé d'une ligne pour les noms accessibles. */
 export function useRowLabel(row: Row<any>): string {
   const context = React.useContext(DataTableContext);
-  const labels = context?.labels ?? defaultDataTableLabels;
+  const base = useMessages("dataTable", defaultDataTableLabels);
+  const labels = context?.labels ?? base;
   return context?.getRowLabel?.(row) ?? labels.rowFallback(row.index);
 }

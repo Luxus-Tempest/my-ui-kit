@@ -9,7 +9,7 @@ import {
   InputGroupText,
   InputGroupTextarea,
   Kbd,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { CopyIcon, FilterIcon, SearchIcon } from "../../_shared/icons";
 
 const meta = {
@@ -17,6 +17,7 @@ const meta = {
   component: InputGroup,
   tags: ["autodocs"],
   parameters: {
+    registry: "input-group",
     docs: {
       description: {
         component:

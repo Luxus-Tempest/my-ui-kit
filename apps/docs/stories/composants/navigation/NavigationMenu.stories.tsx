@@ -10,7 +10,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@acme/ui";
+} from "@rovia/ui";
 import {
   BookOpen,
   ChartColumn,
@@ -135,6 +135,7 @@ const meta = {
   component: NavigationMenu,
   tags: ["autodocs"],
   parameters: {
+    registry: "navigation-menu",
     docs: {
       description: {
         component:

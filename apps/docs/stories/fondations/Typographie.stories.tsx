@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Heading, Stack, Text } from "@acme/ui";
+import { Heading, Stack, Text } from "@rovia/ui";
 import { Section } from "../_shared/tokens";
 
 const meta: Meta = {

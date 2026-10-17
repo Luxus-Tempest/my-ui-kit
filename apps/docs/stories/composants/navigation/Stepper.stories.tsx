@@ -12,7 +12,7 @@ import {
   Stepper,
   Text,
   useStepper,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { CreditCard, PackageCheck, ShoppingBag, Truck } from "lucide-react";
 import { Card } from "../../_shared/demo";
 
@@ -28,6 +28,7 @@ const meta = {
   component: Stepper,
   tags: ["autodocs"],
   parameters: {
+    registry: "stepper",
     docs: {
       description: {
         component:

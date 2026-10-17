@@ -2,6 +2,7 @@ import * as React from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import { cn } from "../../utils/cn";
 import { useFieldControl } from "../field/Field";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 export interface SliderProps extends React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
   /**
@@ -17,12 +18,27 @@ export interface SliderProps extends React.ComponentPropsWithoutRef<typeof Slide
   "aria-invalid"?: React.AriaAttributes["aria-invalid"];
 }
 
-const markFormat = new Intl.NumberFormat("fr-FR");
+export interface SliderLabels {
+  /** Curseur unique. « Valeur ». */
+  value: string;
+  /** Plage : premier curseur. « Minimum ». */
+  min: string;
+  /** Plage : second curseur. « Maximum ». */
+  max: string;
+  /** Au-delà de deux curseurs. « Valeur 2 sur 3 ». */
+  valueOf: (position: number, count: number) => string;
+}
+export const SLIDER_LABELS: SliderLabels = {
+  value: "Valeur",
+  min: "Minimum",
+  max: "Maximum",
+  valueOf: (position, count) => `Valeur ${position} sur ${count}`,
+};
 
-function defaultThumbLabel(index: number, count: number) {
-  if (count === 1) return "Valeur";
-  if (count === 2) return index === 0 ? "Minimum" : "Maximum";
-  return `Valeur ${index + 1} sur ${count}`;
+function defaultThumbLabel(index: number, count: number, labels: SliderLabels) {
+  if (count === 1) return labels.value;
+  if (count === 2) return index === 0 ? labels.min : labels.max;
+  return labels.valueOf(index + 1, count);
 }
 
 /**
@@ -38,6 +54,9 @@ export const Slider = React.forwardRef<HTMLSpanElement, SliderProps>(function Sl
   { className, thumbLabels, marks, value, defaultValue, min = 0, max = 100, ...rest },
   ref,
 ) {
+  const sliderLabels = useMessages("slider", SLIDER_LABELS);
+  const locale = useLocale();
+  const markFormat = React.useMemo(() => new Intl.NumberFormat(locale), [locale]);
   const {
     id,
     "aria-label": ariaLabel,
@@ -94,7 +113,7 @@ export const Slider = React.forwardRef<HTMLSpanElement, SliderProps>(function Sl
       </SliderPrimitive.Track>
       {Array.from({ length: count }, (_, index) => {
         const thumbId = `${baseId}-thumb-${index}`;
-        const thumbLabel = thumbLabels?.[index] ?? defaultThumbLabel(index, count);
+        const thumbLabel = thumbLabels?.[index] ?? defaultThumbLabel(index, count, sliderLabels);
         // Une seule pastille sans libellé propre : le nom du champ suffit.
         const fieldNameOnly = count === 1 && !thumbLabels?.[index];
         let naming: { "aria-label"?: string; "aria-labelledby"?: string };

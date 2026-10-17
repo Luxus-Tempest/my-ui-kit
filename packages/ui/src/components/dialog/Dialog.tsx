@@ -2,6 +2,7 @@ import * as React from "react";
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { cn } from "../../utils/cn";
 import { Button } from "../button/Button";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 const CloseIcon = () => (
   <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -27,10 +28,17 @@ export interface DialogContentProps extends React.ComponentPropsWithoutRef<typeo
   container?: HTMLElement | null;
 }
 
+export interface DialogLabels {
+  /** Bouton de fermeture (Dialog, Sheet). « Fermer ». */
+  close: string;
+}
+export const DIALOG_LABELS: DialogLabels = { close: "Fermer" };
+
 export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(function DialogContent(
   { className, size = "md", showCloseButton = true, container, children, ...props },
   ref,
 ) {
+  const { close } = useMessages("dialog", DIALOG_LABELS);
   return (
     <RadixDialog.Portal container={container}>
       <RadixDialog.Overlay className="ui-dialog__overlay" />
@@ -44,7 +52,7 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
         {children}
         {showCloseButton && (
           <RadixDialog.Close asChild>
-            <Button variant="ghost" size="icon-sm" className="ui-dialog__close" aria-label="Fermer">
+            <Button variant="ghost" size="icon-sm" className="ui-dialog__close" aria-label={close}>
               <CloseIcon />
             </Button>
           </RadixDialog.Close>

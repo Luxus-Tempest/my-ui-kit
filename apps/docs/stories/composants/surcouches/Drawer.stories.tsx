@@ -19,7 +19,7 @@ import {
   ListSection,
   Text,
   type DrawerDirection,
-} from "@acme/ui";
+} from "@rovia/ui";
 import {
   Camera,
   FileSpreadsheet,
@@ -71,6 +71,7 @@ const meta = {
   component: Drawer,
   tags: ["autodocs"],
   parameters: {
+    registry: "drawer",
     docs: {
       description: {
         component:

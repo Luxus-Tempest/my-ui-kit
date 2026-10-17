@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Heading, Text } from "@acme/ui";
+import { Heading, Text } from "@rovia/ui";
 import { DocumentsTable } from "@/components/documents-table";
 import { getDocuments } from "@/lib/donnees";
 

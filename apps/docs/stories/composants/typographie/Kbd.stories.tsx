@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Kbd, Text } from "@acme/ui";
+import { Kbd, Text } from "@rovia/ui";
 
 const meta = {
   title: "Composants/Typographie/Kbd",
   component: Kbd,
   tags: ["autodocs"],
   parameters: {
+    registry: "typography",
     docs: {
       description: {
         component:

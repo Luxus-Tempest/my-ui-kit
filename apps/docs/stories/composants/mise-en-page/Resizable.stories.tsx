@@ -10,7 +10,7 @@ import {
   ResizablePanelGroup,
   Text,
   type ResizablePanelHandle,
-} from "@acme/ui";
+} from "@rovia/ui";
 import {
   Clock,
   FileSpreadsheet,
@@ -52,6 +52,7 @@ const meta = {
   component: ResizablePanelGroup,
   tags: ["autodocs"],
   parameters: {
+    registry: "resizable",
     docs: {
       description: {
         component:

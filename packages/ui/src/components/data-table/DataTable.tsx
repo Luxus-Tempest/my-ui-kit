@@ -3,6 +3,7 @@ import type { Row, Table } from "@tanstack/react-table";
 import { cn } from "../../utils/cn";
 import type { PaginationVariant } from "../pagination/Pagination";
 import { DataTableContext, defaultDataTableLabels, type DataTableContextValue } from "./context";
+import { useMessages } from "../../i18n/LocaleProvider";
 import { DataTablePagination } from "./DataTablePagination";
 import { DataTableToolbar, type DataTableBulkActions } from "./DataTableToolbar";
 import { DataTableView, type DataTableRowEvent } from "./DataTableView";
@@ -19,6 +20,10 @@ export type {
   ColumnDef,
   ColumnFiltersState,
   ColumnHelper,
+  ColumnPinningState,
+  ColumnSizingState,
+  ExpandedState,
+  Header,
   HeaderContext,
   OnChangeFn,
   PaginationState,
@@ -29,6 +34,8 @@ export type {
   Updater,
   VisibilityState,
 } from "@tanstack/react-table";
+
+const alwaysExpandable = () => true;
 
 export interface DataTableProps<TData>
   extends UseDataTableOptions<TData>,
@@ -76,6 +83,23 @@ export interface DataTableProps<TData>
   /** Remplace l'état « aucun résultat ». */
   noResultsState?: React.ReactNode;
 
+  /**
+   * Panneau de détail d'une ligne, ouvert par le chevron de la colonne de
+   * dépliage (ajoutée d'office) : une ligne pleine largeur sous la ligne.
+   * Toutes les lignes se déplient, sauf restriction par `getRowCanExpand`.
+   */
+  renderSubComponent?: (row: Row<TData>) => React.ReactNode;
+  /**
+   * Ligne de totaux. Par défaut : dès qu'une colonne déclare `meta.aggregate`
+   * ou que `aggregates` est fourni. Collée en bas avec `maxHeight` ou `virtualized`.
+   */
+  showFooter?: boolean;
+  /**
+   * Totaux calculés par le serveur, par identifiant de colonne (pagination
+   * serveur : le client ne voit qu'une page). Un nombre passe par `meta.format`.
+   */
+  aggregates?: Record<string, React.ReactNode>;
+
   /** Clic ou Entrée sur une ligne : la ligne devient focalisable. */
   onRowClick?: (row: Row<TData>, event: DataTableRowEvent) => void;
   /** Libellé d'une ligne pour les noms accessibles (« Sélectionner F-2026-0012 »). */
@@ -105,8 +129,9 @@ export interface DataTableProps<TData>
 /**
  * Table de données de haut niveau, au-dessus de TanStack Table : tri
  * multi-colonnes, recherche, filtres à facettes, pagination, sélection et
- * actions groupées, colonnes masquables, densité, export CSV, états de
- * chargement et vides, virtualisation, mode serveur et persistance.
+ * actions groupées, colonnes masquables, figées et redimensionnables, lignes
+ * dépliables (détail ou hiérarchie), ligne de totaux, densité, export CSV,
+ * états de chargement et vides, virtualisation, mode serveur et persistance.
  *
  *   <DataTable columns={columns} data={factures} />
  *
@@ -127,6 +152,11 @@ function DataTableInner<TData>(props: DataTableProps<TData>, ref: React.Forwarde
     manualSorting,
     manualFiltering,
     rowCount,
+    enableColumnPinning,
+    enableColumnResizing,
+    getSubRows,
+    getRowCanExpand,
+    enableExpanding,
     initialState,
     state,
     onSortingChange,
@@ -135,6 +165,9 @@ function DataTableInner<TData>(props: DataTableProps<TData>, ref: React.Forwarde
     onPaginationChange,
     onRowSelectionChange,
     onColumnVisibilityChange,
+    onColumnPinningChange,
+    onColumnSizingChange,
+    onExpandedChange,
     persistKey,
     persistState,
     tableOptions,
@@ -161,6 +194,9 @@ function DataTableInner<TData>(props: DataTableProps<TData>, ref: React.Forwarde
     skeletonRows,
     emptyState,
     noResultsState,
+    renderSubComponent,
+    showFooter,
+    aggregates,
     onRowClick,
     getRowLabel,
     rowClassName,
@@ -192,6 +228,12 @@ function DataTableInner<TData>(props: DataTableProps<TData>, ref: React.Forwarde
     manualSorting,
     manualFiltering,
     rowCount,
+    enableColumnPinning,
+    enableColumnResizing,
+    getSubRows,
+    // Avec un panneau de détail, toute ligne se déplie (sauf restriction de l'appelant).
+    getRowCanExpand: getRowCanExpand ?? (renderSubComponent ? alwaysExpandable : undefined),
+    enableExpanding,
     initialState,
     state,
     onSortingChange,
@@ -200,6 +242,9 @@ function DataTableInner<TData>(props: DataTableProps<TData>, ref: React.Forwarde
     onPaginationChange,
     onRowSelectionChange,
     onColumnVisibilityChange,
+    onColumnPinningChange,
+    onColumnSizingChange,
+    onExpandedChange,
     persistKey,
     persistState,
     tableOptions,
@@ -231,7 +276,8 @@ function DataTableInner<TData>(props: DataTableProps<TData>, ref: React.Forwarde
   }, [table]);
 
   /* ── Libellés et contexte des briques ── */
-  const labels = React.useMemo(() => ({ ...defaultDataTableLabels, ...labelsProp }), [labelsProp]);
+  const baseLabels = useMessages("dataTable", defaultDataTableLabels);
+  const labels = React.useMemo(() => ({ ...baseLabels, ...labelsProp }), [baseLabels, labelsProp]);
   const context = React.useMemo<DataTableContextValue>(
     () => ({ labels, getRowLabel: getRowLabel ? (row: Row<any>) => getRowLabel(row.original as TData) : undefined }),
     [labels, getRowLabel],
@@ -303,6 +349,9 @@ function DataTableInner<TData>(props: DataTableProps<TData>, ref: React.Forwarde
             skeletonRows={skeletonRows}
             emptyState={emptyState}
             noResultsState={noResultsState}
+            renderSubComponent={renderSubComponent}
+            showFooter={showFooter}
+            aggregates={aggregates}
             onRowClick={onRowClick}
             rowClassName={rowClassName}
             stickyHeader={stickyHeader}

@@ -4,8 +4,8 @@
  * puces du mode multiple se posent devant lui.
  */
 .ui-combobox {
-  --_h: 40px;
-  --_chip: 28px;
+  --_h: var(--ui-field-h);
+  --_chip: calc(var(--_h) - 12px);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -26,7 +26,7 @@
     border-color var(--ui-duration) var(--ui-ease),
     box-shadow var(--ui-duration) var(--ui-ease);
 }
-.ui-combobox[data-density="sm"] { --_h: 32px; --_chip: 22px; border-radius: var(--ui-r-sm); font-size: 13px; }
+.ui-combobox[data-density="sm"] { --_h: var(--ui-field-h-sm); --_chip: calc(var(--_h) - 10px); border-radius: var(--ui-r-sm); font-size: 13px; }
 @media (hover: hover) {
   .ui-combobox:hover:not([data-disabled], [data-state="open"]) { background: var(--ui-card-hover); }
 }
@@ -59,7 +59,7 @@
   min-width: 0;
   height: calc(var(--_h) - 2px);
   margin: 0;
-  padding: 0 10px 0 13px;
+  padding: 0 10px 0 calc(var(--ui-field-px) - 1px);
   border: 0;
   border-radius: inherit;
   background: transparent;
@@ -108,7 +108,7 @@
   border-radius: var(--ui-r-md);
   overflow: hidden;
 }
-.ui-combobox__content .ui-command__search { height: 44px; gap: 10px; padding: 0 12px; }
+.ui-combobox__content .ui-command__search { height: calc(var(--ui-row-h) + 8px); gap: 10px; padding: 0 12px; }
 .ui-combobox__content .ui-command__search svg { width: 18px; height: 18px; }
 .ui-combobox__content .ui-command__input { font-size: 14px; letter-spacing: -0.006em; }
 .ui-combobox__content .ui-command__list {
@@ -117,7 +117,7 @@
 .ui-combobox__content .ui-command__empty { padding: 20px 12px; font-size: 13px; }
 
 /* Entrées : texte sur une ou deux lignes, coche à droite. */
-.ui-combobox__item[data-has-description] { height: auto; min-height: 48px; padding-block: 6px; }
+.ui-combobox__item[data-has-description] { height: auto; min-height: calc(var(--ui-row-h) + 12px); padding-block: 6px; }
 .ui-combobox__item-text { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
 .ui-combobox__item-label,
 .ui-combobox__item-description { overflow: hidden; text-overflow: ellipsis; }

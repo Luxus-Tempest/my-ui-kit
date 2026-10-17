@@ -13,7 +13,7 @@ import {
   CommandSeparator,
   Kbd,
   Text,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { CopyIcon, DownloadIcon, EditIcon, FileIcon, FolderIcon, PlusIcon, TrashIcon } from "../../_shared/icons";
 
 function PaletteItems() {
@@ -48,6 +48,7 @@ const meta = {
   component: Command,
   tags: ["autodocs"],
   parameters: {
+    registry: "command",
     docs: {
       description: {
         component:

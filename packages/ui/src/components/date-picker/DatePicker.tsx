@@ -4,6 +4,7 @@ import { Button } from "../button/Button";
 import { Calendar, type DateRange, type Matcher } from "../calendar/Calendar";
 import { useFieldContext, useFieldControl } from "../field/Field";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover/Popover";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 const CalendarIcon = () => (
   <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -14,21 +15,21 @@ const CalendarIcon = () => (
 
 /* ── Formatage ─────────────────────────────────────────────────────── */
 
-const shortFormat = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+const shortFormat = (locale: string) => new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric" });
 
-/** « 10 oct. 2026 » */
-export function formatDate(date: Date): string {
-  return shortFormat.format(date);
+/** « 10 oct. 2026 » (`fr-FR` par défaut). */
+export function formatDate(date: Date, locale = "fr-FR"): string {
+  return shortFormat(locale).format(date);
 }
 
 /** « 10 – 14 oct. 2026 », ou « 10 oct. 2026 – … » tant que la fin manque. */
-export function formatDateRange(range: DateRange | undefined): string {
+export function formatDateRange(range: DateRange | undefined, locale = "fr-FR"): string {
   if (!range?.from) return "";
-  if (!range.to) return `${formatDate(range.from)} – …`;
-  const fmt = shortFormat as Intl.DateTimeFormat & { formatRange?: (a: Date, b: Date) => string };
+  if (!range.to) return `${formatDate(range.from, locale)} – …`;
+  const fmt = shortFormat(locale) as Intl.DateTimeFormat & { formatRange?: (a: Date, b: Date) => string };
   return typeof fmt.formatRange === "function"
     ? fmt.formatRange(range.from, range.to)
-    : `${formatDate(range.from)} – ${formatDate(range.to)}`;
+    : `${formatDate(range.from, locale)} – ${formatDate(range.to, locale)}`;
 }
 
 /* ── Dates ─────────────────────────────────────────────────────────── */
@@ -58,17 +59,80 @@ export interface DateRangePreset {
   range: (today: Date) => { from: Date; to: Date };
 }
 
-/** Périodes par défaut : les raccourcis qu'on cherche le plus souvent. */
-export const defaultDateRangePresets: DateRangePreset[] = [
-  { label: "7 derniers jours", range: (t) => ({ from: addDays(t, -6), to: t }) },
-  { label: "30 derniers jours", range: (t) => ({ from: addDays(t, -29), to: t }) },
-  { label: "Ce mois-ci", range: (t) => ({ from: new Date(t.getFullYear(), t.getMonth(), 1), to: t }) },
-  {
-    label: "Mois dernier",
-    range: (t) => ({ from: new Date(t.getFullYear(), t.getMonth() - 1, 1), to: new Date(t.getFullYear(), t.getMonth(), 0) }),
+/** Noms des périodes prédéfinies. */
+export interface DateRangePresetLabels {
+  last7Days: string;
+  last30Days: string;
+  thisMonth: string;
+  lastMonth: string;
+  thisYear: string;
+}
+
+/** Les raccourcis qu'on cherche le plus souvent, dans la langue voulue. */
+export function createDateRangePresets(labels: DateRangePresetLabels): DateRangePreset[] {
+  return [
+    { label: labels.last7Days, range: (t) => ({ from: addDays(t, -6), to: t }) },
+    { label: labels.last30Days, range: (t) => ({ from: addDays(t, -29), to: t }) },
+    { label: labels.thisMonth, range: (t) => ({ from: new Date(t.getFullYear(), t.getMonth(), 1), to: t }) },
+    {
+      label: labels.lastMonth,
+      range: (t) => ({ from: new Date(t.getFullYear(), t.getMonth() - 1, 1), to: new Date(t.getFullYear(), t.getMonth(), 0) }),
+    },
+    { label: labels.thisYear, range: (t) => ({ from: new Date(t.getFullYear(), 0, 1), to: t }) },
+  ];
+}
+
+/** Textes des sélecteurs de date et de période, pour le catalogue de langue. */
+export interface DatePickerLabels {
+  /** DatePicker vide. « Choisir une date ». */
+  placeholder: string;
+  /** Bouton qui vide la date. « Effacer la date ». */
+  clear: string;
+  /** Nom du déclencheur. « Choisir une date ». */
+  trigger: string;
+  /** Nom du panneau. « Choisir une date ». */
+  dialog: string;
+  /** Raccourci en pied de panneau. « Aujourd'hui ». */
+  today: string;
+  /** DateRangePicker vide. « Choisir une période ». */
+  rangePlaceholder: string;
+  /** « Effacer les dates ». */
+  rangeClear: string;
+  /** « Choisir une période ». */
+  rangeTrigger: string;
+  /** « Choisir une période ». */
+  rangeDialog: string;
+  /** Nom du groupe de périodes prédéfinies. « Périodes ». */
+  presets: string;
+  /** État entre les deux clics. « Du 10 oct. 2026 — choisissez la date de fin ». */
+  pending: (from: string) => string;
+  /** Périodes prédéfinies. */
+  presetLabels: DateRangePresetLabels;
+}
+
+export const DATE_PICKER_LABELS: DatePickerLabels = {
+  placeholder: "Choisir une date",
+  clear: "Effacer la date",
+  trigger: "Choisir une date",
+  dialog: "Choisir une date",
+  today: "Aujourd'hui",
+  rangePlaceholder: "Choisir une période",
+  rangeClear: "Effacer les dates",
+  rangeTrigger: "Choisir une période",
+  rangeDialog: "Choisir une période",
+  presets: "Périodes",
+  pending: (from) => `Du ${from} — choisissez la date de fin`,
+  presetLabels: {
+    last7Days: "7 derniers jours",
+    last30Days: "30 derniers jours",
+    thisMonth: "Ce mois-ci",
+    lastMonth: "Mois dernier",
+    thisYear: "Cette année",
   },
-  { label: "Cette année", range: (t) => ({ from: new Date(t.getFullYear(), 0, 1), to: t }) },
-];
+};
+
+/** Périodes par défaut, en français : avec un `LocaleProvider`, celles de sa langue. */
+export const defaultDateRangePresets: DateRangePreset[] = createDateRangePresets(DATE_PICKER_LABELS.presetLabels);
 
 /* ── État contrôlé / non contrôlé ──────────────────────────────────── */
 
@@ -305,14 +369,16 @@ export interface DatePickerProps extends DatePickerBaseProps {
  *   </Field>
  */
 export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(function DatePicker(props, ref) {
+  const labels = useMessages("datePicker", DATE_PICKER_LABELS);
+  const locale = useLocale();
   const {
     value: valueProp,
     defaultValue,
     onValueChange,
-    placeholder = "Choisir une date",
-    clearLabel = "Effacer la date",
-    triggerLabel = "Choisir une date",
-    dialogLabel = "Choisir une date",
+    placeholder = labels.placeholder,
+    clearLabel = labels.clear,
+    triggerLabel = labels.trigger,
+    dialogLabel = labels.dialog,
     minDate,
     maxDate,
     disabledDays,
@@ -320,7 +386,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(f
     defaultOpen,
     onOpenChange,
     showToday = true,
-    todayLabel = "Aujourd'hui",
+    todayLabel = labels.today,
     ...rest
   } = props;
   const [value, setValue] = useControllableValue("value" in props, valueProp, defaultValue, onValueChange);
@@ -347,7 +413,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(f
           </Button>
         ) : undefined
       }
-      display={value ? formatDate(value) : ""}
+      display={value ? formatDate(value, locale) : ""}
       hasValue={Boolean(value)}
       onClear={() => setValue(undefined)}
       open={open}
@@ -405,24 +471,27 @@ export interface DateRangePickerProps extends DatePickerBaseProps {
  */
 export const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps>(
   function DateRangePicker(props, ref) {
+    const labels = useMessages("datePicker", DATE_PICKER_LABELS);
+    const locale = useLocale();
+    const localizedPresets = React.useMemo(() => createDateRangePresets(labels.presetLabels), [labels.presetLabels]);
     const {
       value: valueProp,
       defaultValue,
       onValueChange,
       numberOfMonths: numberOfMonthsProp,
-      placeholder = "Choisir une période",
-      clearLabel = "Effacer les dates",
-      triggerLabel = "Choisir une période",
-      dialogLabel = "Choisir une période",
+      placeholder = labels.rangePlaceholder,
+      clearLabel = labels.rangeClear,
+      triggerLabel = labels.rangeTrigger,
+      dialogLabel = labels.rangeDialog,
       minDate,
       maxDate,
       disabledDays,
       open: openProp,
       defaultOpen,
       onOpenChange,
-      presets = defaultDateRangePresets,
-      presetsLabel = "Périodes",
-      pendingLabel = (from: string) => `Du ${from} — choisissez la date de fin`,
+      presets = localizedPresets,
+      presetsLabel = labels.presets,
+      pendingLabel = labels.pending,
       ...rest
     } = props;
     const [value, setValue] = useControllableValue("value" in props, valueProp, defaultValue, onValueChange);
@@ -487,11 +556,11 @@ export const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePick
         footerStart={
           pending ? (
             <span className="ui-date-picker__status" role="status">
-              {pendingLabel(formatDate(pending))}
+              {pendingLabel(formatDate(pending, locale))}
             </span>
           ) : undefined
         }
-        display={formatDateRange(value)}
+        display={formatDateRange(value, locale)}
         hasValue={Boolean(value?.from)}
         onClear={() => setValue(undefined)}
         open={open}

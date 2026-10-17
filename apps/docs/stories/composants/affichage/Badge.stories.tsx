@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Badge } from "@acme/ui";
+import { Badge } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 
 const meta = {
@@ -7,6 +7,7 @@ const meta = {
   component: Badge,
   tags: ["autodocs"],
   parameters: {
+    registry: "badge",
     docs: {
       description: {
         component:

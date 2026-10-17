@@ -32,6 +32,22 @@ const ClearSortIcon = () => (
     <path d="M3.5 5h9M5 8h6M6.5 11h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
   </svg>
 );
+/* Punaise ; la flèche indique le bord visé (début ou fin), retournée en RTL par le CSS. */
+const PinStartIcon = () => (
+  <svg className="ui-data-table__pin-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path d="M3 2.75v10.5M6.5 8h7M9.5 5l-3 3 3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+const PinEndIcon = () => (
+  <svg className="ui-data-table__pin-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path d="M13 2.75v10.5M9.5 8h-7M6.5 5l3 3-3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+const UnpinIcon = () => (
+  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path d="M3 2.75v10.5M13 2.75v10.5M6 8h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
 const EyeOffIcon = () => (
   <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
     <path d="M2.5 2.5l11 11M6.6 4.2A6.4 6.4 0 0 1 8 4c3.2 0 5.3 2.6 6 4-.3.6-.8 1.4-1.5 2.1M10.3 11.5A6 6 0 0 1 8 12c-3.2 0-5.3-2.6-6-4 .4-.8 1.1-1.9 2.2-2.8M6.9 6.9a1.6 1.6 0 0 0 2.2 2.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -46,9 +62,9 @@ export interface DataTableColumnHeaderProps extends Omit<React.HTMLAttributes<HT
   /** Intitulé ; par défaut `meta.label`, l'en-tête texte ou l'identifiant. */
   title?: React.ReactNode;
   /**
-   * Menu de colonne (trier, retirer le tri, masquer), ouvert par un chevron
-   * qui apparaît au survol et au focus. Par défaut : si la colonne est triable
-   * ou masquable.
+   * Menu de colonne (trier, retirer le tri, figer, libérer, masquer), ouvert
+   * par un chevron qui apparaît au survol et au focus. Par défaut : si la
+   * colonne est triable, figeable ou masquable.
    */
   menu?: boolean;
   labels?: Partial<DataTableLabels>;
@@ -71,18 +87,21 @@ export const DataTableColumnHeader = React.forwardRef<HTMLDivElement, DataTableC
     const titleText = typeof label === "string" ? label : getColumnLabel(column);
     const canSort = column.getCanSort();
     const canHide = column.getCanHide();
+    const canPin = column.getCanPin();
+    const pinned = column.getIsPinned();
     const sorted = column.getIsSorted();
     const sortIndex = column.getSortIndex();
     // Le rang n'a de sens que si plusieurs colonnes sont triées.
     const sortCount = table?.getState().sorting.length ?? (sortIndex > 0 ? sortIndex + 1 : 1);
     const multiSorted = sorted !== false && sortCount > 1;
-    const showMenu = menu ?? (canSort || canHide);
+    const showMenu = menu ?? (canSort || canHide || canPin);
 
     return (
       <div
         ref={ref}
         data-slot="data-table-column-header"
         data-sorted={sorted || undefined}
+        data-pinned={pinned ? (pinned === "left" ? "start" : "end") : undefined}
         className={cn("ui-data-table__column-header", className)}
         {...props}
       >
@@ -130,7 +149,26 @@ export const DataTableColumnHeader = React.forwardRef<HTMLDivElement, DataTableC
                   )}
                 </>
               )}
-              {canSort && canHide && <MenuSeparator />}
+              {canSort && (canPin || canHide) && <MenuSeparator />}
+              {canPin && (
+                <>
+                  <MenuItem disabled={pinned === "left"} onSelect={() => column.pin("left")}>
+                    <PinStartIcon />
+                    {labels.pinStart}
+                  </MenuItem>
+                  <MenuItem disabled={pinned === "right"} onSelect={() => column.pin("right")}>
+                    <PinEndIcon />
+                    {labels.pinEnd}
+                  </MenuItem>
+                  {pinned && (
+                    <MenuItem onSelect={() => column.pin(false)}>
+                      <UnpinIcon />
+                      {labels.unpin}
+                    </MenuItem>
+                  )}
+                </>
+              )}
+              {canPin && canHide && <MenuSeparator />}
               {canHide && (
                 <MenuItem onSelect={() => column.toggleVisibility(false)}>
                   <EyeOffIcon />

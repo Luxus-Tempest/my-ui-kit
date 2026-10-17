@@ -1,6 +1,6 @@
 /*
  * Liste déroulante native : gabarit du déclencheur de Select (remplissage tonal,
- * 40 px / 32 px, rayon de champ, focus, erreur, désactivé) posé sur un vrai
+ * --ui-field-h / --ui-field-h-sm, rayon de champ, focus, erreur, désactivé) posé sur un vrai
  * <select>. Le chevron est un SVG en ligne à côté du champ, sans capter le clic ;
  * la liste elle-même reste celle du système (thème clair ou sombre via color-scheme).
  */
@@ -16,9 +16,10 @@
   display: block;
   width: 100%;
   min-width: 0;
-  height: 40px;
+  height: var(--ui-field-h);
   margin: 0;
-  padding: 0 38px 0 14px;
+  padding-block: 0;
+  padding-inline: var(--ui-field-px) 38px;
   border: 1px solid transparent;
   border-radius: var(--ui-r-ctl);
   background: var(--ui-card-2);
@@ -42,8 +43,9 @@
     box-shadow var(--ui-duration) var(--ui-ease);
 }
 .ui-native-select__control[data-density="sm"] {
-  height: 32px;
-  padding: 0 32px 0 11px;
+  height: var(--ui-field-h-sm);
+  padding-block: 0;
+  padding-inline: 11px 32px;
   border-radius: var(--ui-r-sm);
   font-size: 13px;
 }
@@ -91,10 +93,6 @@
 .ui-native-select[data-density="sm"] .ui-native-select__icon svg { width: 16px; height: 16px; }
 .ui-native-select__control:focus-visible + .ui-native-select__icon { color: var(--ui-pri); }
 .ui-native-select__control:disabled + .ui-native-select__icon { opacity: 0.5; }
-
-/* Écriture de droite à gauche : le chevron change de côté, le texte aussi. */
-.ui-native-select__control:dir(rtl) { padding: 0 14px 0 38px; }
-.ui-native-select__control[data-density="sm"]:dir(rtl) { padding: 0 11px 0 32px; }
 
 @media (forced-colors: active) {
   .ui-native-select__control { border-color: ButtonText; }

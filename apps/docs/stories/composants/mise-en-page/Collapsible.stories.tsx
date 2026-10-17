@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, Collapsible, CollapsibleContent, CollapsibleTrigger, List, ListItem } from "@acme/ui";
+import { Button, Collapsible, CollapsibleContent, CollapsibleTrigger, List, ListItem } from "@rovia/ui";
 import { Card } from "../../_shared/demo";
 import { ChevronDownIcon, FileIcon } from "../../_shared/icons";
 
@@ -14,6 +14,7 @@ const meta = {
   component: Collapsible,
   tags: ["autodocs"],
   parameters: {
+    registry: "collapsible",
     docs: {
       description: {
         component:

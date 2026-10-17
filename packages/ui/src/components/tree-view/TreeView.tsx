@@ -3,6 +3,7 @@ import { useDirection } from "@radix-ui/react-direction";
 import { cn } from "../../utils/cn";
 import { useControllableState } from "../../hooks/useControllableState";
 import { Spinner } from "../spinner/Spinner";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 /* ═══ Types publics ═══════════════════════════════════════════════════════ */
 
@@ -44,7 +45,7 @@ export interface TreeViewLabels {
   errorHint: string;
 }
 
-const defaultLabels: TreeViewLabels = {
+export const TREE_VIEW_LABELS: TreeViewLabels = {
   loading: (label) => `Chargement du contenu de ${label}…`,
   error: (label) => `Impossible de charger le contenu de ${label}. Rouvrez le dossier pour réessayer.`,
   errorHint: "Échec du chargement",
@@ -204,7 +205,7 @@ const fold = (text: string) =>
   text
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase("fr");
+    .toLowerCase();
 
 /** Durée de l'animation CSS en cours sur l'élément (0 si aucune : jsdom, mouvement réduit). */
 function animationMs(el: HTMLElement | null): number {
@@ -323,7 +324,7 @@ export const TreeView = React.forwardRef<HTMLUListElement, TreeViewProps>(functi
   },
   forwardedRef,
 ) {
-  const labels = { ...defaultLabels, ...labelsProp };
+  const labels = { ...useMessages("treeView", TREE_VIEW_LABELS), ...labelsProp };
   const direction = useDirection(dirProp);
   const baseId = React.useId();
 

@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Progress, Stack } from "@acme/ui";
+import { Progress, Stack } from "@rovia/ui";
 
 const meta = {
   title: "Composants/Retour/Progress",
   component: Progress,
   tags: ["autodocs"],
   parameters: {
+    registry: "progress",
     docs: {
       description: {
         component:

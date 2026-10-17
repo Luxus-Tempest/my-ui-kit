@@ -1,4 +1,4 @@
-# Contribuer à @acme/ui
+# Contribuer à @rovia/ui
 
 Ce guide décrit comment un composant naît, est documenté et est validé. Toute
 contribution (humaine ou outillée) le suit : c'est ce qui garde la librairie
@@ -20,6 +20,18 @@ Puis, dans le même changement :
 3. `apps/docs/stories/composants/<catégorie>/<Nom>.stories.tsx` : la page Storybook.
 4. `apps/docs/stories/introduction/Statut.mdx` : une ligne dans le tableau de statut.
 5. Une entrée Changeset (`pnpm changeset`).
+6. `pnpm --filter @rovia/ui subpaths` : régénère le sous chemin `@rovia/ui/<nom-en-kebab>` (son `index.ts` et
+   `exports` dans package.json). `pnpm lint` échoue tant qu'il n'est pas à jour.
+7. Dans la méta de la story : `parameters: { registry: "<nom-en-kebab>" }`, pour que la page affiche la commande
+   d'éjection. Le build du registre échoue sinon.
+
+### Blocs (écrans installables)
+
+Un bloc vit dans `packages/blocks/src/<nom>/` : ses modules, `<nom>.sample.ts` (données d'exemple) et un `index.ts`.
+Il prend ses données et ses actions en props typées, n'importe la librairie que par un sous chemin
+(`@rovia/ui/button`, jamais le barrel `@rovia/ui` ni un chemin relatif hors de son dossier), et ses textes sont en
+français en clair. Sa story l'importe depuis `@rovia/blocks/<nom>` avec `parameters: { registry: "<nom>" }`.
+`pnpm registry:build` vérifie ces règles (voir la spec `docs/specs/_root/0001-registre-blocs-installables`).
 
 ### Règles d'écriture
 
@@ -36,11 +48,23 @@ Puis, dans le même changement :
   un module par composant et `sideEffects` ne couvre que le CSS, un effet de bord au chargement l'embarquerait partout.
 - Libellés, commentaires, messages et documentation **en français**. Les libellés internes
   (« Fermer », « Effacer ») sont surchargeables par une prop.
+- **Langue** : tout texte vu ou lu par l'utilisateur part d'une constante `XXX_LABELS` (valeurs françaises) lue
+  avec `useMessages("espace", XXX_LABELS)`, puis surchargée par la prop. Nouvel espace de noms : l'ajouter à
+  `src/i18n/messages.ts` et le traduire dans `locales/en.tsx` et `locales/ar.tsx` (le typage l'exige).
+  Aucune locale codée en dur : `useLocale()` pour `Intl` et `toLocale*`. Les avertissements de développement
+  (`console.warn`) restent en français, ils ne s'affichent pas à l'utilisateur.
 
 ### Règles de style (langage Drive × iOS)
 
 - **Jamais de valeur en dur** : couleurs, rayons, ombres, durées et courbes viennent des jetons `--ui-*`
   (`packages/ui/src/theme/tokens.css`). Les variables locales d'un composant sont préfixées `--_`.
+- **Hauteurs et marges internes des contrôles : jetons de densité.** Un bouton, une bascule, un onglet prennent
+  `--ui-ctl-h` (`-sm`, `-lg`) et `--ui-ctl-px` ; un champ `--ui-field-h` (`-sm`) et `--ui-field-px` ; une entrée de
+  menu `--ui-row-h`, une ligne de liste `--ui-row-h-list` et `--ui-row-py`, une ligne de table `--ui-row-h-table`.
+  Une mesure voisine se dérive dans le CSS du composant (`calc(var(--ui-ctl-h) - 6px)`), jamais dans `tokens.css` :
+  elle suit ainsi une densité posée sur n'importe quel ancêtre. La taille du texte et des icônes ne dépend pas de la
+  densité. Vérifier le rendu dans les trois densités (bascule « Densité » de Storybook) : cible tactile ≥ 24 px
+  en compacte, rien ne déborde en confortable.
 - Surfaces tonales plutôt qu'ombres au repos ; ombres réservées à ce qui flotte.
 - Actions et puces en pilule (`--ui-r-pill`), champs en `--ui-r-ctl`, cartes en `--ui-r-lg`, modales en `--ui-r-xl`.
 - Couche d'état Material : survol `--ui-state-hover`, appui `--ui-state-press`, sur `currentColor`
@@ -61,7 +85,7 @@ Arborescence de la barre latérale :
 | Rubrique | Contenu |
 |---|---|
 | `Introduction` | Bienvenue, installation, statut des composants |
-| `Fondations` | Couleurs, typographie, espacement, rayons & élévation, mouvement, langage visuel |
+| `Fondations` | Couleurs, typographie, espacement, densité, rayons & élévation, mouvement, langage visuel |
 | `Composants/<Catégorie>/<Nom>` | **une page par composant**, documentation automatique |
 | `Blocs` | Écrans prêts à l'emploi qui assemblent les composants (application, connexion, tableau de bord…) |
 
@@ -72,7 +96,7 @@ Modèle :
 
 ```tsx
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button } from "@acme/ui";
+import { Button } from "@rovia/ui";
 import { Row } from "../../_shared/demo";
 
 const meta = {
@@ -109,6 +133,7 @@ export const Variantes: Story = { render: () => <Row>…</Row> };
 - [ ] `STORIES=<composant> pnpm --filter docs e2e` passe : axe en vrai navigateur (contraste compris) et captures.
       Un changement visuel voulu s'accepte avec `--update-snapshots=all`, après lecture du rapport.
 - [ ] Le test du composant couvre le clavier et contient un test axe sans violation.
-- [ ] Rendu vérifié en clair, en sombre **et** de droite à gauche (bascules « Thème » et « Sens » de Storybook), addon a11y sans erreur.
-- [ ] Aucune valeur en dur dans le CSS ; textes en français.
-- [ ] Exports, styles, story, statut et Changeset ajoutés.
+- [ ] Rendu vérifié en clair, en sombre **et** de droite à gauche (bascules « Thème » et « Sens » de Storybook), addon a11y sans erreur ;
+      contrôles vérifiés dans les trois densités (bascule « Densité »).
+- [ ] Aucune valeur en dur dans le CSS (hauteurs de contrôle comprises : jetons de densité) ; textes en français.
+- [ ] Exports, styles, sous chemin, story (avec `parameters.registry`), statut et Changeset ajoutés.

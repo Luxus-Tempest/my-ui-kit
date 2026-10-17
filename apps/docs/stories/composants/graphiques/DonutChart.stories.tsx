@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Card, CardContent, DonutChart } from "@acme/ui";
+import { Card, CardContent, DonutChart } from "@rovia/ui";
 import { BY_FAMILY, formatMad } from "../../_shared/data";
 
 const meta = {
@@ -7,6 +7,7 @@ const meta = {
   component: DonutChart,
   tags: ["autodocs"],
   parameters: {
+    registry: "chart",
     docs: {
       description: {
         component:

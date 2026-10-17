@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, HStack, Tooltip } from "@acme/ui";
+import { Button, HStack, Tooltip } from "@rovia/ui";
 import { ArchiveIcon, CopyIcon, EditIcon } from "../../_shared/icons";
 
 const meta = {
@@ -7,6 +7,7 @@ const meta = {
   component: Tooltip,
   tags: ["autodocs"],
   parameters: {
+    registry: "tooltip",
     docs: {
       description: {
         component:

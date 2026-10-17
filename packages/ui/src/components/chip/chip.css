@@ -1,4 +1,4 @@
-/* Puce : pilule de 32 px, filet discret au repos, conteneur de sélection quand active. */
+/* Puce : pilule de 32 px (--ui-ctl-h-sm, suit la densité), filet discret au repos, conteneur de sélection quand active. */
 .ui-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .ui-chip {
@@ -9,7 +9,7 @@
   align-items: center;
   gap: 8px;
   box-sizing: border-box;
-  height: 32px;
+  height: var(--ui-ctl-h-sm);
   margin: 0;
   padding: 0 16px;
   border: 1px solid var(--ui-line-3);

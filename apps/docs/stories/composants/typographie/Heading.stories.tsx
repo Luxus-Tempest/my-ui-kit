@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Heading, Stack } from "@acme/ui";
+import { Heading, Stack } from "@rovia/ui";
 
 const meta = {
   title: "Composants/Typographie/Heading",
   component: Heading,
   tags: ["autodocs"],
   parameters: {
+    registry: "typography",
     docs: {
       description: {
         component:

@@ -3,33 +3,37 @@ import type { CellContext, ColumnDef, Row, Table } from "@tanstack/react-table";
 import { Button } from "../button/Button";
 import { Checkbox } from "../checkbox/Checkbox";
 import { Menu, MenuContent, MenuTrigger } from "../menu/Menu";
-import { useDataTableLabels, useRowLabel } from "./context";
-import { defaultValueText, toDate } from "./utils";
+import { DataTableViewContext, useDataTableLabels, useRowLabel } from "./context";
+import { useLocale } from "../../i18n/LocaleProvider";
+import { byLocale, DEFAULT_LOCALE, defaultValueText, toDate } from "./utils";
 
 /* ── Formateurs ────────────────────────────────────────────────────── */
 
-type Formatter = (value: unknown) => string;
+/** `locale` : celle de l'interface, passée par DataTable (cellule, recherche, totaux, export). */
+type Formatter = (value: unknown, locale?: string) => string;
 
-function numberFormatter(options?: Intl.NumberFormatOptions, locale = "fr-FR"): Formatter {
-  const format = new Intl.NumberFormat(locale, options);
-  return (value) => {
+function numberFormatter(options?: Intl.NumberFormatOptions, fixed?: string): Formatter {
+  const format = byLocale((locale) => new Intl.NumberFormat(locale, options));
+  return (value, locale) => {
     if (value == null || value === "") return "";
     const number = typeof value === "number" ? value : Number(value);
-    return Number.isFinite(number) ? format.format(number) : "";
+    return Number.isFinite(number) ? format(fixed ?? locale ?? DEFAULT_LOCALE).format(number) : "";
   };
 }
 
-function dateFormatter(options: Intl.DateTimeFormatOptions, locale = "fr-FR"): Formatter {
-  const format = new Intl.DateTimeFormat(locale, options);
-  return (value) => {
+function dateFormatter(options: Intl.DateTimeFormatOptions, fixed?: string): Formatter {
+  const format = byLocale((locale) => new Intl.DateTimeFormat(locale, options));
+  return (value, locale) => {
     const date = toDate(value);
-    return date ? format.format(date) : "";
+    return date ? format(fixed ?? locale ?? DEFAULT_LOCALE).format(date) : "";
   };
 }
 
 /**
  * Formateurs simples à poser sur `meta.format` : la cellule par défaut, la
- * recherche globale et l'export CSV (option `formatted`) les utilisent.
+ * recherche globale, les totaux et l'export CSV (option `formatted`) les
+ * utilisent. Sans `locale`, ils suivent la langue de l'interface
+ * (`LocaleProvider`, français par défaut) ; une locale passée la fige.
  *
  *   columnHelper.accessor("montant", {
  *     header: "Montant",
@@ -57,12 +61,13 @@ export const dataTableFormatters = {
 
 /* ── Cellule par défaut ────────────────────────────────────────────── */
 
-/** Cellule par défaut : `meta.format` s'il existe, sinon un rendu français de la valeur ; « — » si vide. */
+/** Cellule par défaut : `meta.format` s'il existe, sinon un rendu de la valeur dans la langue de l'interface ; « — » si vide. */
 export function DataTableDefaultCell({ getValue, column }: CellContext<any, unknown>) {
   const labels = useDataTableLabels();
+  const locale = useLocale();
   const value = getValue();
   const format = column.columnDef.meta?.format;
-  const text = format ? (value == null ? "" : format(value)) : defaultValueText(value, labels.yes, labels.no);
+  const text = format ? (value == null ? "" : format(value, locale)) : defaultValueText(value, labels.yes, labels.no, locale);
   if (text === "") return <span className="ui-data-table__nil">—</span>;
   return <>{text}</>;
 }
@@ -144,7 +149,8 @@ export interface SelectColumnOptions {
 /**
  * Colonne de sélection : case d'en-tête tri-état (« Tout sélectionner » sur
  * la page) et case par ligne, avec Maj+clic pour une plage. Ajoutée d'office
- * par `DataTable` quand `enableRowSelection` est vrai.
+ * par `DataTable` quand `enableRowSelection` est vrai. Figée au début : elle
+ * reste visible quand la table défile horizontalement.
  */
 export function selectColumn<TData>(options: SelectColumnOptions = {}): ColumnDef<TData, unknown> {
   return {
@@ -155,7 +161,105 @@ export function selectColumn<TData>(options: SelectColumnOptions = {}): ColumnDe
     enableHiding: false,
     enableColumnFilter: false,
     enableGlobalFilter: false,
-    meta: { width: 48, exportable: false, cellClassName: "ui-data-table__select-cell", headerClassName: "ui-data-table__select-cell" },
+    enablePinning: false,
+    enableResizing: false,
+    // Largeur en mise en page fixe (colonnes redimensionnables), marges comprises.
+    size: 56,
+    meta: {
+      width: 48,
+      exportable: false,
+      pin: "start",
+      cellClassName: "ui-data-table__select-cell",
+      headerClassName: "ui-data-table__select-cell",
+    },
+  };
+}
+
+/* ── Dépliage ──────────────────────────────────────────────────────── */
+
+const ChevronIcon = () => (
+  <svg className="ui-data-table__expand-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+    <path d="m6 3.5 4.5 4.5L6 12.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+/**
+ * Chevron d'une ligne dépliable : `aria-expanded`, `aria-controls` vers la
+ * ligne de détail, « Afficher le détail de F-2026-0012 ». Rien pour une ligne
+ * qui ne se déplie pas.
+ */
+export function DataTableExpandButton({ row, label }: { row: Row<any>; label?: string }) {
+  const labels = useDataTableLabels();
+  const rowLabel = useRowLabel(row);
+  const view = React.useContext(DataTableViewContext);
+  if (!row.getCanExpand()) return null;
+  const expanded = row.getIsExpanded();
+  return (
+    <button
+      type="button"
+      data-slot="data-table-expand"
+      className="ui-data-table__expand"
+      aria-expanded={expanded}
+      aria-controls={expanded ? view?.getDetailId(row) : undefined}
+      aria-label={label ?? (expanded ? labels.collapseRow(rowLabel) : labels.expandRow(rowLabel))}
+      onClick={() => row.toggleExpanded()}
+    >
+      <ChevronIcon />
+    </button>
+  );
+}
+
+/** Chevron d'en-tête : déplie ou replie toutes les lignes. */
+export function DataTableExpandAllButton({ table, label }: { table: Table<any>; label?: string }) {
+  const labels = useDataTableLabels();
+  const all = table.getIsAllRowsExpanded();
+  const disabled = !table.getCanSomeRowsExpand();
+  return (
+    <button
+      type="button"
+      data-slot="data-table-expand-all"
+      className="ui-data-table__expand"
+      aria-expanded={all}
+      aria-label={label ?? (all ? labels.collapseAll : labels.expandAll)}
+      disabled={disabled}
+      onClick={() => table.toggleAllRowsExpanded(!all)}
+    >
+      <ChevronIcon />
+    </button>
+  );
+}
+
+export interface ExpandColumnOptions {
+  /** Identifiant de la colonne. Par défaut `expand`. */
+  id?: string;
+}
+
+/**
+ * Colonne de dépliage : chevron par ligne dépliable (panneau de détail ou
+ * lignes enfants) et chevron d'en-tête « Tout déplier ». Ajoutée d'office par
+ * `DataTable` avec `renderSubComponent` ou `getSubRows`, juste après la case
+ * de sélection. Figée au début.
+ */
+export function expandColumn<TData>(options: ExpandColumnOptions = {}): ColumnDef<TData, unknown> {
+  return {
+    id: options.id ?? "expand",
+    header: ({ table }) => <DataTableExpandAllButton table={table} />,
+    cell: ({ row }) => <DataTableExpandButton row={row} />,
+    enableSorting: false,
+    enableHiding: false,
+    enableColumnFilter: false,
+    enableGlobalFilter: false,
+    enablePinning: false,
+    enableResizing: false,
+    // Chevron de 28 px sans marge de fin (data-table.css) : 48 px suffisent, en tête comme après la case.
+    size: 48,
+    meta: {
+      width: 28,
+      exportable: false,
+      pin: "start",
+      cellClassName: "ui-data-table__expand-cell",
+      headerClassName: "ui-data-table__expand-cell",
+    },
   };
 }
 
@@ -200,7 +304,8 @@ export interface ActionsColumnOptions {
 }
 
 /**
- * Colonne d'actions : un bouton « ⋯ » par ligne qui ouvre un menu.
+ * Colonne d'actions : un bouton « ⋯ » par ligne qui ouvre un menu. Figée à la
+ * fin : elle reste visible quand la table défile horizontalement.
  *
  *   actionsColumn<Facture>((row) => (
  *     <>
@@ -221,7 +326,16 @@ export function actionsColumn<TData>(
     enableHiding: false,
     enableColumnFilter: false,
     enableGlobalFilter: false,
-    meta: { width: 56, exportable: false, cellClassName: "ui-data-table__actions-cell", headerClassName: "ui-data-table__actions-cell" },
+    enablePinning: false,
+    enableResizing: false,
+    size: 72,
+    meta: {
+      width: 56,
+      exportable: false,
+      pin: "end",
+      cellClassName: "ui-data-table__actions-cell",
+      headerClassName: "ui-data-table__actions-cell",
+    },
   };
 }
 

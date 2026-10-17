@@ -14,7 +14,7 @@ import {
   ListItemIcon,
   ListSection,
   Text,
-} from "@acme/ui";
+} from "@rovia/ui";
 import {
   BatteryFull,
   Bell,
@@ -135,6 +135,7 @@ const meta = {
   component: BottomNavigation,
   tags: ["autodocs"],
   parameters: {
+    registry: "bottom-navigation",
     docs: {
       description: {
         component:

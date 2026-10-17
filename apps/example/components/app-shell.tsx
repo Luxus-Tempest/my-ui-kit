@@ -33,8 +33,9 @@ import {
   SidebarRail,
   SidebarTrigger,
   Tooltip,
-} from "@acme/ui";
-import { Files, FileText, LayoutDashboard, Monitor, Moon, Sun, Users } from "lucide-react";
+} from "@rovia/ui";
+import { Files, FileText, Languages, LayoutDashboard, Monitor, Moon, Sun, Users } from "lucide-react";
+import { useLangue, type Langue } from "./providers";
 
 const PAGES = [
   { href: "/", label: "Tableau de bord", icon: LayoutDashboard },
@@ -63,6 +64,29 @@ function ThemeMenu() {
           <MenuRadioItem value="light">Clair</MenuRadioItem>
           <MenuRadioItem value="dark">Sombre</MenuRadioItem>
           <MenuRadioItem value="system">Système</MenuRadioItem>
+        </MenuRadioGroup>
+      </MenuContent>
+    </Menu>
+  );
+}
+
+function LanguageMenu() {
+  const { langue, setLangue } = useLangue();
+  return (
+    <Menu>
+      <Tooltip content="Langue">
+        <MenuTrigger asChild>
+          <Button size="icon" variant="ghost" aria-label="Changer de langue">
+            <Languages />
+          </Button>
+        </MenuTrigger>
+      </Tooltip>
+      <MenuContent align="end">
+        <MenuLabel>Langue des composants</MenuLabel>
+        <MenuRadioGroup value={langue} onValueChange={(value) => setLangue(value as Langue)}>
+          <MenuRadioItem value="fr">Français</MenuRadioItem>
+          <MenuRadioItem value="en">English</MenuRadioItem>
+          <MenuRadioItem value="ar" lang="ar">العربية</MenuRadioItem>
         </MenuRadioGroup>
       </MenuContent>
     </Menu>
@@ -136,6 +160,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span>{current?.label}</span>
           </AppBarTitle>
           <AppBarActions>
+            <LanguageMenu />
             <ThemeMenu />
           </AppBarActions>
         </AppBar>

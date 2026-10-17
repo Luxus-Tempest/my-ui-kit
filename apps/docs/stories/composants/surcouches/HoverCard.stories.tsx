@@ -12,7 +12,7 @@ import {
   Link,
   ListItemIcon,
   Text,
-} from "@acme/ui";
+} from "@rovia/ui";
 import { CalendarDays, Clock, FileSpreadsheet, MapPin, Users } from "lucide-react";
 import { Row } from "../../_shared/demo";
 
@@ -70,6 +70,7 @@ const meta = {
   component: HoverCard,
   tags: ["autodocs"],
   parameters: {
+    registry: "hover-card",
     docs: {
       description: {
         component:

@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Avatar, AvatarFallback, Message, MessageAttachment, MessageGroup, Text } from "@acme/ui";
+import { Avatar, AvatarFallback, Message, MessageAttachment, MessageGroup, Text } from "@rovia/ui";
 import { FileText, FileSpreadsheet } from "lucide-react";
 
 // Image de démonstration (données, pas un jeton de style).
@@ -40,6 +40,7 @@ const meta = {
   component: Message,
   tags: ["autodocs"],
   parameters: {
+    registry: "chat",
     docs: {
       description: {
         component:

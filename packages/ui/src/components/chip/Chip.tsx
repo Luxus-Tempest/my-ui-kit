@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../../utils/cn";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 const CheckIcon = () => (
   <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -11,6 +12,12 @@ const CloseIcon = () => (
     <path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
   </svg>
 );
+
+export interface ChipLabels {
+  /** Bouton de retrait d'une puce d'entrée. « Retirer Inès », ou « Retirer » sans texte. */
+  remove: (label?: string) => string;
+}
+export const CHIP_LABELS: ChipLabels = { remove: (label) => (label ? `Retirer ${label}` : "Retirer") };
 
 export interface ChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /**
@@ -39,6 +46,7 @@ export const Chip = React.forwardRef<HTMLButtonElement, ChipProps>(function Chip
   { className, selected, icon, onRemove, removeLabel, children, type, onKeyDown, ...props },
   ref,
 ) {
+  const chipLabels = useMessages("chip", CHIP_LABELS);
   const leading = selected ? <CheckIcon /> : icon;
   const button = (
     <button
@@ -65,7 +73,7 @@ export const Chip = React.forwardRef<HTMLButtonElement, ChipProps>(function Chip
 
   if (!onRemove) return button;
 
-  const label = removeLabel ?? (typeof children === "string" ? `Retirer ${children}` : "Retirer");
+  const label = removeLabel ?? chipLabels.remove(typeof children === "string" ? children : undefined);
   return (
     <span className="ui-chip-group" data-selected={selected || undefined}>
       {button}

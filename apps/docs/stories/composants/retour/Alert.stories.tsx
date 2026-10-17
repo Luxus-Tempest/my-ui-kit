@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Alert, AlertAction, AlertDescription, AlertTitle, Button, Link, Stack } from "@acme/ui";
+import { Alert, AlertAction, AlertDescription, AlertTitle, Button, Link, Stack } from "@rovia/ui";
 
 const meta = {
   title: "Composants/Retour/Alert",
   component: Alert,
   tags: ["autodocs"],
   parameters: {
+    registry: "alert",
     docs: {
       description: {
         component:

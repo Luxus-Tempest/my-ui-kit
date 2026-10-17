@@ -2,6 +2,7 @@ import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import { cn } from "../../utils/cn";
 import { Button, type ButtonProps } from "../button/Button";
+import { useMessages } from "../../i18n/LocaleProvider";
 
 /**
  * Confirmation bloquante : pas de croix, pas de fermeture au clic sur le voile.
@@ -83,14 +84,21 @@ export const AlertDialogAction = React.forwardRef<HTMLButtonElement, ButtonProps
   );
 });
 
+export interface AlertDialogLabels {
+  /** Bouton d'annulation par défaut. « Annuler ». */
+  cancel: string;
+}
+export const ALERT_DIALOG_LABELS: AlertDialogLabels = { cancel: "Annuler" };
+
 export const AlertDialogCancel = React.forwardRef<HTMLButtonElement, ButtonProps>(function AlertDialogCancel(
-  { variant = "outline", children = "Annuler", ...props },
+  { variant = "outline", children, ...props },
   ref,
 ) {
+  const { cancel } = useMessages("alertDialog", ALERT_DIALOG_LABELS);
   return (
     <AlertDialogPrimitive.Cancel asChild>
       <Button ref={ref} variant={variant} {...props}>
-        {children}
+        {children ?? cancel}
       </Button>
     </AlertDialogPrimitive.Cancel>
   );

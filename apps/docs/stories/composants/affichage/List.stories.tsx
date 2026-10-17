@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Avatar, AvatarFallback, Badge, List, ListItem, ListItemIcon, ListSection, Switch } from "@acme/ui";
+import { Avatar, AvatarFallback, Badge, List, ListItem, ListItemIcon, ListSection, Switch } from "@rovia/ui";
 import { ClockIcon, CloudIcon, DownloadIcon, FolderIcon, HomeIcon, StarIcon, TrashIcon } from "../../_shared/icons";
 
 const meta = {
@@ -8,6 +8,7 @@ const meta = {
   component: List,
   tags: ["autodocs"],
   parameters: {
+    registry: "list",
     docs: {
       description: {
         component:

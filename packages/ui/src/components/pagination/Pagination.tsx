@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../utils/cn";
+import { useLocale, useMessages } from "../../i18n/LocaleProvider";
 
 /* ── Calcul de la plage ────────────────────────────────────────────── */
 
@@ -108,7 +109,7 @@ export interface PaginationProps extends Omit<React.HTMLAttributes<HTMLElement>,
   labels?: PaginationLabels;
 }
 
-const DEFAULT_LABELS: Required<PaginationLabels> = {
+export const PAGINATION_LABELS: Required<PaginationLabels> = {
   nav: "Pagination",
   previous: "Page précédente",
   next: "Page suivante",
@@ -152,7 +153,7 @@ export const Pagination = React.forwardRef<HTMLElement, PaginationProps>(functio
   },
   ref,
 ) {
-  const labels = { ...DEFAULT_LABELS, ...labelsProp };
+  const labels = { ...useMessages("pagination", PAGINATION_LABELS), ...labelsProp };
   const [uncontrolled, setUncontrolled] = React.useState(defaultPage);
   const count = Math.max(1, Math.floor(pageCount));
   const page = Math.min(Math.max(1, pageProp ?? uncontrolled), count);
