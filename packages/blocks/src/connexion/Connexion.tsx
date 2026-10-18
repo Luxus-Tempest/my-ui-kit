@@ -121,7 +121,7 @@ export function Connexion({
     <Screen appName={appName} logo={logo}>
       <Card variant="elevated" style={{ width: "100%", padding: 28, gap: 20 }}>
         <CardHeader style={{ textAlign: "center", display: "grid", justifyItems: "center" }}>
-          <CardTitle style={{ fontSize: 22 }}>{title}</CardTitle>
+          <CardTitle role="heading" aria-level={1} style={{ fontSize: 22 }}>{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}
         </CardHeader>
         <CardContent>

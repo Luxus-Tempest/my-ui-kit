@@ -66,8 +66,16 @@ page *Introduction › Statut des composants* de la documentation.
 | Messagerie | `MessageList`, `MessageGroup`, `Message`, `ChatComposer`, `TypingIndicator`, `MessageDateSeparator` | — |
 | Graphiques | `LineChart`, `BarChart`, `DonutChart`, `Chart` (option ECharts libre) | Apache ECharts 6 |
 
-Les **Blocs** de Storybook assemblent ces composants en écrans complets (application, tableau de bord, formulaire client,
-connexion, paramètres, messagerie) : point de départ à copier.
+Les **Blocs** assemblent ces composants en écrans complets (`application`, `tableau-de-bord`, `drive`, `messagerie`,
+`formulaire-client`, `parametres`, `connexion`, `inscription`). Ils vivent dans `packages/blocks` et s'installent dans ton
+application, copiés pour être modifiés, avec leurs données d'exemple :
+
+```bash
+pnpm dlx shadcn@4.21.4 add @rovia/tableau-de-bord
+```
+
+Un composant peut aussi être éjecté (`add @rovia/button`) : son seul dossier est copié, le reste vient du paquet. Mise en
+place unique (un `components.json`) : *Introduction › Bienvenue* dans Storybook.
 
 ### DataTable : la table de gestion clé en main
 

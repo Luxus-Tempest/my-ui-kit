@@ -9,7 +9,7 @@ _Ce sont des recommandations pour garder ton travail en ordre, pas des obligatio
 
 ## Avancement par épique
 
-- [Socle](socle.md) : ce qui existe déjà, plus les fondations du registre et du starter. 1 / 5 (dont 1 `in-progress`), plus 5 `existing`.
+- [Socle](socle.md) : ce qui existe déjà, plus les fondations du registre et du starter. 2 / 5 (dont 1 `in-progress`), plus 5 `existing`.
 - [Lot 1, ERP](erp.md) : formulaires, saisies avancées, bloc CRUD et documents imprimables. 0 / 8.
 - [Lot 2, IA, chat et streaming](ia.md) : réponses en streaming, étapes d'agent, lecteur média, messagerie complète. 0 / 7.
 - [Lot 3, gestion documentaire](documents.md) : visionneuse, éditeur riche, explorateur. 0 / 3.
@@ -29,7 +29,7 @@ _Ce sont des recommandations pour garder ton travail en ordre, pas des obligatio
 | 6 | DataTable ERP | Foundation | in-progress |
 | 7 | Conventions et contexte IA du dépôt | Foundation | planned |
 | 8 | Registre de blocs installables | Foundation | done |
-| 9 | Blocs existants dans le registre | Skeleton | planned |
+| 9 | Blocs existants dans le registre | Skeleton | done |
 | 10 | Starter d'application | Skeleton | planned |
 | 11 | Formulaire avec validation | Slice 1 | planned |
 | 12 | Sélection multiple et tags | Slice 1 | planned |

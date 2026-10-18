@@ -40,10 +40,11 @@ Spec [0001](../../specs/_root/0001-registre-blocs-installables/index.md) · code
 
 ## Skeleton
 
-### 9. Blocs existants dans le registre
+### 9. Blocs existants dans le registre · done
 Passer les 7 blocs de Storybook dans le registre, pour que les stories et l'installation partagent le même code source.
 **Done when:** les 7 blocs s'installent par le registre, leurs stories affichent le même code, et chacun passe axe et la capture visuelle.
-- [ ] Build it: `/develop blocs existants dans le registre`
+- [x] Build it: `/develop blocs existants dans le registre`
+Code in `packages/blocks/src/` (connexion, inscription, application, tableau-de-bord, drive, messagerie, formulaire-client, parametres)
 
 ### 10. Starter d'application · needs a decision
 Un modèle d'application tiré de `apps/example`, pour qu'une nouvelle application démarre en quelques minutes avec la coque, le thème, les langues et les écrans d'auth déjà branchés.

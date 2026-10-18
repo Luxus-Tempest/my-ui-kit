@@ -7,7 +7,7 @@
  *  2. registre construit avec `@rovia/ui@file:<archive>`, servi en local ;
  *  3. `create-next-app` sans Tailwind, mise en place (paquet, styles.css,
  *     ThemeProvider, components.json) ;
- *  4. `shadcn add @rovia/connexion @rovia/button` (bloc + éjection), redirection
+ *  4. `shadcn add` de tous les blocs et de `@rovia/button` (éjection), redirection
  *     de `@rovia/ui/button` vers la copie, règle CSS modifiée dans la copie ;
  *  5. vérification des types, build, puis navigateur : le bloc s'affiche en clair
  *     et en sombre, l'erreur s'annonce à la soumission, la règle de la copie
@@ -122,7 +122,10 @@ try {
   await writeFile(layoutFile, layout);
 
   step(`Bloc et éjection (shadcn ${versions.shadcn})`);
-  await run("pnpm", ["dlx", `shadcn@${versions.shadcn}`, "add", "@rovia/connexion", "@rovia/button", "--yes"], app);
+  // Tous les blocs (la vérification des types de l'application les compile tous), plus l'éjection de button.
+  const blocks = items.filter((i) => i.type === "registry:block").map((i) => `@rovia/${i.name}`);
+  check(blocks.includes("@rovia/connexion"), `${blocks.length} blocs à installer`);
+  await run("pnpm", ["dlx", `shadcn@${versions.shadcn}`, "add", ...blocks, "@rovia/button", "--yes"], app);
   const blockFile = join(app, "components/blocks/connexion/Connexion.tsx");
   const blockCode = await readFile(blockFile, "utf8");
   check(blockCode.startsWith(`"use client";\n/* @rovia/ui ${uiPkg.version} · connexion */`), "en tête du bloc : directive puis version (AC-5)");
