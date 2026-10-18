@@ -1,0 +1,7 @@
+.next
+node_modules
+pnpm-lock.yaml
+playwright-report
+test-results
+# Copies du registre @rovia (régénérées par shadcn add)
+components/blocks

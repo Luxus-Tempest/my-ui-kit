@@ -101,7 +101,7 @@ const preview: Preview = {
             "Graphiques",
           ],
           "Blocs",
-          ["Application", "Tableau de bord", "Drive", "Messagerie", "Formulaire client", "Authentification", "Paramètres"],
+          ["Application", "Coque d'application", "Tableau de bord", "Drive", "Messagerie", "Formulaire client", "Authentification", "Paramètres"],
         ],
       },
     },

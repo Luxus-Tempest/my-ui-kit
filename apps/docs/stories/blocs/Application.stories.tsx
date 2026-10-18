@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { Toaster } from "@rovia/ui";
 import { Application, applicationSample } from "@rovia/blocks/application";
 
 const meta: Meta = {
@@ -24,5 +25,10 @@ export default meta;
 export const Ecran: StoryObj = {
   name: "Écran complet",
   parameters: { registry: "application" },
-  render: () => <Application {...applicationSample} />,
+  render: () => (
+    <>
+      <Application {...applicationSample} />
+      <Toaster />
+    </>
+  ),
 };

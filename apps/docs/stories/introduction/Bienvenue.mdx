@@ -34,6 +34,18 @@ Le thème sombre s'active par `ThemeProvider` ou par la classe `.dark` sur un pa
 fonctionne telle quelle avec `next-themes`. Les surcharges de jetons passent par
 `<ThemeProvider overrides={{ pri: "#0b57d0" }}>`.
 
+## Créer une application
+
+Une application Next.js complète, prête en une commande : coque, connexion et inscription, tableau de bord, paramètres,
+thème clair et sombre, français, anglais et arabe, palette ⌘K, pages système, SEO, tests et CI.
+
+```bash
+pnpm create next-app mon-app --example https://github.com/Luxus-Tempest/my-ui-kit/tree/starter/templates/next
+```
+
+L'authentification passe par un seul fichier, `lib/auth.ts` : branche y ton fournisseur. En attendant, une démonstration
+accepte toute adresse (elle refuse de fonctionner en production).
+
 ## Blocs et éjection (registre)
 
 Les **blocs** (écrans complets) s'installent dans ton application, copiés pour être modifiés

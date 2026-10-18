@@ -6,7 +6,8 @@
   "scripts": {
     "registry": "node src/cli.mjs",
     "test": "node --test test/build.test.mjs",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "template-smoke": "node scripts/template-smoke.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

@@ -12,7 +12,7 @@ import { Progress } from "@rovia/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@rovia/ui/select";
 import { Switch } from "@rovia/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@rovia/ui/tabs";
-import { toast, Toaster } from "@rovia/ui/toast";
+import { toast } from "@rovia/ui/toast";
 import { Heading, Text } from "@rovia/ui/typography";
 import { Bell, CreditCard, KeyRound, Laptop, Mail, MessageSquare, Shield, Smartphone, Trash2, User } from "lucide-react";
 
@@ -260,7 +260,6 @@ function Billing({ plan, paymentMethod }: { plan: ParametresPlan; paymentMethod:
 export function Parametres({ user, devices, plan, paymentMethod, deleteDescription, onSaveProfile, onDeleteAccount }: ParametresProps) {
   return (
     <div style={{ maxWidth: 1040 }}>
-      <Toaster />
       <Stack gap={1} style={{ marginBottom: 24 }}>
         <Heading level={1} size="lg">Paramètres</Heading>
         <Text tone="muted">Gérez votre compte, votre sécurité et vos préférences.</Text>

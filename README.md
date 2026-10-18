@@ -2,6 +2,18 @@
 
 Librairie de composants React façon MUI, construite sur **Radix UI** (logique + accessibilité) avec une couche de style maison en **variables CSS** et un langage visuel **Drive × iOS**. Clair, sombre, droite à gauche ; chaque composant est testé (comportement + axe) et documenté dans Storybook.
 
+## Créer une application
+
+```bash
+pnpm create next-app mon-app --example https://github.com/Luxus-Tempest/my-ui-kit/tree/starter/templates/next
+```
+
+L'application démarre complète : coque, connexion et inscription, tableau de bord, paramètres, thème clair et sombre,
+français, anglais et arabe (RTL), palette ⌘K, pages système, SEO, tests Playwright et CI. L'authentification passe par un
+seul fichier, `lib/auth.ts`, où tu branches ton fournisseur. Le modèle vit dans `templates/next` (hors du workspace) ; ses
+blocs sont des copies du registre, régénérées par `pnpm template:sync` et contrôlées par `pnpm template:check`. La branche
+`starter` ne bouge qu'après une publication npm.
+
 ## Démarrer
 
 ```bash

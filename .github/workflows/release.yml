@@ -35,8 +35,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Changesets
+        id: changesets
         uses: changesets/action@v1
         with:
+          # La PR de version régénère aussi les blocs du starter (version de @rovia/ui dans les en têtes).
+          version: pnpm run version-packages
           publish: pnpm release
           title: "Version des paquets"
           commit: "Version des paquets"
@@ -45,3 +48,10 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"
+
+      # Après une publication : la branche `starter` reçoit l'état publié de main. La commande de
+      # création (`create-next-app --example …/tree/starter/templates/next`) ne propose donc jamais
+      # un bloc qui attend une version de @rovia/ui pas encore publiée (spec 0002, AC-15).
+      - name: Mettre à jour la branche starter
+        if: steps.changesets.outputs.published == 'true'
+        run: git push origin HEAD:starter --force

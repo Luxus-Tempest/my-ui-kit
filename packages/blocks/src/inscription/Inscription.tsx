@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Alert, AlertDescription } from "@rovia/ui/alert";
 import { Button } from "@rovia/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@rovia/ui/card";
 import { Checkbox } from "@rovia/ui/checkbox";
@@ -27,6 +28,8 @@ export interface InscriptionProps {
   description?: string;
   /** Appelé à la soumission, quand le mot de passe est assez fort et les conditions acceptées. */
   onSubmit: (values: InscriptionValues) => void;
+  /** Erreur globale (adresse déjà utilisée, conditions non acceptées…), annoncée au dessus des champs. */
+  error?: string | null;
   /** Envoi en cours : le bouton se désactive. */
   pending?: boolean;
   signInHref?: string;
@@ -79,6 +82,7 @@ export function Inscription({
   title = "Créer un compte",
   description,
   onSubmit,
+  error,
   pending = false,
   signInHref,
   namePlaceholder = "Inès Benali",
@@ -109,6 +113,11 @@ export function Inscription({
             }}
           >
             <Stack gap={4}>
+              {error && (
+                <Alert tone="err">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
               <Field label="Nom complet">
                 <Input name="name" autoComplete="name" placeholder={namePlaceholder} />
               </Field>

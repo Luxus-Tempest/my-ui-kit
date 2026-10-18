@@ -1,0 +1,56 @@
+/*
+ * Tailwind v4 déclare ses couches : theme, base, components, utilities.
+ * Les styles de @rovia/ui sont rangés dans « components » : ils l'emportent sur la remise à
+ * zéro de Tailwind (base), et une classe utilitaire posée sur un composant
+ * (`className="rounded-none"`) l'emporte sur eux.
+ */
+@import "tailwindcss";
+@import "@rovia/ui/styles.css" layer(components);
+
+/* `dark:` suit la classe `dark` posée par next-themes, pas seulement la préférence du système. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Les jetons de la librairie, utilisables comme couleurs et rayons Tailwind : `bg-panel`, `text-fg-2`, `rounded-lg`. */
+@theme inline {
+  --color-app: var(--ui-app);
+  --color-panel: var(--ui-panel);
+  --color-card: var(--ui-card-2);
+  --color-fg: var(--ui-fg);
+  --color-fg-2: var(--ui-fg-2);
+  --color-fg-3: var(--ui-fg-3);
+  --color-line: var(--ui-line);
+  --color-pri: var(--ui-pri);
+  --radius-lg: var(--ui-r-lg);
+  --radius-xl: var(--ui-r-xl);
+  --font-sans: var(--ui-font-sans);
+}
+
+/* Inter (latin) et Noto Sans Arabic, servies par next/font. */
+:root {
+  --ui-font-sans: var(--font-inter), var(--font-arabic), system-ui, sans-serif;
+}
+
+body {
+  background: var(--ui-app);
+  color: var(--ui-fg);
+  font-family: var(--ui-font-sans);
+}
+
+/* Lien « Aller au contenu » : invisible jusqu'à ce qu'il reçoive le focus clavier. */
+.skip-link {
+  position: fixed;
+  inset-inline-start: 12px;
+  top: 12px;
+  z-index: 100;
+  padding: 8px 16px;
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-pri);
+  color: var(--ui-pri-fg);
+  font-weight: 500;
+  transform: translateY(-200%);
+}
+.skip-link:focus-visible {
+  transform: none;
+  outline: 2px solid var(--ui-pri);
+  outline-offset: 2px;
+}

@@ -12,7 +12,10 @@
     "release": "turbo run build --filter=@rovia/ui && changeset publish",
     "size": "turbo run size",
     "e2e": "turbo run e2e",
-    "registry:build": "node packages/registry/src/cli.mjs"
+    "registry:build": "node packages/registry/src/cli.mjs",
+    "template:sync": "node packages/registry/src/template.mjs",
+    "template:check": "node packages/registry/src/template.mjs --check",
+    "version-packages": "changeset version && pnpm template:sync"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.0",

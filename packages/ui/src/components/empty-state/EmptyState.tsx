@@ -28,7 +28,7 @@ export const emptyStateVariants = cva("ui-empty-state", {
 type EmptyStateVariantProps = VariantProps<typeof emptyStateVariants>;
 export type EmptyStateVariant = NonNullable<EmptyStateVariantProps["variant"]>;
 export type EmptyStateSize = NonNullable<EmptyStateVariantProps["size"]>;
-export type EmptyStateTitleElement = "h2" | "h3" | "h4" | "h5" | "h6" | "p";
+export type EmptyStateTitleElement = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p";
 
 export interface EmptyStateProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title">, EmptyStateVariantProps {
   /** Pictogramme, posé dans une pastille ronde (décoratif, masqué aux lecteurs d'écran). */

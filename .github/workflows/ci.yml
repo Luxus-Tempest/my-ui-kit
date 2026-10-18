@@ -155,12 +155,43 @@ jobs:
           path: packages/registry/smoke-results
           retention-days: 7
 
+  # Le starter templates/next (spec 0002) : blocs identiques au registre, puis l'application
+  # créée hors du workspace avec l'archive locale de @rovia/ui : types, lint, Prettier, build,
+  # tests Playwright (dont le refus de la démo en production).
+  starter:
+    name: Starter d'application
+    needs: verifier
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Installer les dépendances
+        run: pnpm install --frozen-lockfile
+
+      - name: Blocs du starter à jour avec le registre
+        run: pnpm template:check
+
+      - name: Construire le paquet
+        run: pnpm --filter @rovia/ui build
+
+      - name: Installer Chromium
+        run: pnpm --filter @rovia/registry exec playwright install --with-deps chromium
+
+      - name: Créer, construire et tester le starter
+        run: pnpm --filter @rovia/registry template-smoke
+
   # Storybook et le registre (r/*.json), construits par le job « verifier »,
   # publiés ensemble sur GitHub Pages à chaque push sur main.
   deployer:
     name: Déployer la documentation et le registre
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [verifier, navigateur, registre]
+    needs: [verifier, navigateur, registre, starter]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:

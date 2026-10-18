@@ -10,7 +10,7 @@ import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from "@rovia/
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, SidebarTrigger } from "@rovia/ui/sidebar";
 import { Stat, StatGroup } from "@rovia/ui/stat";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@rovia/ui/tabs";
-import { toast, Toaster } from "@rovia/ui/toast";
+import { toast } from "@rovia/ui/toast";
 import { Tooltip } from "@rovia/ui/tooltip";
 import { Heading, Text } from "@rovia/ui/typography";
 import {
@@ -431,7 +431,6 @@ export function Application({
           </div>
         )}
       </SidebarInset>
-      <Toaster />
     </SidebarProvider>
   );
 }

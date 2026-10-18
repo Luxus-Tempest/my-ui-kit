@@ -51,8 +51,8 @@ Un modèle d'application tiré de `apps/example`, pour qu'une nouvelle applicati
 **Done when:** une commande crée une application qui démarre, affiche la coque et la connexion, bascule clair, sombre et RTL.
 - [x] Design it (spec): `/architect starter d'application`
 - [ ] Build it: `/develop starter d'application`
-   - [ ] Bloc coque-application et ajustements des blocs (AC-3, AC-6, AC-8)
-   - [ ] Fil fin : modèle minimal, auth de démo, coque, tableau de bord, synchronisation des blocs (AC-1, AC-2, AC-6, AC-7, AC-12, AC-13)
+   - [x] Bloc coque-application et ajustements des blocs (AC-3, AC-6, AC-8)
+   - [x] Fil fin : modèle minimal, auth de démo, coque, tableau de bord, synchronisation des blocs (AC-1, AC-2, AC-6, AC-7, AC-12, AC-13)
    - [ ] CI du modèle, branche starter, langue et thème (AC-4, AC-5, AC-14, AC-15)
-   - [ ] Paramètres, ⌘K, pages système, SEO, sécurité, qualité et documentation (AC-2, AC-8 à AC-11)
-Spec [0002](../../specs/_root/0002-starter-application/index.md)
+   - [x] Paramètres, ⌘K, pages système, SEO, sécurité, qualité et documentation (AC-2, AC-8 à AC-11)
+Spec [0002](../../specs/_root/0002-starter-application/index.md) · code in `templates/next/`, `packages/blocks/src/coque-application/`, `packages/registry/src/template.mjs`

@@ -1,0 +1,4 @@
+{
+  "$comment": "Blocs du registre @rovia copiés dans ce modèle. Dans le dépôt de la librairie, `pnpm template:sync` les régénère.",
+  "blocks": ["coque-application", "connexion", "inscription", "tableau-de-bord", "parametres"]
+}
