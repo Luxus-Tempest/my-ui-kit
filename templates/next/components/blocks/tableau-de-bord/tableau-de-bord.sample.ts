@@ -1,5 +1,5 @@
 "use client";
-/* @rovia/ui 1.0.0 · tableau-de-bord */
+/* @rovia/ui 1.1.0 · tableau-de-bord */
 import type { TableauDeBordProps } from "./TableauDeBord";
 
 /**

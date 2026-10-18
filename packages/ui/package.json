@@ -1,6 +1,6 @@
 {
   "name": "@rovia/ui",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Librairie de composants React accessible, basée sur Radix UI",
   "repository": {
     "type": "git",

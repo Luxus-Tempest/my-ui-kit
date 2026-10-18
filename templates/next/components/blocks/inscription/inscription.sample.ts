@@ -1,5 +1,5 @@
 "use client";
-/* @rovia/ui 1.0.0 · inscription */
+/* @rovia/ui 1.1.0 · inscription */
 import type { InscriptionProps } from "./Inscription";
 
 /**

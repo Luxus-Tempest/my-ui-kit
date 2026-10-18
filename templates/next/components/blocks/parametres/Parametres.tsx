@@ -1,5 +1,5 @@
 "use client";
-/* @rovia/ui 1.0.0 · parametres */
+/* @rovia/ui 1.1.0 · parametres */
 import * as React from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger } from "@rovia/ui/alert-dialog";
 import { Avatar, AvatarFallback } from "@rovia/ui/avatar";

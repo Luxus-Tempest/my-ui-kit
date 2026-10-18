@@ -1,5 +1,5 @@
 "use client";
-/* @rovia/ui 1.0.0 · tableau-de-bord */
+/* @rovia/ui 1.1.0 · tableau-de-bord */
 import * as React from "react";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@rovia/ui/card";
 import { BarChart, DonutChart, LineChart } from "@rovia/ui/chart";
