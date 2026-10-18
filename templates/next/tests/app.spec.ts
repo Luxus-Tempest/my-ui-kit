@@ -23,6 +23,13 @@ async function signIn(page: Page, email = "nadia@exemple.ma") {
   await page.getByRole("button", { name: "Se connecter" }).click();
 }
 
+/** Attend la fin de la redirection après connexion : une navigation lancée avant serait annulée. */
+async function signedIn(page: Page, path: RegExp) {
+  await expect(page).toHaveURL(path);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await page.waitForLoadState("networkidle");
+}
+
 for (const theme of ["light", "dark"] as const) {
   test.describe(`thème ${theme}`, () => {
     test.use({ colorScheme: theme });
@@ -44,7 +51,7 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/tableau-de-bord");
       await expect(page).toHaveURL(/\/connexion\?suivant=%2Ftableau-de-bord/);
       await signIn(page);
-      await expect(page).toHaveURL(/\/tableau-de-bord$/);
+      await signedIn(page, /\/tableau-de-bord$/);
       for (const path of ["/tableau-de-bord", "/parametres"]) {
         await page.goto(path);
         await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
@@ -58,7 +65,7 @@ for (const theme of ["light", "dark"] as const) {
 test("retour à la page demandée, et pas vers un autre site", async ({ page }) => {
   await page.goto("/parametres");
   await signIn(page);
-  await expect(page).toHaveURL(/\/parametres$/);
+  await signedIn(page, /\/parametres$/);
   await page.context().clearCookies();
   await page.goto("/connexion?suivant=%2F%2Fexemple.com");
   await signIn(page);
