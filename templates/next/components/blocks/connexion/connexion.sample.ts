@@ -1,5 +1,5 @@
 "use client";
-/* @rovia/ui 1.0.0 · connexion */
+/* @rovia/ui 1.1.0 · connexion */
 import type { ConnexionProps } from "./Connexion";
 
 /**

@@ -1,5 +1,5 @@
 "use client";
-/* @rovia/ui 1.0.0 · coque-application */
+/* @rovia/ui 1.1.0 · coque-application */
 import { ChartColumn, House, Settings, Users } from "lucide-react";
 import type { CoqueApplicationProps } from "./CoqueApplication";
 

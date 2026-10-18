@@ -1,5 +1,5 @@
 "use client";
-/* @rovia/ui 1.0.0 · parametres */
+/* @rovia/ui 1.1.0 · parametres */
 import type { ParametresProps } from "./Parametres";
 
 /** Données d'exemple : le bloc s'affiche dès l'installation. Branche `onSaveProfile` et `onDeleteAccount`. */

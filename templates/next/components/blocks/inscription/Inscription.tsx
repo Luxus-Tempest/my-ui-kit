@@ -1,5 +1,5 @@
 "use client";
-/* @rovia/ui 1.0.0 · inscription */
+/* @rovia/ui 1.1.0 · inscription */
 import * as React from "react";
 import { Alert, AlertDescription } from "@rovia/ui/alert";
 import { Button } from "@rovia/ui/button";

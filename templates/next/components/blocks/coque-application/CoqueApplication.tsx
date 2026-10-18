@@ -1,5 +1,5 @@
 "use client";
-/* @rovia/ui 1.0.0 · coque-application */
+/* @rovia/ui 1.1.0 · coque-application */
 import * as React from "react";
 import { AppBar, AppBarActions, AppBarLeading, AppBarTitle } from "@rovia/ui/app-bar";
 import { Avatar, AvatarFallback } from "@rovia/ui/avatar";
