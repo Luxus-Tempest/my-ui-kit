@@ -1,0 +1,14 @@
+ChadCn public figmas link 
+design_system = https://www.figma.com/design/frKJnrFPHUSHsnLMCAv8V5/-shadcn-ui---Design-System--Community-
+full_library = https://www.figma.com/design/IqINsLkYLnhCPfGoUUGoNY/shadcn-ui-component-library--Community-?
+
+Button_variants= https://www.figma.com/design/Z7a8FqamCCiBZKxAZQgBm0/Button-variants--Community-
+
+MUI
+full_library = https://www.figma.com/design/LgY3H3sqWW4GSuAOi6IR9X/Material-UI-for-Figma--and-MUI-X---Community-
+
+adobe UI design : https://www.figma.com/design/Dj4BibCn0qojZYjkcaLJXO/Adobe-Spectrum-Design-System--Community-
+
+hubspot_ = https://www.figma.com/design/INOndHvNaLHnYjC647S2n3/HubSpot-Extensibility-Design-Kit--Community-
+hubspot_landing_pages = https://www.figma.com/design/eI2NfL4r1DgZ1Xv4cRLf0q/Hubspot----Landing-Page-UI----Web-To-Figma--Community-?node-id=1-4&t=6ffUkPw0brt2F52F-0
+(pour naylead, le design de hubspot aves les couleurs de adobe et bordure)
